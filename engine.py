@@ -5,16 +5,16 @@ DO NOT REMOVE, RENAME, OR EDIT THIS FILE
 
 '''
 The variant this year centers around an auction that occurs immediately after the flop
-is dealt for a single card. Both players are requested to submit a bid for the card, 
-after which the player with the higher bids wins the card. We will be utilizing a second 
-price auction in which the winner pays the amount that the other player bid. The player 
-who wins the auction receives the card, the amount the winner pays is deducted from their 
-bankroll, and the same amount is added to the pot. Note, in the case of ties, both players 
-are awarded a card and both players contribute to the pot. Bids are not capped. 
+is dealt for a single card. Both players are requested to submit a bid for the card,
+after which the player with the higher bids wins the card. We will be utilizing a second
+price auction in which the winner pays the amount that the other player bid. The player
+who wins the auction receives the card, the amount the winner pays is deducted from their
+bankroll, and the same amount is added to the pot. Note, in the case of ties, both players
+are awarded a card and both players contribute to the pot. Bids are not capped.
 '''
 
-''' 
-Note that changes made to the engine.py file will also have to be replicated in the 
+'''
+Note that changes made to the engine.py file will also have to be replicated in the
 each of the skeleton bot files accordingly
 '''
 
@@ -94,7 +94,7 @@ class RoundState(namedtuple('_RoundState', ['button', 'street', 'auction', 'bids
         '''
         Returns a set which corresponds to the active player's legal moves.
         '''
-        if self.auction: 
+        if self.auction:
             return {BidAction}
         active = self.button % 2
         continue_cost = self.pips[1-active] - self.pips[active]
@@ -191,7 +191,7 @@ class RoundState(namedtuple('_RoundState', ['button', 'street', 'auction', 'bids
             new_stacks[active] -= contribution
             new_pips[active] += contribution
             return RoundState(self.button + 1, self.street, self.auction, self.bids, new_pips, new_stacks, self.hands, self.deck, self)
-        
+
 
 
 class Player():
@@ -378,7 +378,7 @@ class Player():
                 game_log.append(self.name + ' response misformatted: ' + str(clause))
                 game_log.append('ValueError')
         # set a base bid action of 0 if pokerbot fails to submit legal bid action
-        if BidAction in legal_actions: 
+        if BidAction in legal_actions:
             return BidAction(0)
         return CheckAction() if CheckAction in legal_actions else FoldAction()
 
@@ -412,7 +412,7 @@ class Game():
             self.player_messages[0].append(compressed_board)
             self.player_messages[1].append(compressed_board)
         # engine communicates cards after the auction
-        if round_state.street == 3 and round_state.auction is False and round_state.button == 1: 
+        if round_state.street == 3 and round_state.auction is False and round_state.button == 1:
             self.player_messages[0].append('P0')
             self.player_messages[0].append('N' + ','.join([str(x) for x in round_state.stacks]) + '_' + ','.join([str(x) for x in round_state.bids]) + '_' + CCARDS(round_state.hands[0]))
             self.player_messages[1].append('P1')
@@ -457,7 +457,7 @@ class Game():
             self.log.append('Players did not reach flop. No auction occured.')
         else:
             self.log.append('Players submitted bids of {} and {}'.format(round_state.bids[0], round_state.bids[1]))
-        
+
         self.player_messages[0].append('D' + str(round_state.deltas[0]))
         self.player_messages[1].append('D' + str(round_state.deltas[1]))
 

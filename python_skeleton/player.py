@@ -38,11 +38,17 @@ class Player(Bot):
         Returns:
         Nothing.
         '''
-        my_bankroll = game_state.bankroll  # the total number of chips you've gained or lost from the beginning of the game to the start of this round
+        self.my_bankroll = game_state.bankroll  # the total number of chips you've gained or lost from the beginning of the game to the start of this round
         game_clock = game_state.game_clock  # the total number of seconds your bot has left to play this game
-        round_num = game_state.round_num  # the round number from 1 to NUM_ROUNDS
+        self.round_num = game_state.round_num  # the round number from 1 to NUM_ROUNDS
         my_cards = round_state.hands[active]  # your cards
         big_blind = bool(active)  # True if you are the big blind
+
+        range = [set(['A','K']), set(['A','Q']), set(['A','J']), set(['A','T']), set(['K','Q']), set(['K','J']), set(['Q','J'])]
+        isPair = my_cards[0] == my_cards[1]
+        isRange = set([my_cards[0][0], my_cards[1][0]]) in range
+
+        self.isGood = isPair or isRange
         pass
 
     def handle_round_over(self, game_state, terminal_state, active):
@@ -92,18 +98,27 @@ class Player(Bot):
         my_contribution = STARTING_STACK - my_stack  # the number of chips you have contributed to the pot
         opp_contribution = STARTING_STACK - opp_stack  # the number of chips your opponent has contributed to the pot
 
-        # if self.my_bankroll > 1.5 * (NUM_ROUNDS - self.round_num + 1):
-        #     return FoldAction()
+        if self.my_bankroll > 1.5 * (NUM_ROUNDS - self.round_num + 1):
+            if CheckAction in legal_actions:
+                return CheckAction()
+            return FoldAction()
 
         if BidAction in legal_actions:
-            return BidAction(my_stack)
+            if self.isGood:
+                return BidAction(my_stack)
+            else:
+                return BidAction(int(my_stack/2))
 
-        range = [set('A','K'), set('A','Q'), set('A','J'), set('A','T'), set('K','Q'), set('K','J'), set('Q','J')]
-        if my_cards[0][0] == my_cards[1][0] or set(my_cards[0][0], my_cards[1][0]) in range:
-            min_raise, max_raise = round_state.raise_bounds()  # the smallest and largest numbers of chips for a legal bet/raise
-            return RaiseAction(max_raise)
+        if RaiseAction in legal_actions:
+            if self.isGood or len(my_cards) == 3:
+                min_raise, max_raise = round_state.raise_bounds()  # the smallest and largest numbers of chips for a legal bet/raise
+                return RaiseAction(min_raise)
 
-        return CallAction()
+        if CheckAction in legal_actions:
+            return CheckAction()
+        if CallAction in legal_actions:
+            return CallAction()
+        return FoldAction()
 
 
 if __name__ == '__main__':
