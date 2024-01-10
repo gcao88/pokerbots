@@ -38,11 +38,11 @@ class Player(Bot):
         Returns:
         Nothing.
         '''
-        #my_bankroll = game_state.bankroll  # the total number of chips you've gained or lost from the beginning of the game to the start of this round
-        #game_clock = game_state.game_clock  # the total number of seconds your bot has left to play this game
-        #round_num = game_state.round_num  # the round number from 1 to NUM_ROUNDS
-        #my_cards = round_state.hands[active]  # your cards
-        #big_blind = bool(active)  # True if you are the big blind
+        my_bankroll = game_state.bankroll  # the total number of chips you've gained or lost from the beginning of the game to the start of this round
+        game_clock = game_state.game_clock  # the total number of seconds your bot has left to play this game
+        round_num = game_state.round_num  # the round number from 1 to NUM_ROUNDS
+        my_cards = round_state.hands[active]  # your cards
+        big_blind = bool(active)  # True if you are the big blind
         pass
 
     def handle_round_over(self, game_state, terminal_state, active):
@@ -57,11 +57,11 @@ class Player(Bot):
         Returns:
         Nothing.
         '''
-        #my_delta = terminal_state.deltas[active]  # your bankroll change from this round
-        #previous_state = terminal_state.previous_state  # RoundState before payoffs
-        #street = previous_state.street  # 0, 3, 4, or 5 representing when this round ended
-        #my_cards = previous_state.hands[active]  # your cards
-        #opp_cards = previous_state.hands[1-active]  # opponent's cards or [] if not revealed
+        my_delta = terminal_state.deltas[active]  # your bankroll change from this round
+        previous_state = terminal_state.previous_state  # RoundState before payoffs
+        street = previous_state.street  # 0, 3, 4, or 5 representing when this round ended
+        my_cards = previous_state.hands[active]  # your cards
+        opp_cards = previous_state.hands[1-active]  # opponent's cards or [] if not revealed
         pass
 
     def get_action(self, game_state, round_state, active):
@@ -79,28 +79,30 @@ class Player(Bot):
         '''
         # May be useful, but you may choose to not use.
         legal_actions = round_state.legal_actions()  # the actions you are allowed to take
-        # street = round_state.street  # 0, 3, 4, or 5 representing pre-flop, flop, turn, or river respectively
-        # my_cards = round_state.hands[active]  # your cards
-        # board_cards = round_state.deck[:street]  # the board cards
-        # my_pip = round_state.pips[active]  # the number of chips you have contributed to the pot this round of betting
-        # opp_pip = round_state.pips[1-active]  # the number of chips your opponent has contributed to the pot this round of betting
+        street = round_state.street  # 0, 3, 4, or 5 representing pre-flop, flop, turn, or river respectively
+        my_cards = round_state.hands[active]  # your cards
+        board_cards = round_state.deck[:street]  # the board cards
+        my_pip = round_state.pips[active]  # the number of chips you have contributed to the pot this round of betting
+        opp_pip = round_state.pips[1-active]  # the number of chips your opponent has contributed to the pot this round of betting
         my_stack = round_state.stacks[active]  # the number of chips you have remaining
-        # opp_stack = round_state.stacks[1-active]  # the number of chips your opponent has remaining
-        # my_bid = round_state.bids[active]  # How much you bid previously (available only after auction)
-        # opp_bid = round_state.bids[1-active]  # How much opponent bid previously (available only after auction)
-        # continue_cost = opp_pip - my_pip  # the number of chips needed to stay in the pot
-        # my_contribution = STARTING_STACK - my_stack  # the number of chips you have contributed to the pot
-        # opp_contribution = STARTING_STACK - opp_stack  # the number of chips your opponent has contributed to the pot
-        # if RaiseAction in legal_actions:
-        #    min_raise, max_raise = round_state.raise_bounds()  # the smallest and largest numbers of chips for a legal bet/raise
-        #    min_cost = min_raise - my_pip  # the cost of a minimum bet/raise
-        #    max_cost = max_raise - my_pip  # the cost of a maximum bet/raise
-        #    print(min_raise, max_raise, my_stack, opp_stack, my_pip, opp_pip)
-        
-        if CheckAction in legal_actions:
-            return CheckAction()
-        elif BidAction in legal_actions:
-            return BidAction(int(random.random()*my_stack)) # random bid between 0 and our stack
+        opp_stack = round_state.stacks[1-active]  # the number of chips your opponent has remaining
+        my_bid = round_state.bids[active]  # How much you bid previously (available only after auction)
+        opp_bid = round_state.bids[1-active]  # How much opponent bid previously (available only after auction)
+        continue_cost = opp_pip - my_pip  # the number of chips needed to stay in the pot
+        my_contribution = STARTING_STACK - my_stack  # the number of chips you have contributed to the pot
+        opp_contribution = STARTING_STACK - opp_stack  # the number of chips your opponent has contributed to the pot
+
+        # if self.my_bankroll > 1.5 * (NUM_ROUNDS - self.round_num + 1):
+        #     return FoldAction()
+
+        if BidAction in legal_actions:
+            return BidAction(my_stack)
+
+        range = [set('A','K'), set('A','Q'), set('A','J'), set('A','T'), set('K','Q'), set('K','J'), set('Q','J')]
+        if my_cards[0][0] == my_cards[1][0] or set(my_cards[0][0], my_cards[1][0]) in range:
+            min_raise, max_raise = round_state.raise_bounds()  # the smallest and largest numbers of chips for a legal bet/raise
+            return RaiseAction(max_raise)
+
         return CallAction()
 
 
