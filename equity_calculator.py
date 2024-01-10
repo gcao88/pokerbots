@@ -1,7 +1,9 @@
 import itertools
+import numpy as np
+from scipy import stats
 import random
 from tqdm import tqdm
-from std_calculator import calculate_std_conf
+import csv
 
 def hand_strength(hand, board):
     all_cards = sorted(hand + board, reverse=True)
@@ -44,18 +46,60 @@ def get_equity(h1, h2, board):
 
     return (wins + 0.5*ties) / cnt
 
-h1 = ['AC', '8D', '2C']
-board = ['5H', '6C', '4D']
+def calculate_std_conf(samples):
+    std = np.std(samples)
+    confidence_level = 0.95
+    degrees_freedom = len(samples) - 1
+    sample_mean = np.mean(samples)
+    sample_standard_error = stats.sem(samples)
+    confidence_interval = stats.t.interval(confidence_level, degrees_freedom, sample_mean, sample_standard_error)
+    return std, confidence_interval
 
-deck = [r+s for r in '23456789TJQKA' for s in 'SHDC']
-for card in h1+board:
-    deck.remove(card)
+def equity_vs_average_hand(h1, h2_size, board):
+    deck = [r+s for r in '23456789TJQKA' for s in 'SHDC']
+    for card in h1+board:
+        deck.remove(card)
 
-cnt, equities = 0, []
-for _ in tqdm(range(100)):
-    h2 = random.sample(deck, 2)
-    equities.append(get_equity(h1, h2, board))
-    cnt += 1
+    equities = []
+    for _ in range(100):
+        h2 = random.sample(deck, h2_size)
+        equities.append(get_equity(h1, h2, board))
+    
+    return sum(equities) / len(equities), calculate_std_conf(equities)
 
-print(sum(equities) / len(equities))
-print(calculate_std_conf(equities))
+"""
+h1 = ['KH', 'QH']
+h2_size = 3
+board = ['5C', 'KS', 'TC', '3C']
+print(equity_vs_average_hand(h1, h2_size, board))
+"""
+
+# board cannot include spades, because h1 assumes spades are safe for hole cards
+boards = [
+    ['5D', '5C', '9D'],
+    ['KD', '9C', '2H'],
+    ['KD', '9C', '2C'],
+    ['6D', '7C', '8H'],
+    ['AD', 'KC', '4H'],
+    ['5D', '7C', 'TD'],
+    ['5D', '7C', 'TH'],
+    ['KD', '9D', '2D'],
+    ['KD', 'KC', '5C'],
+]
+ranks = 'AKQJT98765432'
+for board in tqdm(boards):
+    with open(f"equity_outputs/{''.join(board)}.csv", 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([''] + list(ranks))
+        for i, r1 in enumerate(ranks):
+            equity_row = []
+            for j, r2 in enumerate(ranks):
+                if i > j:
+                    h1 = [r1 + 'S', r2 + 'S']
+                else:
+                    for s in 'HCS':
+                        if (r1 + s) not in board:
+                            h1 = [r1 + s, r2 + 'S']
+                            break
+                equity_row.append(equity_vs_average_hand(h1, 3, board)[0])
+            writer.writerow([r1] + equity_row)
