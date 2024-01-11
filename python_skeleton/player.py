@@ -39,16 +39,10 @@ class Player(Bot):
         Nothing.
         '''
         self.my_bankroll = game_state.bankroll  # the total number of chips you've gained or lost from the beginning of the game to the start of this round
-        game_clock = game_state.game_clock  # the total number of seconds your bot has left to play this game
+        # game_clock = game_state.game_clock  # the total number of seconds your bot has left to play this game
         self.round_num = game_state.round_num  # the round number from 1 to NUM_ROUNDS
-        my_cards = round_state.hands[active]  # your cards
-        big_blind = bool(active)  # True if you are the big blind
-
-        range = [set(['A','K']), set(['A','Q']), set(['A','J']), set(['A','T']), set(['K','Q']), set(['K','J']), set(['Q','J'])]
-        isPair = my_cards[0] == my_cards[1]
-        isRange = set([my_cards[0][0], my_cards[1][0]]) in range
-
-        self.isGood = isPair or isRange
+        # my_cards = round_state.hands[active]  # your cards
+        self.big_blind = bool(active)  # True if you are the big blind
         pass
 
     def handle_round_over(self, game_state, terminal_state, active):
@@ -102,23 +96,13 @@ class Player(Bot):
             if CheckAction in legal_actions:
                 return CheckAction()
             return FoldAction()
-
-        if BidAction in legal_actions:
-            if self.isGood:
-                return BidAction(my_stack)
+        if street == 0:
+            # PRE-FLOP
+            if self.big_blind:
+                # BIG BLIND
+                range_dict = {frozenset(['A','K']): }
             else:
-                return BidAction(int(my_stack/2))
-
-        if RaiseAction in legal_actions:
-            if self.isGood or len(my_cards) == 3:
-                min_raise, max_raise = round_state.raise_bounds()  # the smallest and largest numbers of chips for a legal bet/raise
-                return RaiseAction(min_raise)
-
-        if CheckAction in legal_actions:
-            return CheckAction()
-        if CallAction in legal_actions:
-            return CallAction()
-        return FoldAction()
+                # SMALL BLIND
 
 
 if __name__ == '__main__':
