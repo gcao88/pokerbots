@@ -12,20 +12,29 @@ def hand_strength(hand, board):
 def hand_value(hand):
     ranks = ['--23456789TJQKA'.index(r) for r, s in hand]
     ranks.sort(reverse=True)
+    freqs = sorted([ranks.count(x) for x in set(ranks)], reverse=True)
+
+    if ranks == [14, 5, 4, 3, 2]: # low straight
+        ranks = [5, 4, 3, 2, 1]
+
     if len(set(r for r, s in hand)) == 5 and len(set(s for r, s in hand)) == 1 and max(ranks)-min(ranks) == 4: 
         return (8, ranks)  # straight flush
-    elif len(set(ranks)) == 2: 
-        return (7, ranks) if ranks.count(ranks[0]) in {1, 4} else (6, ranks)  # four of a kind or full house
+    elif freqs == [4, 1]: 
+        return (7, ranks)  # four of a kind
+    elif freqs == [3, 2]: 
+        return (6, ranks)  # full house
     elif len(set(s for r, s in hand)) == 1: 
         return (5, ranks)  # flush
     elif len(set(ranks)) == 5 and max(ranks) - min(ranks) == 4: 
         return (4, ranks)  # straight
-    elif len(set(ranks)) == 2 or len(set(ranks)) == 3: 
-        return (3, ranks if ranks.count(ranks[2]) > 1 else ranks[::-1])  # three of a kind or two pair
-    elif len(set(ranks)) == 4: 
-        return (2, ranks if ranks.count(ranks[1]) > 1 else ranks[::-1])  # one pair
+    elif freqs == [3, 1, 1]: 
+        return (3, ranks)  # three of a kind
+    elif freqs == [2, 2, 1]: 
+        return (2, ranks)  # two pair
+    elif freqs == [2, 1, 1, 1]: 
+        return (1, ranks)  # one pair
     else: 
-        return (1, ranks)  # high card
+        return (0, ranks)  # high card
 
 def get_equity(h1, h2, board):
     deck = [r+s for r in '23456789TJQKA' for s in 'SHDC']
@@ -46,14 +55,13 @@ def get_equity(h1, h2, board):
 
     return (wins + 0.5*ties) / cnt
 
-def calculate_std_conf(samples):
-    std = np.std(samples)
+def calculate_conf(samples):
     confidence_level = 0.95
     degrees_freedom = len(samples) - 1
     sample_mean = np.mean(samples)
     sample_standard_error = stats.sem(samples)
     confidence_interval = stats.t.interval(confidence_level, degrees_freedom, sample_mean, sample_standard_error)
-    return std, confidence_interval
+    return confidence_interval
 
 def equity_vs_average_hand(h1, h2_size, board):
     deck = [r+s for r in '23456789TJQKA' for s in 'SHDC']
@@ -65,12 +73,12 @@ def equity_vs_average_hand(h1, h2_size, board):
         h2 = random.sample(deck, h2_size)
         equities.append(get_equity(h1, h2, board))
     
-    return sum(equities) / len(equities), calculate_std_conf(equities)
+    return sum(equities) / len(equities), calculate_conf(equities)
 
 """
-h1 = ['KH', 'QH']
+h1 = ['AH', 'AS']
 h2_size = 3
-board = ['5C', 'KS', 'TC', '3C']
+board = ['5C', '5S', '9C']
 print(equity_vs_average_hand(h1, h2_size, board))
 """
 
