@@ -6,8 +6,7 @@ from skeleton.states import GameState, TerminalState, RoundState
 from skeleton.states import NUM_ROUNDS, STARTING_STACK, BIG_BLIND, SMALL_BLIND
 from skeleton.bot import Bot
 from skeleton.runner import parse_args, run_bot
-import random
-
+import csv
 
 class Player(Bot):
     '''
@@ -98,12 +97,29 @@ class Player(Bot):
             return FoldAction()
         if street == 0:
             # PRE-FLOP
-            if self.big_blind:
-                # BIG BLIND
-                range_dict = {frozenset(['A','K']): }
-            else:
-                # SMALL BLIND
+            range = {}
+            with open('preflop.csv', 'r', newline='') as file:
+                csv_reader = csv.DictReader(file)
+                i = 0
+                card_num_list = []
+                for row in csv_reader:
+                    if i == 0:
+                        card_num_list = row[1:]
+                        continue
+                    for j in range(1,len(row)):
+                        small, big = row[j][1:-1].split(",")
+                        range[frozenset([card_num_list[i-1], card_num_list[j-1], i<j])] = (small, big)
 
+            threshold = range[(my_cards[0][0], my_cards[1][0], my_cards[0][1] == my_cards[1][1])][1 if self.big_blind else 0]
+            if opp_pip > threshold:
+                return FoldAction()
+            else:
+                raise_thres_dif = abs(3*opp_pip - threshold)
+                call_thres_dif = abs(opp_pip - threshold)
+                if call_thres_dif < raise_thres_dif:
+                    return CallAction()
+                min_raise, max_raise = round_state.raise_bounds()
+                return RaiseAction(min(max(3*opp_pip, min_raise),max_raise))
 
 if __name__ == '__main__':
     run_bot(Player(), parse_args())
