@@ -7,6 +7,8 @@ from skeleton.states import NUM_ROUNDS, STARTING_STACK, BIG_BLIND, SMALL_BLIND
 from skeleton.bot import Bot
 from skeleton.runner import parse_args, run_bot
 import csv
+import random
+import eval7
 
 class Player(Bot):
     '''
@@ -131,7 +133,18 @@ class Player(Bot):
                     return CallAction()
         else:
             if BidAction in legal_actions:
-                return BidAction(min(my_stack, int(3.5*(my_contribution+opp_contribution))))
+                return BidAction(min(my_stack, int(3.6*(my_contribution+opp_contribution)) + random.randint(-3,3)))
+            if street >= 3 and len(my_cards) == 2:
+                # lost auction
+                if CheckAction in legal_actions:
+                    return CheckAction()
+                return FoldAction()
+            if street == 5 and eval7.evaluate(my_cards + board_cards) == "High Card":
+                # high card on the river, we check/fold
+                if CheckAction in legal_actions:
+                    return CheckAction()
+                return FoldAction()
+
             if CheckAction in legal_actions:
                 return CheckAction()
             if CallAction in legal_actions:
