@@ -75,6 +75,8 @@ class Player(Bot):
         ]
         self.RERAISE_MULTIPLIER = 2.5
         self.TINY_BET_THRESHOLD = 0.2
+        self.AUCTION_AMOUNT_LOWER = 2.3
+        self.AUCTION_AMOUNT_UPPER = 3.7
 
     def handle_new_round(self, game_state, round_state, active):
         '''
@@ -144,6 +146,7 @@ class Player(Bot):
         my_contribution = STARTING_STACK - my_stack  # the number of chips you have contributed to the pot
         opp_contribution = STARTING_STACK - opp_stack  # the number of chips your opponent has contributed to the pot
 
+        min_raise, max_raise = round_state.raise_bounds()
         starting_pot = 2*STARTING_STACK - my_stack - opp_stack + my_pip + opp_pip
 
         # if we win by folding every game, then check/fold
@@ -177,13 +180,13 @@ class Player(Bot):
         # ========
         elif BidAction in legal_actions:
             # AUCTION
-            return BidAction(random.randint(3*starting_pot, 4*starting_pot))
+            return BidAction(random.randint(int(self.AUCTION_AMOUNT_LOWER*starting_pot), int(self.AUCTION_AMOUNT_UPPER*starting_pot)))
         else:
             # FLOP/TURN/RIVER
             if my_bid > opp_bid:
-                line = self.lines_2hand[self._identify_line(my_cards, board_cards)]
-            else:
                 line = self.lines_3hand[self._identify_line(my_cards, board_cards)]
+            else:
+                line = self.lines_2hand[self._identify_line(my_cards, board_cards)]
 
             if self.street_action_counts[street] == 0:
                 if opp_pip / starting_pot <= self.TINY_BET_THRESHOLD:
@@ -193,7 +196,7 @@ class Player(Bot):
                     self.street_action_counts[street] = 2
 
                     if line[0] == 0: return CheckAction()
-                    else: return RaiseAction(min(line[0] * starting_pot, max_raise))
+                    else: return RaiseAction(min(int(line[0] * starting_pot), max_raise))
                 else:
                     # IP and bet to us
                     self.street_action_counts[street] = 3
@@ -239,7 +242,7 @@ class Player(Bot):
             if 2 * self.RERAISE_MULTIPLIER * opp_pip > max_raise:
                 return RaiseAction(max_raise)
             else:
-                return RaiseAction(min(self.RERAISE_MULTIPLIER * opp_pip, max_raise))
+                return RaiseAction(min(int(self.RERAISE_MULTIPLIER * opp_pip), max_raise))
         elif opp_pip / starting_pot <= call_threshold:
             return CallAction()
         else:
