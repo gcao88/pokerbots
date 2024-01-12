@@ -38,7 +38,7 @@ class Player(Bot):
                         small, big = row[j][1:-1].split(",")
                         self.range_dict[(str(self.card_num_list[i-1]), str(self.card_num_list[j-1]))] = (small, big)
                     i += 1
-        
+
         # LINES
         # for now, flop vs turn vs river play the same
         # 8 lines for 8 different scenarios, see _identify_line
@@ -166,17 +166,12 @@ class Player(Bot):
             if opp_pip > 1.5*threshold:
                 return FoldAction()
             else:
-                # first bets as small blind
-                if not self.big_blind and opp_pip == 2:
-                    return RaiseAction(5)
-                # ur small blind, they 3+ bet OR ur big blind
+                min_raise, max_raise = round_state.raise_bounds()
+                if threshold > 3*continue_cost:
+                    return RaiseAction(min(max(3*opp_pip, min_raise), max_raise))
                 else:
-                    min_raise, max_raise = round_state.raise_bounds()
-                    if threshold > 3*continue_cost:
-                        return RaiseAction(min(max(3*opp_pip, min_raise), max_raise))
-                    else:
-                        return CallAction()
-        
+                    return CallAction()
+
         # ========
         # POSTFLOP
         # ========
@@ -218,7 +213,7 @@ class Player(Bot):
                     # edge case where somehow we aren't all in yet
                     print("womp womp")
                     return FoldAction()
-    
+
     def _identify_line(self, hand, board):
         equity = self._get_equity(hand, board)
         hand_type = self._get_hand_type(hand, board)
@@ -238,7 +233,7 @@ class Player(Bot):
         return 0.32
     def _get_hand_type(self, hand, board):
         return "made hand"
-    
+
     def _get_action_from_threshold(self, reraise_threshold, call_threshold, opp_pip, starting_pot, max_raise):
         if opp_pip / starting_pot <= reraise_threshold:
             if 2 * self.RERAISE_MULTIPLIER * opp_pip > max_raise:
