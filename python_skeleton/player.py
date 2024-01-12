@@ -121,22 +121,17 @@ class Player(Bot):
                 threshold = self.range_dict[(my_cards[0][0], my_cards[1][0])][1 if self.big_blind else 0]
             threshold = int(threshold)
 
-            if opp_pip > threshold:
+            if opp_pip > 1.5*threshold:
                 return FoldAction()
             else:
-                # first bets as small blind
-                if not self.big_blind and opp_pip == 2:
-                    return RaiseAction(5)
-                # ur small blind, they 3+ bet OR ur big blind
+                min_raise, max_raise = round_state.raise_bounds()
+                if threshold > 3*continue_cost:
+                    return RaiseAction(min(max(3*opp_pip, min_raise), max_raise))
                 else:
-                    min_raise, max_raise = round_state.raise_bounds()
-                    if threshold > 3*continue_cost:
-                        return RaiseAction(min(max(3*opp_pip, min_raise), max_raise))
-                    else:
-                        return CallAction()
+                    return CallAction()
         else:
             if BidAction in legal_actions:
-                return BidAction(int(my_stack*0.8))
+                return BidAction(min(my_stack, int(3.5*(my_contribution+opp_contribution))))
             if CheckAction in legal_actions:
                 return CheckAction()
             if CallAction in legal_actions:
