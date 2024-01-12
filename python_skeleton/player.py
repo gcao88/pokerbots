@@ -7,6 +7,7 @@ from skeleton.states import NUM_ROUNDS, STARTING_STACK, BIG_BLIND, SMALL_BLIND
 from skeleton.bot import Bot
 from skeleton.runner import parse_args, run_bot
 import csv
+import random
 
 class Player(Bot):
     '''
@@ -105,6 +106,8 @@ class Player(Bot):
         my_contribution = STARTING_STACK - my_stack  # the number of chips you have contributed to the pot
         opp_contribution = STARTING_STACK - opp_stack  # the number of chips your opponent has contributed to the pot
 
+        pot = STARTING_STACK - my_stack + STARTING_STACK - opp_stack
+
         if self.my_bankroll > 1.5 * (NUM_ROUNDS - self.round_num + 1):
             if CheckAction in legal_actions:
                 return CheckAction()
@@ -134,9 +137,10 @@ class Player(Bot):
                         return RaiseAction(min(max(3*opp_pip, min_raise), max_raise))
                     else:
                         return CallAction()
+        elif BidAction in legal_actions:
+            # AUCTION
+            return BidAction(random.randint(3*pot, 4*pot))
         else:
-            if BidAction in legal_actions:
-                return BidAction(int(my_stack*0.8))
             if CheckAction in legal_actions:
                 return CheckAction()
             if CallAction in legal_actions:
