@@ -78,7 +78,7 @@ def equity_vs_average_hand(h1, h2_size, board):
         deck.remove(card)
 
     equities = []
-    for _ in range(30):
+    for _ in tqdm(range(1000)):
         h2 = random.sample(deck, h2_size)
         equities.append(get_equity(h1, h2, board))
     
