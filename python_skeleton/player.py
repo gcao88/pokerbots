@@ -123,12 +123,16 @@ class Player(Bot):
             if opp_pip > threshold:
                 return FoldAction()
             else:
-                raise_thres_dif = abs(3*opp_pip - threshold)
-                call_thres_dif = abs(opp_pip - threshold)
-                if call_thres_dif < raise_thres_dif:
-                    return CallAction()
-                min_raise, max_raise = round_state.raise_bounds()
-                return RaiseAction(min(max(3*opp_pip, min_raise),max_raise))
+                # first bets as small blind
+                if not self.big_blind and opp_pip == 2:
+                    return RaiseAction(5)
+                # ur small blind, they 3+ bet OR ur big blind
+                else:
+                    min_raise, max_raise = round_state.raise_bounds()
+                    if threshold > 3*continue_cost:
+                        return RaiseAction(min(max(3*opp_pip, min_raise), max_raise))
+                    else:
+                        return CallAction()
         else:
             return FoldAction()
 
