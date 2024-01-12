@@ -88,9 +88,9 @@ def equity_vs_average_hand(h1, h2_size, board):
     return sum(equities) / len(equities), calculate_conf(equities)
 
 # """
-h1 = ['As', '9s']
+h1 = ['6s', '5s']
 h2_size = 3
-board = ['5d', '6c', '9d']
+board = ['4d', '3c', 'Qh']
 print(equity_vs_average_hand(h1, h2_size, board))
 # """
 
