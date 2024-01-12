@@ -1,4 +1,17 @@
 [0, 0]
-[199, 199]
-[199, 199]
-[199, 199]
+[0, 0]
+[0, 0]
+[0, 0]
+[0, 0]
+Traceback (most recent call last):
+  File "C:\Users\georg\OneDrive\Documents\George MIT\24IAP\PokerBots\pokerbots\python_skeleton\player.py", line 136, in <module>
+    run_bot(Player(), parse_args())
+  File "C:\Users\georg\OneDrive\Documents\George MIT\24IAP\PokerBots\pokerbots\python_skeleton\skeleton\runner.py", line 144, in run_bot
+    runner.run()
+  File "C:\Users\georg\OneDrive\Documents\George MIT\24IAP\PokerBots\pokerbots\python_skeleton\skeleton\runner.py", line 119, in run
+    action = self.pokerbot.get_action(game_state, round_state, active)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\georg\OneDrive\Documents\George MIT\24IAP\PokerBots\pokerbots\python_skeleton\player.py", line 121, in get_action
+    threshold = int(threshold)
+                ^^^^^^^^^^^^^^
+ValueError: invalid literal for int() with base 10: ''

@@ -23,6 +23,20 @@ class Player(Bot):
         Returns:
         Nothing.
         '''
+        self.range_dict = {}
+        self.card_num_list = []
+        with open('preflop.csv', 'r', newline='') as file:
+            csv_reader = csv.reader(file)
+            i = 0
+            for row in csv_reader:
+                if i == 0:
+                    self.card_num_list = row[1:]
+                    i += 1
+                else:
+                    for j in range(1,len(row)):
+                        small, big = row[j][1:-1].split(",")
+                        self.range_dict[(str(self.card_num_list[i-1]), str(self.card_num_list[j-1]))] = (small, big)
+                    i += 1
         pass
 
     def handle_new_round(self, game_state, round_state, active):
@@ -97,20 +111,15 @@ class Player(Bot):
             return FoldAction()
         if street == 0:
             # PRE-FLOP
-            range = {}
-            with open('preflop.csv', 'r', newline='') as file:
-                csv_reader = csv.DictReader(file)
-                i = 0
-                card_num_list = []
-                for row in csv_reader:
-                    if i == 0:
-                        card_num_list = row[1:]
-                        continue
-                    for j in range(1,len(row)):
-                        small, big = row[j][1:-1].split(",")
-                        range[frozenset([card_num_list[i-1], card_num_list[j-1], i<j])] = (small, big)
+            suited = my_cards[0][1] == my_cards[1][1]
+            if self.card_num_list.index(my_cards[0][0]) > self.card_num_list.index(my_cards[1][0]):
+                my_cards[0], my_cards[1] = my_cards[1], my_cards[0]
+            if suited:
+                threshold = self.range_dict[(my_cards[1][0], my_cards[0][0])][1 if self.big_blind else 0]
+            else:
+                threshold = self.range_dict[(my_cards[0][0], my_cards[1][0])][1 if self.big_blind else 0]
+            threshold = int(threshold)
 
-            threshold = range[(my_cards[0][0], my_cards[1][0], my_cards[0][1] == my_cards[1][1])][1 if self.big_blind else 0]
             if opp_pip > threshold:
                 return FoldAction()
             else:
@@ -120,6 +129,8 @@ class Player(Bot):
                     return CallAction()
                 min_raise, max_raise = round_state.raise_bounds()
                 return RaiseAction(min(max(3*opp_pip, min_raise),max_raise))
+        else:
+            return FoldAction()
 
 if __name__ == '__main__':
     run_bot(Player(), parse_args())
