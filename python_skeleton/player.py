@@ -112,6 +112,7 @@ class Player(Bot):
         if street == 0:
             # PRE-FLOP
             suited = my_cards[0][1] == my_cards[1][1]
+            threshold = 400
             if self.card_num_list.index(my_cards[0][0]) > self.card_num_list.index(my_cards[1][0]):
                 my_cards[0], my_cards[1] = my_cards[1], my_cards[0]
             if suited:
@@ -134,6 +135,12 @@ class Player(Bot):
                     else:
                         return CallAction()
         else:
+            if BidAction in legal_actions:
+                return BidAction(int(my_stack*0.8))
+            if CheckAction in legal_actions:
+                return CheckAction()
+            if CallAction in legal_actions:
+                return CallAction()
             return FoldAction()
 
 if __name__ == '__main__':
