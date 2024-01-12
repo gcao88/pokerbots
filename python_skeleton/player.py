@@ -163,7 +163,7 @@ class Player(Bot):
                 threshold = self.range_dict[(my_cards[0][0], my_cards[1][0])][1 if self.big_blind else 0]
             threshold = int(threshold)
 
-            if opp_pip > threshold:
+            if opp_pip > 1.5*threshold:
                 return FoldAction()
             else:
                 # first bets as small blind
