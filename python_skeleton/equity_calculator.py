@@ -11,10 +11,11 @@ def hand_strength(hand, board):
     all_cards = hand + board 
     eval7cards = []
     for card in all_cards: 
-        eval7cards.append(eval7.Card(card[0] + card[1].lower()))
+        eval7cards.append(eval7.Card(card))
     if len(eval7cards) == 7: 
         return eval7.evaluate(eval7cards)
     else: 
+        return eval7.evaluate(eval7cards)
         foo = 0
         for i in range(8): 
             foo = max(foo, eval7.evaluate(eval7cards[0:i] + eval7cards[i:8]))
@@ -47,7 +48,7 @@ def hand_strength(hand, board):
 #         return (0, ranks)  # high card
 
 def get_equity(h1, h2, board):
-    deck = [r+s for r in '23456789TJQKA' for s in 'SHDC']
+    deck = [r+s for r in '23456789TJQKA' for s in 'shdc']
     for card in h1+h2+board:
         deck.remove(card)
 
@@ -75,21 +76,21 @@ def calculate_conf(samples):
     return confidence_interval
 
 def equity_vs_average_hand(h1, h2_size, board):
-    deck = [r+s for r in '23456789TJQKA' for s in 'SHDC']
+    deck = [r+s for r in '23456789TJQKA' for s in 'shdc']
     for card in h1+board:
         deck.remove(card)
 
     equities = []
-    for _ in tqdm(range(1000)):
+    for _ in tqdm(range(80)):
         h2 = random.sample(deck, h2_size)
         equities.append(get_equity(h1, h2, board))
     
     return sum(equities) / len(equities), calculate_conf(equities)
 
 # """
-h1 = ['AS', '5S']
+h1 = ['As', '9s']
 h2_size = 3
-board = ['5D', '5C', '9D']
+board = ['5d', '6c', '9d']
 print(equity_vs_average_hand(h1, h2_size, board))
 # """
 
