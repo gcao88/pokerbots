@@ -8,6 +8,8 @@ from skeleton.bot import Bot
 from skeleton.runner import parse_args, run_bot
 import csv
 import random
+from equity_calculator import equity_vs_average_hand
+from made_or_draw import made_or_draw
 
 class Player(Bot):
     '''
@@ -222,24 +224,18 @@ class Player(Bot):
                     return FoldAction()
 
     def _identify_line(self, hand, board):
-        equity = self._get_equity(hand, board)
-        hand_type = self._get_hand_type(hand, board)
-        if hand_type == "made hand":
+        equity, conf_interval = equity_vs_average_hand(hand, 5-len(hand), board)
+        hand_type = made_or_draw(hand, board)
+        if hand_type == 1: # made hand
             if equity < 0.5: return 0
             elif equity < 0.65: return 1
             elif equity < 0.75: return 2
             elif equity <= 1: return 3
-        elif hand_type == "drawing":
-            if equity < 0.2: return 5
-            elif equity < 0.5: return 6
-            elif equity < 0.7: return 7
-            elif equity <= 1: return 8
-
-    # atharv's methods, they will take hand and board as lists of cards, like ['8c', 'Td']
-    def _get_equity(self, hand, board):
-        return 0.32
-    def _get_hand_type(self, hand, board):
-        return "made hand"
+        elif hand_type == 0: # drawing
+            if equity < 0.2: return 4
+            elif equity < 0.5: return 5
+            elif equity < 0.7: return 6
+            elif equity <= 1: return 7
 
     def _get_action_from_threshold(self, reraise_threshold, call_threshold, opp_pip, starting_pot, max_raise):
         if opp_pip / starting_pot <= reraise_threshold:
