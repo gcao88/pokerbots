@@ -74,7 +74,7 @@ class Player(Bot):
             [0.5, 0, 2.0, None, None, 0, 2.0, None, None],
         ]
         self.RERAISE_MULTIPLIER = 2.5
-        self.TINY_BET_THRESHOLD = 0.2
+        self.TINY_BET_THRESHOLD = 0.15
         self.AUCTION_AMOUNT_LOWER = 2.3
         self.AUCTION_AMOUNT_UPPER = 3.7
 
@@ -200,7 +200,11 @@ class Player(Bot):
                     # treat next actions as OOP
                     self.street_action_counts[street] = 2
 
-                    if line[0] == 0: return CheckAction()
+                    if line[0] == 0:
+                        if opp_pip > 0:
+                            return CallAction()
+                        else:
+                            return CheckAction()
                     else: return RaiseAction(min(int(line[0] * starting_pot), max_raise))
                 else:
                     # IP and bet to us
