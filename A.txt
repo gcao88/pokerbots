@@ -1,31 +1,7 @@
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[0, 0]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[0, 0]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
-[385, 385]
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/atharvjain/code/pokerbots/cpp_skeleton/build
+Consolidate compiler generated dependencies of target skeleton
+[ 60%] Built target skeleton
+Consolidate compiler generated dependencies of target pokerbot
+[100%] Built target pokerbot
