@@ -6,10 +6,6 @@
 #include "../libs/skeleton/include/skeleton/game.h"
 
 
-// #include <skeleton/include/skeleton/runner.h>
-// #include <skeleton/include/skeleton/states.h>
-// #include <skeleton/include/skeleton/actions.h>
-
 #include <random>
 
 using namespace pokerbots::skeleton;
@@ -72,6 +68,13 @@ struct Bot {
     int oppContribution = STARTING_STACK - oppStack;  // the number of chips your opponent has contributed to the pot
     int minCost = 0;
     int maxCost = 0;
+
+    if (street == 0) {
+      // preflop 
+      
+    }
+
+
     if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
       auto raiseBounds = roundState->raiseBounds();  // the smallest and largest numbers of chips for a legal bet/raise
       minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
