@@ -1,3 +1,4 @@
+#include <random>
 #include <string>
 #include <iostream>
 
@@ -6,6 +7,7 @@ using namespace std;
 namespace helper_func {
     string cards = "23456789TJQKA";
     string suits = "shcd"; 
+
 
     int card_to_num(string card) {
         int num = 0; 
@@ -26,4 +28,9 @@ namespace helper_func {
         return string(1, cards[num % 13]) + string(1, suits[num / 13]);
     }
 
+    mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
+
+    int random_number(int a, int b) {
+        return uniform_int_distribution<int>(a, b)(rng); 
+    }    
 }
