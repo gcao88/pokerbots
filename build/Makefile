@@ -142,6 +142,54 @@ skeleton/fast:
 	$(MAKE) $(MAKESILENT) -f libs/skeleton/CMakeFiles/skeleton.dir/build.make libs/skeleton/CMakeFiles/skeleton.dir/build
 .PHONY : skeleton/fast
 
+src/game_tree/helper_func.o: src/game_tree/helper_func.cpp.o
+.PHONY : src/game_tree/helper_func.o
+
+# target to build an object file
+src/game_tree/helper_func.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/src/game_tree/helper_func.cpp.o
+.PHONY : src/game_tree/helper_func.cpp.o
+
+src/game_tree/helper_func.i: src/game_tree/helper_func.cpp.i
+.PHONY : src/game_tree/helper_func.i
+
+# target to preprocess a source file
+src/game_tree/helper_func.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/src/game_tree/helper_func.cpp.i
+.PHONY : src/game_tree/helper_func.cpp.i
+
+src/game_tree/helper_func.s: src/game_tree/helper_func.cpp.s
+.PHONY : src/game_tree/helper_func.s
+
+# target to generate assembly for a file
+src/game_tree/helper_func.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/src/game_tree/helper_func.cpp.s
+.PHONY : src/game_tree/helper_func.cpp.s
+
+src/game_tree/tree_node.o: src/game_tree/tree_node.cpp.o
+.PHONY : src/game_tree/tree_node.o
+
+# target to build an object file
+src/game_tree/tree_node.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.o
+.PHONY : src/game_tree/tree_node.cpp.o
+
+src/game_tree/tree_node.i: src/game_tree/tree_node.cpp.i
+.PHONY : src/game_tree/tree_node.i
+
+# target to preprocess a source file
+src/game_tree/tree_node.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.i
+.PHONY : src/game_tree/tree_node.cpp.i
+
+src/game_tree/tree_node.s: src/game_tree/tree_node.cpp.s
+.PHONY : src/game_tree/tree_node.s
+
+# target to generate assembly for a file
+src/game_tree/tree_node.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.s
+.PHONY : src/game_tree/tree_node.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -176,6 +224,12 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... pokerbot"
 	@echo "... skeleton"
+	@echo "... src/game_tree/helper_func.o"
+	@echo "... src/game_tree/helper_func.i"
+	@echo "... src/game_tree/helper_func.s"
+	@echo "... src/game_tree/tree_node.o"
+	@echo "... src/game_tree/tree_node.i"
+	@echo "... src/game_tree/tree_node.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
