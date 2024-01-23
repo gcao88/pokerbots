@@ -55,7 +55,7 @@ float random_num() {
 };
 
 float epsilon = 0.05;
-float bbeta = 0;
+float beta = 0;
 float tau = 1;
 float walk_tree(Node* h, int i, float q) {
     if (h->is_terminal) {
@@ -91,13 +91,8 @@ float walk_tree(Node* h, int i, float q) {
         float rand = random_num();
         for (auto [a, child] : h->children) {
             p_counter += sigma[a];
-<<<<<<< HEAD
             if (rand < p_counter) {
                 return walk_tree(child, i, q); 
-=======
-            if (random_num() < p_counter) {
-                return walk_tree(child, i, q);
->>>>>>> f41b59b2b55897eee4aa99fa6abccb20bc88e809
             }
         }
         if (p_counter != 1) {
@@ -112,13 +107,7 @@ float walk_tree(Node* h, int i, float q) {
         total_s += a->s;
     }
     for (auto [a, child] : h->children) {
-<<<<<<< HEAD
         float rho = min(1.0f, max(epsilon, (beta + tau * a->s)/(beta + total_s)));
-=======
-        //todo: isnt epsilon a problem
-        float rho = min(1.0f, max(epsilon, (float) ((bbeta + tau * a->s)/(bbeta + total_s)) ) );
-        rho = 1; //convert to ES
->>>>>>> f41b59b2b55897eee4aa99fa6abccb20bc88e809
         v[a] = 0;
         if (random_num() < rho) {
             v[a] = walk_tree(h->next(a), i, q*rho);
