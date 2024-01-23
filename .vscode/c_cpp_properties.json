@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/opt/homebrew/Cellar/fmt/**",
-                "/opt/homebrew/Cellar/boost/**"
+                "/opt/homebrew/Cellar/boost/**",
+                "${workspaceFolder}/cpp_skeleton/libs/skeleton/include/omp"
             ],
             "macFrameworkPath": [
                 "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
