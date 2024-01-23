@@ -36,7 +36,7 @@ struct InfoSet {
 };
 
 
-void print_tree(Node* u, string prefix = "") { 
+void print_tree(Node* u, string prefix = "") {
     if (u->is_terminal) {
         cout << prefix << " : " << u->reward << "\n";
     }
@@ -50,13 +50,13 @@ void print_tree(Node* u, string prefix = "") {
 float random_num() {
     random_device rd;
     mt19937 gen(rd());
-    uniform_real_distribution<> random(0, 1);
+    uniform_real_distribution<> random(0.0, 1.0);
     return random(gen);
 };
 
 float epsilon = 0.05;
-float beta = 1e6;
-float tau = 1000;
+float bbeta = 0;
+float tau = 1;
 float walk_tree(Node* h, int i, float q) {
     if (h->is_terminal) {
         // cout << "TERMINAL: " << h->reward << endl;
@@ -90,7 +90,7 @@ float walk_tree(Node* h, int i, float q) {
         for (auto [a, child] : h->children) {
             p_counter += sigma[a];
             if (random_num() < p_counter) {
-                return walk_tree(child, i, q); 
+                return walk_tree(child, i, q);
             }
         }
         if (p_counter != 1) {
@@ -106,7 +106,7 @@ float walk_tree(Node* h, int i, float q) {
     }
     for (auto [a, child] : h->children) {
         //todo: isnt epsilon a problem
-        float rho = min(1.0f, max(epsilon, (beta + tau * a->s)/(beta + total_s)));
+        float rho = min(1.0f, max(epsilon, (float) ((bbeta + tau * a->s)/(bbeta + total_s)) ) );
         rho = 1; //convert to ES
         v[a] = 0;
         if (random_num() < rho) {
@@ -171,7 +171,7 @@ int main() {
             get_infosets(u, "P1" + card1, "P2" + card2, infosets);
         }
     }
-  
+
     print_tree(root);
     ofstream fout("data.txt");
     for(int j=0; j<1; j++) {
