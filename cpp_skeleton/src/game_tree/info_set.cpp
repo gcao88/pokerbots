@@ -5,19 +5,32 @@
 
 struct InfoSet {
     // Key: String (for action), Value: (sample probability sigma, regret r, cumulative sum s)
-    unordered_map<string, array<int, 3>> possible_actions;
+    unordered_map<string, array<float, 3>> possible_actions;
 
+    /*
+        C: Check
+        H: Half
+        P: Pot
+        ^: Raise (3X)
+        A: All-In
+        .: Fold
+    */
+   
     InfoSet() {
-        
+        vector<string> all_actions = {"C", "H", "P", "^", "A", "."};
+        float initial_prob = 1.0/all_actions.size();
+        for (auto action : all_actions) {
+            possible_actions[action] = {initial_prob, 0.0, 0.0};
+        }
     }
     void update_sigma(action, new_value) {
-        possible_actions.get(action)[0] = new_value;
+        possible_actions[action][0] = new_value;
     }
     void update_r(action, new_value) {
-        possible_actions.get(action)[1] = new_value;
+        possible_actions[action][1] = new_value;
     }
     void update_s(action, new_value) {
-        possible_actions.get(action)[2] = new_value;
+        possible_actions[action][2] = new_value;
     }
     string sample_action() {
         vector<string> actions;
