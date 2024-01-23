@@ -65,9 +65,10 @@ float walk_tree(Node* h, int i, float q) {
     }
     else if (h->player == 3) {
         float p_counter = 0;
+        float rand = random_num();
         for (auto [a, child] : h->children) {
             p_counter += a->prob;
-            if (random_num() < p_counter) {
+            if (rand < p_counter) {
                 return walk_tree(child, i, q);
             }
         }
@@ -75,11 +76,11 @@ float walk_tree(Node* h, int i, float q) {
     float total_regret = 0;
     unordered_map<Action*, float> sigma;
     for (auto [a, child] : h->children) {
-        total_regret += a->r;
+        total_regret += max(0.0f, a->r);
     }
     for (auto [a, child] : h->children) {
         if (total_regret == 0) sigma[a] = 1.0/h->children.size();
-        else sigma[a] = a->r/total_regret;
+        else sigma[a] = max(0.0f, a->r)/total_regret;
     }
 
     if (h->player != i) {
@@ -87,9 +88,10 @@ float walk_tree(Node* h, int i, float q) {
             a->s += sigma[a]/q;
         }
         float p_counter = 0;
+        float rand = random_num();
         for (auto [a, child] : h->children) {
             p_counter += sigma[a];
-            if (random_num() < p_counter) {
+            if (rand < p_counter) {
                 return walk_tree(child, i, q); 
             }
         }
@@ -105,9 +107,7 @@ float walk_tree(Node* h, int i, float q) {
         total_s += a->s;
     }
     for (auto [a, child] : h->children) {
-        //todo: isnt epsilon a problem
         float rho = min(1.0f, max(epsilon, (beta + tau * a->s)/(beta + total_s)));
-        rho = 1; //convert to ES
         v[a] = 0;
         if (random_num() < rho) {
             v[a] = walk_tree(h->next(a), i, q*rho);
@@ -119,7 +119,6 @@ float walk_tree(Node* h, int i, float q) {
     }
     for (auto [a, child] : h->children) {
         a->r += v[a] - expected_v;
-        a->r = max(0.0f, a->r);
     }
     return expected_v;
 }
