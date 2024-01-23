@@ -8,6 +8,8 @@
 #include "HandEvaluator.h"
 #include "Hand.h"
 #include <unordered_map>
+#include <unordered_set>
+#include "info_set.cpp"
 
 using namespace std;
 
