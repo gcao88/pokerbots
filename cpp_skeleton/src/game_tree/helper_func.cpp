@@ -36,6 +36,9 @@ namespace helper_func {
     }
 
     float random_real() {
-        return uniform_real_distribution<float> dis(0.0, 1.0)(rng);
+        random_device rd;
+        mt19937 gen(rd());
+        uniform_real_distribution<double> dis(0.0, 1.0);
+        return dis(gen);
     }
 }
