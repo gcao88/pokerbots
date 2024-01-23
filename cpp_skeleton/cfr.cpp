@@ -36,7 +36,7 @@ struct InfoSet {
 };
 
 
-void print_tree(Node* u, string prefix = "") {
+void print_tree(Node* u, string prefix = "") { 
     if (u->is_terminal) {
         cout << prefix << " : " << u->reward << "\n";
     }
@@ -50,13 +50,13 @@ void print_tree(Node* u, string prefix = "") {
 float random_num() {
     random_device rd;
     mt19937 gen(rd());
-    uniform_real_distribution<> random(0.0, 1.0);
+    uniform_real_distribution<> random(0, 1);
     return random(gen);
 };
 
 float epsilon = 0.05;
-float beta = 0;
-float tau = 1;
+float beta = 1e6;
+float tau = 1000;
 float walk_tree(Node* h, int i, float q) {
     if (h->is_terminal) {
         // cout << "TERMINAL: " << h->reward << endl;
@@ -170,7 +170,7 @@ int main() {
             get_infosets(u, "P1" + card1, "P2" + card2, infosets);
         }
     }
-
+  
     print_tree(root);
     ofstream fout("data.txt");
     for(int j=0; j<1; j++) {
