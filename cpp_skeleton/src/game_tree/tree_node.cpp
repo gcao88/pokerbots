@@ -4,9 +4,10 @@
 #include <string>
 #include <vector>
 #include "helper_func.cpp"
-// #include "../../libs/skeleton/include/omp/HandEvaluator.h"
-#include "HandEvaluator.h"
-#include "Hand.h"
+#include "../../libs/skeleton/include/omp/HandEvaluator.h"
+#include "../../libs/skeleton/include/omp/Hand.h"
+// #include "../../HandEvaluator.h"
+// #include "Hand.h"
 
 using namespace std;
 
@@ -29,7 +30,7 @@ struct Node {
         FA means that you were bet all-in
     */
     // WARNING: you should put cards in that dont have the cards on the flop
-    Node(vector<int> board, string _action = "P12", int pot1 = 0, int pot2 = 0, vector<int> h1 = {}, vector<int> h2 = {}, int preflop = -1) { // start building the game tree from here
+    Node(vector<int> board, vector<string> &history, string _action = "P12", int pot1 = 0, int pot2 = 0, vector<int> h1 = {}, vector<int> h2 = {}, int preflop = -1) { // start building the game tree from here
         auto get_cards = [&]() -> vector<int> {
             vector<int> cards(52); 
             iota(cards.begin(), cards.end(), 0);  
@@ -54,6 +55,7 @@ struct Node {
             (helper_func::random_number(0, 1) ? pot1 : pot2) /= 2;
 		}
         action = _action;
+        history.push_back(action);
         if (action == "P12" || action == "P22") {
             auto cards = get_cards(); 
             for (int i = 0; i < cards.size(); i++) {
@@ -65,7 +67,7 @@ struct Node {
                     if (action == "P12") h1_ = {cards[i], cards[j]}; 
                     else h2_ = {cards[i], cards[j]}; 
                     children[to_string(c1) + " " + to_string(c2)] =
-                        new Node(board, (action == "P12") ? "P23" : "F", pot1, pot2, h1_, h2_);
+                        new Node(board, history, (action == "P12") ? "P23" : "F", pot1, pot2, h1_, h2_);
                 }
             }
         }
@@ -82,7 +84,7 @@ struct Node {
                         if (action == "P13") h1_ = {cards[i], cards[j], cards[k]}; 
                         else h2_ = {cards[i], cards[j], cards[k]}; 
                         children[to_string(c1) + " " + to_string(c2) + " " + to_string(c3)] =
-                            new Node(board, (action == "P13") ? "P22" : "F", pot1, pot2, h1_, h2_); 
+                            new Node(board, history, (action == "P13") ? "P22" : "F", pot1, pot2, h1_, h2_); 
                     }
                 }
             }
@@ -90,7 +92,7 @@ struct Node {
             auto cards = get_cards(); 
             for (auto c : cards) {
                 board.push_back(c); 
-                children[to_string(c)] = new Node(board, action == "t" ? "T" : "R", pot1, pot2, h1, h2); 
+                children[to_string(c)] = new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2); 
                 board.pop_back(); 
             }
         } else if (action == "S" || max(pot1, pot2) == 400) { // we have reached showdown (or someone is all-in)
@@ -185,13 +187,13 @@ struct Node {
             for (auto decision : {"C", "H", "P", "A"}) {
                 if (action.length() >= 2 && decision == "C") {
                     if (action[0] == 'F') {
-                        children[decision] = new Node(board, "t", pot1, pot2, h1, h2);
+                        children[decision] = new Node(board, history, "t", pot1, pot2, h1, h2);
                     }
                     else if (action[0] == 'T') {
-                        children[decision] = new Node(board, "r", pot1, pot2, h1, h2);
+                        children[decision] = new Node(board, history, "r", pot1, pot2, h1, h2);
                     }
                     else {
-                        children[decision] = new Node(board, "S", pot1, pot2, h1, h2);
+                        children[decision] = new Node(board, history, "S", pot1, pot2, h1, h2);
                     }
                 }
                 if (decision == "H") {
@@ -204,7 +206,7 @@ struct Node {
                         continue; 
                     }
                 } 
-                children[decision] = new Node(board, action + string(decision), pot1, pot2, h1, h2);
+                children[decision] = new Node(board, history, action + string(decision), pot1, pot2, h1, h2);
             }
         }
         else if (action[action.size() - 1] == 'H' || action[action.size() - 1] == 'P' || action[action.size() - 1] == 'A' || action[action.size() - 1] == '^') {     // they've bet into you
@@ -220,22 +222,22 @@ struct Node {
                     bet[i & 1 ^ 1] = 3 * bet[i & 1]; 
                 }
                 // FOLD 
-                children["."] = new Node(board, action + ".", pot1 + bet[0], pot2 + bet[1], h1, h2); 
+                children["."] = new Node(board, history, action + ".", pot1 + bet[0], pot2 + bet[1], h1, h2); 
                 // CALL 
-                if (action[0] == 'F') children["C"] = new Node(board, "t", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2); 
-                else if (action[0] == 'T') children["C"] = new Node(board, "r", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2); 
-                else children["C"] = new Node(board, "S", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2); 
+                if (action[0] == 'F') children["C"] = new Node(board, history, "t", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2); 
+                else if (action[0] == 'T') children["C"] = new Node(board, history, "r", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2); 
+                else children["C"] = new Node(board, history, "S", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2); 
                 // RAISE 
                 if (action[action.size() - 1] == 'A') {
                     // TRIVIALLY YOU CANNOT RAISE 
                 } else if (action[action.size() - 1] == '^') {
                     // RAISE ALL-IN 
-                    children["A"] = new Node(board, action + "A", pot1, pot2, h1, h2);
+                    children["A"] = new Node(board, history, action + "A", pot1, pot2, h1, h2);
                 } else {
                     // RAISE ALL-IN 
-                    children["A"] = new Node(board, action + "A", pot1, pot2, h1, h2); 
+                    children["A"] = new Node(board, history, action + "A", pot1, pot2, h1, h2); 
                     if (3 * max(bet[0], bet[1]) < (400 - pot1, 400 - pot2)) {
-                        children["^"] = new Node(board, action + "^", pot1, pot2, h1, h2); 
+                        children["^"] = new Node(board, history, action + "^", pot1, pot2, h1, h2); 
                     }
                 }
 
@@ -245,6 +247,13 @@ struct Node {
             // FOLD 
 
         } 
+        history.pop_back();
 
     }
 };
+
+
+int main() {
+    vector<string> v;
+    Node *a = new Node(vector<int>({0, 1, 2}), v); 
+}
