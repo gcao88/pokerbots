@@ -2,6 +2,7 @@
   "cmake.sourceDirectory": "/Users/atharvjain/code/pokerbots/cpp_skeleton",
   "files.associations": {
     "vector": "cpp",
-    "iosfwd": "cpp"
+    "iosfwd": "cpp",
+    "unordered_map": "cpp"
   }
 }
