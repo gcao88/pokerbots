@@ -20,15 +20,8 @@ struct Node {
     bool is_terminal;
     float reward;
     int player; //1/2, or 3 for chance, -1 for N/A
-    unordered_map<Action*, Node*> children;
-    Node(const bool &is_terminal, const int &reward, const int &player, unordered_map<Action*, Node*> children) : is_terminal(is_terminal), reward(reward), player(player), children(children) {}
-    Node* next(Action* a) {
-        for (auto child : children) {
-            if (child.first == a) {
-                return child.second;
-            }
-        }
-    }
+    vector<pair<Action*, Node*>> children;
+    Node(const bool &is_terminal, const int &reward, const int &player, vector<pair<Action*, Node*>> children) : is_terminal(is_terminal), reward(reward), player(player), children(children) {}
 };
 
 
@@ -105,7 +98,7 @@ float walk_tree(Node* h, int i, float q) {
         float rho = min(1.0f, max(epsilon, (beta + tau * a->s)/(beta + total_s)));
         v[a] = 0;
         if (random_num() < rho) {
-            v[a] = walk_tree(h->next(a), i, q*rho);
+            v[a] = walk_tree(child, i, q*rho);
         }
     }
     float expected_v = 0;
@@ -182,7 +175,7 @@ int main() {
                     {p2_actions[card2][3], new Node(true, card1>card2 ? 2 : -2, -1, {})},
                 })},
             });
-            root->children[new Action(card1+card2, 1/6)] = u;
+            root->children.emplace_back(new Action(card1+card2, 1/6), u);
         }
     }
   
