@@ -7,6 +7,9 @@ from skeleton.states import NUM_ROUNDS, STARTING_STACK, BIG_BLIND, SMALL_BLIND
 from skeleton.bot import Bot
 from skeleton.runner import parse_args, run_bot
 import csv
+import random
+from equity_calculator import equity_vs_average_hand
+from made_or_draw import made_or_draw
 
 class Player(Bot):
     '''
@@ -37,7 +40,45 @@ class Player(Bot):
                         small, big = row[j][1:-1].split(",")
                         self.range_dict[(str(self.card_num_list[i-1]), str(self.card_num_list[j-1]))] = (small, big)
                     i += 1
-        pass
+
+        # LINES
+        # for now, flop vs turn vs river play the same
+        # 8 lines for 8 different scenarios, see _identify_line
+        # each line: 9 numbers, all relative to pot
+        # 0-5: OOP, or if checked or tiny bet to us IP
+        #   0: initial bet size
+        #   1/2: thresholds if they re-raise
+        #     1: re-raise under this amount
+        #     2: call under this amount (fold over this amount)
+        #   3/4: thresholds if they re-raise again
+        # 6-9: IP and they bet a non-tiny amount
+        #   6/7: initial thresholds
+        #   8/9: thresholds if they re-raise
+        # all numbers are relative to pot at the start of the round (so that responses to re-raises are more clear)
+        self.lines_2hand = [
+            [0, 0, 0, None, None, 0, 0, None, None],
+            [0, 0, 0.5, None, None, 0.5, 0, None, None],
+            [0, 0, 1.0, None, None, 1.0, 0, None, None],
+            [0, 0, 400.0, None, None, 400.0, 0, None, None],
+            [0, 0, 0, None, None, 0, 0, None, None],
+            [0, 0, 0.5, None, None, 0.5, 0, None, None],
+            [0, 0, 1.0, None, None, 1.0, 0, None, None],
+            [0, 0, 400.0, None, None, 400.0, 0, None, None],
+        ]
+        self.lines_3hand = [
+            [0.5, 0, 2.0, None, None, 0, 2.0, None, None],
+            [0.5, 0, 2.0, None, None, 0, 2.0, None, None],
+            [0.5, 0, 2.0, None, None, 0, 2.0, None, None],
+            [0.5, 0, 2.0, None, None, 0, 2.0, None, None],
+            [0.5, 0, 2.0, None, None, 0, 2.0, None, None],
+            [0.5, 0, 2.0, None, None, 0, 2.0, None, None],
+            [0.5, 0, 2.0, None, None, 0, 2.0, None, None],
+            [0.5, 0, 2.0, None, None, 0, 2.0, None, None],
+        ]
+        self.RERAISE_MULTIPLIER = 2.5
+        self.TINY_BET_THRESHOLD = 0.15
+        self.AUCTION_AMOUNT_LOWER = 2.3
+        self.AUCTION_AMOUNT_UPPER = 3.7
 
     def handle_new_round(self, game_state, round_state, active):
         '''
@@ -56,7 +97,9 @@ class Player(Bot):
         self.round_num = game_state.round_num  # the round number from 1 to NUM_ROUNDS
         # my_cards = round_state.hands[active]  # your cards
         self.big_blind = bool(active)  # True if you are the big blind
-        pass
+
+        # 0 if OOP and first action, 1 if IP and first action, 2 if OOP and it comes back to us, etc.
+        self.street_action_counts = [None, None, None, 0, 0, 0]
 
     def handle_round_over(self, game_state, terminal_state, active):
         '''
@@ -105,6 +148,10 @@ class Player(Bot):
         my_contribution = STARTING_STACK - my_stack  # the number of chips you have contributed to the pot
         opp_contribution = STARTING_STACK - opp_stack  # the number of chips your opponent has contributed to the pot
 
+        min_raise, max_raise = round_state.raise_bounds()
+        starting_pot = 2*STARTING_STACK - my_stack - opp_stack + my_pip + opp_pip
+
+        # if we win by folding every game, then check/fold
         if self.my_bankroll > 1.5 * (NUM_ROUNDS - self.round_num + 1):
             if CheckAction in legal_actions:
                 return CheckAction()
@@ -121,26 +168,84 @@ class Player(Bot):
                 threshold = self.range_dict[(my_cards[0][0], my_cards[1][0])][1 if self.big_blind else 0]
             threshold = int(threshold)
 
-            if opp_pip > threshold:
+            if opp_pip > 1.5*threshold:
                 return FoldAction()
             else:
-                # first bets as small blind
-                if not self.big_blind and opp_pip == 2:
-                    return RaiseAction(5)
-                # ur small blind, they 3+ bet OR ur big blind
+                min_raise, max_raise = round_state.raise_bounds()
+                if threshold > 3*continue_cost:
+                    return RaiseAction(min(max(3*opp_pip, min_raise), max_raise))
                 else:
-                    min_raise, max_raise = round_state.raise_bounds()
-                    if threshold > 3*continue_cost:
-                        return RaiseAction(min(max(3*opp_pip, min_raise), max_raise))
-                    else:
-                        return CallAction()
+                    return CallAction()
+
+        # ========
+        # POSTFLOP
+        # ========
+        elif BidAction in legal_actions:
+            # AUCTION
+            return BidAction(random.randint(int(self.AUCTION_AMOUNT_LOWER*starting_pot), int(self.AUCTION_AMOUNT_UPPER*starting_pot)))
         else:
-            if BidAction in legal_actions:
-                return BidAction(int(my_stack*0.8))
-            if CheckAction in legal_actions:
-                return CheckAction()
-            if CallAction in legal_actions:
-                return CallAction()
+            # FLOP/TURN/RIVER
+            if my_bid > opp_bid:
+                line = self.lines_3hand[self._identify_line(my_cards, board_cards)]
+            else:
+                line = self.lines_2hand[self._identify_line(my_cards, board_cards)]
+
+            if self.street_action_counts[street] == 0:
+                if opp_pip / starting_pot <= self.TINY_BET_THRESHOLD:
+                    # OOP or IP and checked or small bet to us
+
+                    # treat next actions as OOP
+                    self.street_action_counts[street] = 2
+
+                    if line[0] == 0:
+                        if opp_pip > 0:
+                            return CallAction()
+                        else:
+                            return CheckAction()
+                    else: return RaiseAction(min(int(line[0] * starting_pot), max_raise))
+                else:
+                    # IP and bet to us
+                    self.street_action_counts[street] = 3
+
+                    return self._get_action_from_threshold(line[5], line[6], opp_pip, starting_pot, max_raise)
+            else:
+                if self.street_action_counts[street] == 2:
+                    reraise_threshold, call_threshold = line[1], line[2]
+                if self.street_action_counts[street] == 3:
+                    reraise_threshold, call_threshold = line[7], line[8]
+                if self.street_action_counts[street] == 4:
+                    reraise_threshold, call_threshold = line[3], line[4]
+                if self.street_action_counts[street] in [2,3,4]:
+                    self.street_action_counts[street] += 2
+                    return self._get_action_from_threshold(reraise_threshold, call_threshold, opp_pip, starting_pot, max_raise)
+                else:
+                    # edge case where somehow we aren't all in yet
+                    print("womp womp")
+                    return FoldAction()
+
+    def _identify_line(self, hand, board):
+        equity, conf_interval = equity_vs_average_hand(hand, 5-len(hand), board)
+        hand_type = made_or_draw(hand, board)
+        if hand_type == 1: # made hand
+            if equity < 0.5: return 0
+            elif equity < 0.65: return 1
+            elif equity < 0.75: return 2
+            elif equity <= 1: return 3
+        elif hand_type == 0: # drawing
+            if equity < 0.2: return 4
+            elif equity < 0.5: return 5
+            elif equity < 0.7: return 6
+            elif equity <= 1: return 7
+
+    def _get_action_from_threshold(self, reraise_threshold, call_threshold, opp_pip, starting_pot, max_raise):
+        if opp_pip / starting_pot <= reraise_threshold:
+            if 2 * self.RERAISE_MULTIPLIER * opp_pip > max_raise:
+                return RaiseAction(max_raise)
+            else:
+                return RaiseAction(min(int(self.RERAISE_MULTIPLIER * opp_pip), max_raise))
+        elif opp_pip / starting_pot <= call_threshold:
+            return CallAction()
+        else:
             return FoldAction()
 
 if __name__ == '__main__':

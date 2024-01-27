@@ -38,7 +38,7 @@ class Runner():
             code = 'C'
         elif isinstance(action, CheckAction):
             code = 'K'
-        elif isinstance(action, BidAction): 
+        elif isinstance(action, BidAction):
             code = 'A' + str(action.amount)
         else:  # isinstance(action, RaiseAction)
             code = 'R' + str(action.amount)
@@ -77,7 +77,7 @@ class Runner():
                     round_state = round_state.proceed(CheckAction())
                 elif clause[0] == 'R':
                     round_state = round_state.proceed(RaiseAction(int(clause[1:])))
-                elif clause[0] == 'A': 
+                elif clause[0] == 'A':
                     round_state = round_state.proceed(BidAction(int(clause[1:])))
                 elif clause[0] == 'N':
                     hands = [[], []]
@@ -85,10 +85,10 @@ class Runner():
                     bids = bids.split(',')
                     stacks = stacks.split(',')
                     hands[active] = active_hands.split(',')
-                    round_state = RoundState(round_state.button, round_state.street, round_state.auction, [int(x) for x in bids], round_state.pips, [int(x) for x in stacks], hands, [], round_state)
+                    round_state = RoundState(round_state.button, round_state.street, round_state.auction, [int(x) for x in bids], round_state.pips, [int(x) for x in stacks], hands, round_state.deck, round_state)
                 elif clause[0] == 'B':
-                    round_state = RoundState(round_state.button, round_state.street, round_state.auction, round_state.bids, 
-                                            round_state.pips, round_state.stacks, round_state.hands, clause[1:].split(','), 
+                    round_state = RoundState(round_state.button, round_state.street, round_state.auction, round_state.bids,
+                                            round_state.pips, round_state.stacks, round_state.hands, clause[1:].split(','),
                                             round_state.previous_state)
                 elif clause[0] == 'O':
                     # backtrack
@@ -96,8 +96,8 @@ class Runner():
                     revised_hands = list(round_state.hands)
                     revised_hands[1-active] = clause[1:].split(',')
                     # rebuild history
-                    round_state = RoundState(round_state.button, round_state.street, round_state.auction, round_state.bids, 
-                                            round_state.pips, round_state.stacks, revised_hands, round_state.deck, 
+                    round_state = RoundState(round_state.button, round_state.street, round_state.auction, round_state.bids,
+                                            round_state.pips, round_state.stacks, revised_hands, round_state.deck,
                                             round_state.previous_state)
                     round_state = TerminalState([0, 0], round_state.bids, round_state)
                 elif clause[0] == 'D':
