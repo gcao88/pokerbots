@@ -168,14 +168,14 @@ class Player(Bot):
                 threshold = self.range_dict[(my_cards[0][0], my_cards[1][0])][1 if self.big_blind else 0]
             threshold = int(threshold)
 
+            #### EXPLOITING PREV. BOT ####
+            if random.random() < 0.05:
+                return RaiseAction(369-my_pip)
+            ##############################
+
             if opp_pip > 1.5*threshold:
                 return FoldAction()
             else:
-                #### BACKDOOR FOR NEXT WEEK ####
-                if opp_pip == "369":
-                    return FoldAction()
-                ################################
-                
                 min_raise, max_raise = round_state.raise_bounds()
                 if threshold > 3*continue_cost:
                     return RaiseAction(min(max(3*opp_pip, min_raise), max_raise))
