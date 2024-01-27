@@ -7,6 +7,7 @@
         "unordered_map": "cpp",
         "new": "cpp",
         "ostream": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "unordered_set": "cpp"
     }
 }

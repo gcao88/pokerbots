@@ -3,12 +3,12 @@
 #include <string>
 #include <random>
 #include <unordered_map>
+#include <unordered_set>
 #include <fstream>
 
 using namespace std;
 
 struct Node;
-struct InfoSet;
 struct Action {
     string label;
     float r = 0;
@@ -20,7 +20,6 @@ struct Node {
     bool is_terminal;
     float reward;
     int player; //1/2, or 3 for chance, -1 for N/A
-    InfoSet* infoset;
     unordered_map<Action*, Node*> children;
     Node(const bool &is_terminal, const int &reward, const int &player, unordered_map<Action*, Node*> children) : is_terminal(is_terminal), reward(reward), player(player), children(children) {}
     Node* next(Action* a) {
@@ -30,9 +29,6 @@ struct Node {
             }
         }
     }
-};
-struct InfoSet {
-
 };
 
 
@@ -59,7 +55,6 @@ float beta = 1e6;
 float tau = 1000;
 float walk_tree(Node* h, int i, float q) {
     if (h->is_terminal) {
-        // cout << "TERMINAL: " << h->reward << endl;
         if (i == 1) return h->reward/q;
         else return -h->reward/q;
     }
@@ -123,16 +118,38 @@ float walk_tree(Node* h, int i, float q) {
     return expected_v;
 }
 
-void get_infosets(Node* u, string p1_obs, string p2_obs, unordered_map<string, vector<Node*>>* infosets) {
-    if (u->player == 1) {
-        (*infosets)[p1_obs].push_back(u);
+//store a set of actions; this uniquely defines a strategy
+void encode_strategy(Node* h, int i, unordered_set<Action*>* strategy) {
+    if (h->player != i) {
+        for (auto [a, child] : h->children) {
+            encode_strategy(child, i, strategy);
+        }
     }
-    if (u->player == 2) {
-        (*infosets)[p2_obs].push_back(u);
+    else {
+        //to account for 2 nodes in same infoset, if an action is in strategy, then skip
+        for (auto [a, child] : h->children) {
+            if (strategy->contains(a)) return;
+        }
+
+        float total_s = 0;
+        for (auto [a, child] : h->children) {
+            total_s += a->s;
+        }
+        float p_counter = 0;
+        float rand = random_num();
+        for (auto [a, child] : h->children) {
+            p_counter += a->s / total_s;
+            if (rand < p_counter) {
+                strategy->insert(a);
+                encode_strategy(child, i, strategy);
+                return;
+            }
+        }
     }
-    for (auto [a, child] : u->children) {
-        get_infosets(child, p1_obs + a->label, p2_obs + a->label, infosets);
-    }
+}
+
+void decode_strategy(Node* h) {
+
 }
 
 int main() {
@@ -148,7 +165,6 @@ int main() {
         {"C", {new Action("x", -1), new Action("b", -1), new Action("f", -1), new Action("c", -1)}},
     };
 
-    unordered_map<string, vector<Node*>>* infosets = new unordered_map<string, vector<Node*>>();
     for (string card1 : {"A", "B", "C"}) {
         for (string card2 : {"A", "B", "C"}) {
             if (card1 == card2) continue;
@@ -167,14 +183,13 @@ int main() {
                 })},
             });
             root->children[new Action(card1+card2, 1/6)] = u;
-            get_infosets(u, "P1" + card1, "P2" + card2, infosets);
         }
     }
   
     print_tree(root);
     ofstream fout("data.txt");
     for(int j=0; j<1; j++) {
-        for (int i=0; i<1e4; i++) {
+        for (int i=0; i<6561; i++) {
             walk_tree(root, i%2+1, 1);
         }
 
