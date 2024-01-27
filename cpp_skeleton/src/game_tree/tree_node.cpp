@@ -3,18 +3,21 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "helper_func.cpp"
+// #include "helper_func.cpp"
+#include "info_set.cpp"
 #include "../../libs/skeleton/include/pokerengine/SevenEval.h"
 
 using namespace std;
 
-int node = 0; 
+unordered_map<string, InfoSet*> mp;
+
 struct Node {
     // leads to all direct children in the gametree
     /*
     TH (FC^A)
     */
     map<string, Node *> children;
+    InfoSet *infoset = NULL; 
     // next action
     string action;
     double reward = 1e9; // if theres a terminal state it will have some non-zero reward. positive reward implies player1 wins chips. 
@@ -32,21 +35,15 @@ struct Node {
     */
     // WARNING: you should put cards in that dont have the cards on the flop
     Node(vector<int> board, vector<string> &history, string _action = "P12", int pot1 = 0, int pot2 = 0, vector<int> h1 = {}, vector<int> h2 = {}, int preflop = 2) { // start building the game tree from here
-        node++; 
-        if (node % 100000 == 0) 
-            cout << "NEW NODE " << node << endl;
+
         auto get_cards = [&]() -> vector<int> {
-            vector<int> cards(52);
-            iota(cards.begin(), cards.end(), 0);
-            for (auto c : board) {
-                cards.erase(find(cards.begin(), cards.end(), c));
-            }
-            for (auto c : h1) {
-                cards.erase(find(cards.begin(), cards.end(), c));
-            }
-            for (auto c : h2) {
-                cards.erase(find(cards.begin(), cards.end(), c));
-            }
+            vector<int> cards(13, 4);
+            for (auto v : board) 
+                cards[v]--;
+            for (auto v : h1) 
+                cards[v]--; 
+            for (auto v : h2) 
+                cards[v]--; 
             return cards; 
         }; 
         if (pot1 == 0 || pot2 == 0) {
@@ -62,18 +59,39 @@ struct Node {
         }
         action = _action;
         history.push_back(action);
+
+        if (action != "P12" && action != "P13" && action != "P22" 
+            && action != "P23" && action != "t" && action != "r") {
+            string key = "";
+            for (auto h : history) {
+                key += h + " "; 
+            }
+            if (action.size() % 2 == 0) {
+                for (auto c : h1) 
+                    key += to_string(c) + " "; 
+            } else {
+                for (auto c : h2) 
+                    key += to_string(c) + " "; 
+            }
+            if (mp.find(key) != mp.end()) {
+                mp[key] = new InfoSet(); 
+            }
+            infoset = mp[key]; 
+        }
         if (action == "P12" || action == "P22") {
             auto cards__ = get_cards(); 
-            for (int i = 0; i < cards__.size(); i++) {
-                for (int j = i + 1; j < cards__.size(); j++) {
-                    auto c1 = cards__[i];
-                    auto c2 = cards__[j];
-                    vector<int> h1_ = h1; 
-                    vector<int> h2_ = h2;
-                    if (action == "P12") h1_ = {cards__[i], cards__[j]}; 
-                    else h2_ = {cards__[i], cards__[j]}; 
-                    children[to_string(c1) + " " + to_string(c2)] =
-                        new Node(board, history, (action == "P12") ? "P23" : "F", pot1, pot2, h1_, h2_);
+
+            for (int i = 0; i < 13; i++) {
+                for (int j = 0; j <= i; j++) {
+                    if ((i != j && cards__[i] && cards__[j]) || 
+                        (i == j && cards__[i] >= 2)) {
+                        vector<int> h1_ = h1; 
+                        vector<int> h2_ = h2; 
+                        if (action == "P12") h1_ = {i, j};
+                        else h2_ = {i, j};
+                        children[to_string(i) + " " + to_string(j)] =
+                            new Node(board, history, (action == "P12" ? "P23" : "F"), pot1, pot2, h1_, h2_);
+                    }
                 }
             }
         } else if (action[action.size() - 1] == '.') {
@@ -84,18 +102,22 @@ struct Node {
             }
         } else if (action == "P13" || action == "P23") {
             auto cards__ = get_cards(); 
-            for (int i = 0; i < cards__.size(); i++) {
-                for (int j = i + 1; j < cards__.size(); j++) {
-                    for (int k = j + 1; k < cards__.size(); k++) {
-                        auto c1 = cards__[i];
-                        auto c2 = cards__[j];
-                        auto c3 = cards__[k];
-                        vector<int> h1_ = h1; 
-                        vector<int> h2_ = h2;
-                        if (action == "P13") h1_ = {cards__[i], cards__[j], cards__[k]}; 
-                        else h2_ = {cards__[i], cards__[j], cards__[k]}; 
-                        children[to_string(c1) + " " + to_string(c2) + " " + to_string(c3)] =
-                            new Node(board, (action == "P13") ? "P22" : "F", pot1, pot2, h1_, h2_); 
+            for (int i = 0; i < 13; i++) {
+                for (int j = 0; j <= i; j++) {
+                    for (int k = 0; k <= i; k++) {
+                        if ((i == j && j == k && cards__[i] >= 3) || 
+                            (i == j && cards__[i] >= 2 && cards__[k]) || 
+                            (i == k && cards__[i] >= 2 && cards__[j]) ||
+                            (j == k && cards__[j] >= 2 && cards__[i]) ||
+                            (cards__[i] && cards__[j] && cards__[k])) {
+
+                            vector<int> h1_ = h1; 
+                            vector<int> h2_ = h2; 
+                            if (action == "P12") h1_ = {i, j, k};
+                            else h2_ = {i, j, k};
+                            children[to_string(i) + " " + to_string(j) + " " + to_string(k)] =
+                                new Node(board, history, (action == "P13" ? "P22" : "F"), pot1, pot2, h1_, h2_);
+                        } 
                     }
                 }
             }
@@ -117,9 +139,10 @@ struct Node {
                 for (int i = 0; i < 8; i++) {
                     vector<int> A; 
                     vector<int> B; 
-                    auto convert = [](int C) {
-                        auto suit = C / 13; 
-                        auto card = C % 13; 
+                    int counter = 0; 
+                    auto convert = [&](int C) {
+                        auto suit = counter++ % 4;
+                        auto card = C;
                         return suit + ((13 - card) % 13) * 4;
                     };
                     for (int j = 0; j < cards1.size(); j++) {
@@ -243,7 +266,7 @@ struct Node {
             }
         } else if (action == "F" || action == "T" || action == "R" || action == "FC" || action == "TC" || action == "RC") {
             for (auto decision : {"C", "H", "P", "A"}) {
-                if (action.length() >= 2 && decision == "C") {
+                if (action.length() >= 2 && decision == string("C")) {
                     if (action[0] == 'F') {
                         children[decision] = new Node(board, history, "t", pot1, pot2, h1, h2);
                     }
@@ -254,17 +277,17 @@ struct Node {
                         children[decision] = new Node(board, history, "S", pot1, pot2, h1, h2);
                     }
                 }
-                if (decision == "H") {
+                if (decision == string("H")) {
                     if ((pot1 + pot2) / 2 >= min(400 - pot1, 400 - pot2)) {
                         continue;
                     }
                 }
-                if (decision == "P") {
+                if (decision == string("P")) {
                     if ((pot1 + pot2) >= min(400 - pot1, 400 - pot2)) {
                         continue;
                     }
                 } 
-                children[decision] = new Node(board, action + string(decision), pot1, pot2, h1, h2);
+                children[decision] = new Node(board, history, action + string(decision), pot1, pot2, h1, h2);
             }
         }
         else if (action[action.size() - 1] == 'H' || action[action.size() - 1] == 'P' || action[action.size() - 1] == 'A' || action[action.size() - 1] == '^') {     // they've bet into you
