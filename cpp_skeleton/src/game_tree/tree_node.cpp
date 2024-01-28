@@ -88,6 +88,7 @@ struct Node {
             auto cards__ = get_cards(); 
 
             for (int i = 0; i < 13; i++) {
+                // cout << "DONE WITH " << i << "\n";
                 for (int j = 0; j <= i; j++) {
                     if ((i != j && cards__[i] && cards__[j]) || 
                         (i == j && cards__[i] >= 2)) {
@@ -265,10 +266,12 @@ struct Node {
             // history.pop_back();
             // return;// end early
             auto cards = get_cards(); 
-            for (auto c : cards) {
-                board.push_back(c); 
-                children[to_string(c)] = new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2); 
-                board.pop_back(); 
+            for (int i = 0; i < 13; i++) {
+                if (cards[i]) {
+                    board.push_back(i);
+                    children[to_string(i)] = new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2); 
+                    board.pop_back();
+                }
             }
         } else if (action == "F" || action == "T" || action == "R" || action == "FC" || action == "TC" || action == "RC") {
             for (auto decision : {"C", "H", "P", "A"}) {
