@@ -20,15 +20,8 @@ struct Node {
     bool is_terminal;
     float reward;
     int player; //1/2, or 3 for chance, -1 for N/A
-    unordered_map<Action*, Node*> children;
-    Node(const bool &is_terminal, const int &reward, const int &player, unordered_map<Action*, Node*> children) : is_terminal(is_terminal), reward(reward), player(player), children(children) {}
-    Node* next(Action* a) {
-        for (auto child : children) {
-            if (child.first == a) {
-                return child.second;
-            }
-        }
-    }
+    vector<pair<Action*, Node*>> children;
+    Node(const bool &is_terminal, const int &reward, const int &player, vector<pair<Action*, Node*>> children) : is_terminal(is_terminal), reward(reward), player(player), children(children) {}
 };
 
 
@@ -53,9 +46,9 @@ float random_num() {
 float epsilon = 0.05;
 float beta = 1e6;
 float tau = 1000;
-float walk_tree(Node* h, int i, float q) {
+float walk_tree(Node* h, int player, float q) {
     if (h->is_terminal) {
-        if (i == 1) return h->reward/q;
+        if (player == 1) return h->reward/q;
         else return -h->reward/q;
     }
     else if (h->player == 3) {
@@ -64,7 +57,7 @@ float walk_tree(Node* h, int i, float q) {
         for (auto [a, child] : h->children) {
             p_counter += a->prob;
             if (rand < p_counter) {
-                return walk_tree(child, i, q);
+                return walk_tree(child, player, q);
             }
         }
     }
@@ -78,7 +71,7 @@ float walk_tree(Node* h, int i, float q) {
         else sigma[a] = max(0.0f, a->r)/total_regret;
     }
 
-    if (h->player != i) {
+    if (h->player != player) {
         for (auto [a, child] : h->children) {
             a->s += sigma[a]/q;
         }
@@ -87,7 +80,7 @@ float walk_tree(Node* h, int i, float q) {
         for (auto [a, child] : h->children) {
             p_counter += sigma[a];
             if (rand < p_counter) {
-                return walk_tree(child, i, q); 
+                return walk_tree(child, player, q); 
             }
         }
         if (p_counter != 1) {
@@ -105,7 +98,7 @@ float walk_tree(Node* h, int i, float q) {
         float rho = min(1.0f, max(epsilon, (beta + tau * a->s)/(beta + total_s)));
         v[a] = 0;
         if (random_num() < rho) {
-            v[a] = walk_tree(h->next(a), i, q*rho);
+            v[a] = walk_tree(child, player, q*rho);
         }
     }
     float expected_v = 0;
@@ -119,16 +112,15 @@ float walk_tree(Node* h, int i, float q) {
 }
 
 //store a set of actions; this uniquely defines a strategy
-void encode_strategy(Node* h, int i, unordered_set<Action*>* strategy) {
-    if (h->player != i) {
+void encode_strategy(Node* h, int player, vector<int>* strategy, unordered_set<Action*>* added) {
+    if (h->player != player) {
         for (auto [a, child] : h->children) {
-            encode_strategy(child, i, strategy);
+            encode_strategy(child, player, strategy, added);
         }
     }
     else {
-        //to account for 2 nodes in same infoset, if an action is in strategy, then skip
         for (auto [a, child] : h->children) {
-            if (strategy->contains(a)) return;
+            if (added->contains(a)) return;
         }
 
         float total_s = 0;
@@ -137,19 +129,55 @@ void encode_strategy(Node* h, int i, unordered_set<Action*>* strategy) {
         }
         float p_counter = 0;
         float rand = random_num();
-        for (auto [a, child] : h->children) {
+        for (int i = 0; i < h->children.size(); i++) {
+            auto& [a, child] = h->children[i];
             p_counter += a->s / total_s;
             if (rand < p_counter) {
-                strategy->insert(a);
-                encode_strategy(child, i, strategy);
+                added->insert(a);
+                cout << a->label << " " << i << endl;
+                strategy->push_back(i);
+                encode_strategy(child, player, strategy, added);
                 return;
             }
         }
     }
 }
 
-void decode_strategy(Node* h) {
+void decode_strategy(Node* h, int i, vector<int>* strategy, int* ind, unordered_set<Action*>* added) {
+    if (h->player != i) {
+        for (auto [a, child] : h->children) {
+            decode_strategy(child, i, strategy, ind, added);
+        }
+    }
+    else {
+        for (auto [a, child] : h->children) {
+            if (added->contains(a)) return;
+        }
 
+        auto& [a, child] = h->children[(*strategy)[*ind]];
+        a->s = 1e9; //take this line
+        added->insert(a);
+        (*ind)++;
+        decode_strategy(child, i, strategy, ind, added);
+    }
+}
+
+void print_s_values(unordered_map<string, vector<Action*>> p1_actions, unordered_map<string, vector<Action*>> p2_actions) {
+    for (string card1 : {"A", "B", "C"}) {
+        cout << card1 << endl;
+        for (Action* a : p1_actions[card1]) {
+            cout << a->label << " " << a->s << " ";
+        }
+        cout << "\n";
+    }
+    for (string card2 : {"A", "B", "C"}) {
+        cout << card2 << "\n";
+        for (Action* a : p2_actions[card2]) {
+            cout << a->label << " " << a->s << " ";
+        }
+        cout << "\n";
+    }
+    cout << "\n";
 }
 
 int main() {
@@ -182,32 +210,31 @@ int main() {
                     {p2_actions[card2][3], new Node(true, card1>card2 ? 2 : -2, -1, {})},
                 })},
             });
-            root->children[new Action(card1+card2, 1/6)] = u;
+            root->children.emplace_back(new Action(card1+card2, 1/6), u);
         }
     }
   
-    print_tree(root);
-    ofstream fout("data.txt");
-    for(int j=0; j<1; j++) {
-        for (int i=0; i<6561; i++) {
-            walk_tree(root, i%2+1, 1);
-        }
-
-        // cout << "P1" << endl;
-        for (string card1 : {"A", "B", "C"}) {
-            cout << card1 << endl;
-            for (Action* a : p1_actions[card1]) {
-                cout << a->label << " " << a->s << " ";
-            }
-            cout << "\n";
-        }
-        for (string card2 : {"A", "B", "C"}) {
-            cout << card2 << "\n";
-            for (Action* a : p2_actions[card2]) {
-                cout << a->label << " " << a->s << " ";
-            }
-            cout << "\n";
-        }
-        cout << "\n";
+    for (int i=0; i<6561; i++) {
+        walk_tree(root, i%2+1, 1);
     }
+
+    print_s_values(p1_actions, p2_actions);
+
+    vector<int>* strategy1 = new vector<int>();
+    encode_strategy(root, 1, strategy1, new unordered_set<Action*>());
+    int ind1 = 0;
+    decode_strategy(root, 1, strategy1, &ind1, new unordered_set<Action*>());
+
+    cout << "player 2" << endl;
+    /*
+    bug:
+    A
+    x 715.709 b 1e+09 f 1e+09 c 0.5
+    */
+    vector<int>* strategy2 = new vector<int>();
+    encode_strategy(root, 2, strategy2, new unordered_set<Action*>());
+    int ind2 = 0;
+    decode_strategy(root, 2, strategy2, &ind2, new unordered_set<Action*>());
+
+    print_s_values(p1_actions, p2_actions);
 }
