@@ -1,0 +1,2 @@
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libskeleton.a CMakeFiles/skeleton.dir/src/actions.cpp.o CMakeFiles/skeleton.dir/src/states.cpp.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib libskeleton.a
