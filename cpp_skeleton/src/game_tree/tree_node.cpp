@@ -39,8 +39,10 @@ struct Node {
     */
     // WARNING: you should put cards in that dont have the cards on the flop
     Node(vector<int> board, vector<string> &history, string _action = "P12", int pot1 = 0, int pot2 = 0, vector<int> h1 = {}, vector<int> h2 = {}, int preflop = 2) { // start building the game tree from here
-        num += 1;
-        if (num % 10000 == 0) {
+        // if (h1 == vector<int>({0, 0})) {
+            num += 1;
+        // }
+        if (num % 1'000'000 == 0) {
             cout << num << "\n";
         }
         auto get_cards = [&]() -> vector<int> {
@@ -88,7 +90,7 @@ struct Node {
             if (mp.find(key) == mp.end()) {
                 mp[key] = new InfoSet(); 
             }
-            // cout << key << " " << mp[key] << "\n";
+            cout << key << " " << mp[key] << "\n";
             infoset = mp[key]; 
         }
         if (action == "P12" || action == "P22") {
@@ -118,7 +120,7 @@ struct Node {
             auto cards__ = get_cards(); 
             for (int i = 0; i < 13; i++) {
                 for (int j = 0; j <= i; j++) {
-                    for (int k = 0; k <= i; k++) {
+                    for (int k = 0; k <= j; k++) {
                         if ((i == j && j == k && cards__[i] >= 3) || 
                             (i == j && cards__[i] >= 2 && cards__[k]) || 
                             (i == k && cards__[i] >= 2 && cards__[j]) ||
