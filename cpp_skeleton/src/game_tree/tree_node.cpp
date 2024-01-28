@@ -70,8 +70,13 @@ struct Node {
         if (action != "P12" && action != "P13" && action != "P22" 
             && action != "P23" && action != "t" && action != "r") {
             string key = "";
-            for (auto h : history) {
-                key += h + " "; 
+            for (int i = 0; i < history.size(); i++) {
+
+                auto h = history[i];
+                if (h != "P12" && h != "P13" && h != "P22" && h != "P23" && h != "t" && h != "r" && h.size() >= history[i + 1].size()) {
+                   
+                    key += h + " ";
+                }
             }
             if (action.size() % 2 == 0) {
                 for (auto c : h1) 
@@ -187,6 +192,8 @@ struct Node {
                 else if (ma1 < ma2) return 1; 
                 else return 0; 
             }; 
+            history.pop_back();
+            return;
             if (board.size() == 5) { 
                 // omp::Hand p1 = omp::Hand::empty(); 
                 auto win = get_winner(); 
@@ -198,42 +205,47 @@ struct Node {
                     reward = 1.0 * (pot1 + pot2) / 2 - pot1; 
                 }
             } else if (board.size() == 4) {
+                // history.pop_back();
+                // return;
+
                 reward = 0;
                 auto deck = get_cards();
                 int sz = deck.size();
-                for (auto c : deck) {
-                    board.push_back(c);
-                    auto win = get_winner();
-                    if (win == -1) {
-                        reward += 1.0 * pot2 / sz;
-                    } else if (win == 1) {
-                        reward += 1.0 * -pot1 / sz; 
-                    } else {
-                        reward += 1.0 * ((pot1 + pot2) / 2 - pot1) / sz; 
+                for (int i = 0; i < 13; i++) {
+                    if (deck[i]) {
+                        board.push_back(i);
+                        auto win = get_winner();
+                        if (win == -1) {
+                            reward += 1.0 * pot2 / sz;
+                        } else if (win == 1) {
+                            reward += 1.0 * -pot1 / sz; 
+                        } else {
+                            reward += 1.0 * ((pot1 + pot2) / 2 - pot1) / sz; 
+                        }
+                        board.pop_back();
                     }
-                    board.pop_back();
                 }
             } else {
                 assert(board.size() == 3);
                 reward = 0;
                 auto deck = get_cards();
                 int sz = deck.size();
-                for (int i = 0; i < sz; i++) {
-                    for (int j = 0; j < i; j++) {
-                        auto c1 = deck[i];
-                        auto c2 = deck[j];
-                        board.push_back(c1);
-                        board.push_back(c2);
-                        auto win = get_winner();
-                        if (win == -1) {
-                            reward += 1.0 * pot2 / (sz * (sz - 1) / 2); 
-                        } else if (win == 1) {
-                            reward += 1.0 * -pot1 / (sz * (sz - 1) / 2); 
-                        } else {
-                            reward += 1.0 * ((pot1 + pot2) / 2 - pot1) / (sz * (sz - 1) / 2); 
+                for (int i = 0; i < 13; i++) {
+                    for (int j = 0; j < 13; j++) {
+                        if ((i == j && deck[i] >= 2) || (i != j && deck[i] && deck[j])) {
+                            board.push_back(i);
+                            board.push_back(j);
+                            auto win = get_winner();
+                            if (win == -1) {
+                                reward += 1.0 * pot2 / sz;
+                            } else if (win == 1) {
+                                reward += 1.0 * -pot1 / sz; 
+                            } else {
+                                reward += 1.0 * ((pot1 + pot2) / 2 - pot1) / sz; 
+                            }
+                            board.pop_back();
+                            board.pop_back();
                         }
-                        board.pop_back();
-                        board.pop_back();
                     }
                 }
                 // cout << pot1 << " " << pot2 << "\n";
