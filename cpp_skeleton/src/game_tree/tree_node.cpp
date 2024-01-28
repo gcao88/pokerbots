@@ -8,9 +8,11 @@
 #include "info_set.cpp"
 #include "../../libs/skeleton/include/pokerengine/SevenEval.h"
 
+#include <ext/pb_ds/assoc_container.hpp>
+
 using namespace std;
 
-unordered_map<string, InfoSet*> mp;
+__gnu_pbds::gp_hash_table<string, InfoSet*> mp;
 int num = 0; 
 
 struct Node {
@@ -38,7 +40,7 @@ struct Node {
     // WARNING: you should put cards in that dont have the cards on the flop
     Node(vector<int> board, vector<string> &history, string _action = "P12", int pot1 = 0, int pot2 = 0, vector<int> h1 = {}, vector<int> h2 = {}, int preflop = 2) { // start building the game tree from here
         num += 1;
-        if (num % 1'000'000 == 0) {
+        if (num % 10000 == 0) {
             cout << num << "\n";
         }
         auto get_cards = [&]() -> vector<int> {
@@ -81,7 +83,7 @@ struct Node {
             if (mp.find(key) == mp.end()) {
                 mp[key] = new InfoSet(); 
             }
-            cout << key << " " << mp[key] << "\n";
+            // cout << key << " " << mp[key] << "\n";
             infoset = mp[key]; 
         }
         if (action == "P12" || action == "P22") {
