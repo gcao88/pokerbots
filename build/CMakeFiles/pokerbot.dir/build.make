@@ -83,10 +83,24 @@ CMakeFiles/pokerbot.dir/src/game_tree/helper_func.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/pokerbot.dir/src/game_tree/helper_func.cpp.s"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/atharvjain/code/pokerbots/cpp_skeleton/src/game_tree/helper_func.cpp -o CMakeFiles/pokerbot.dir/src/game_tree/helper_func.cpp.s
 
+CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.o: CMakeFiles/pokerbot.dir/flags.make
+CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.o: /Users/atharvjain/code/pokerbots/cpp_skeleton/src/game_tree/info_set.cpp
+CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.o: CMakeFiles/pokerbot.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/atharvjain/code/pokerbots/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.o -MF CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.o.d -o CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.o -c /Users/atharvjain/code/pokerbots/cpp_skeleton/src/game_tree/info_set.cpp
+
+CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.i"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/atharvjain/code/pokerbots/cpp_skeleton/src/game_tree/info_set.cpp > CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.i
+
+CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.s"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/atharvjain/code/pokerbots/cpp_skeleton/src/game_tree/info_set.cpp -o CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.s
+
 CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.o: CMakeFiles/pokerbot.dir/flags.make
 CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.o: /Users/atharvjain/code/pokerbots/cpp_skeleton/src/game_tree/tree_node.cpp
 CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.o: CMakeFiles/pokerbot.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/atharvjain/code/pokerbots/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/atharvjain/code/pokerbots/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.o -MF CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.o.d -o CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.o -c /Users/atharvjain/code/pokerbots/cpp_skeleton/src/game_tree/tree_node.cpp
 
 CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.i: cmake_force
@@ -100,7 +114,7 @@ CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.s: cmake_force
 CMakeFiles/pokerbot.dir/src/main.cpp.o: CMakeFiles/pokerbot.dir/flags.make
 CMakeFiles/pokerbot.dir/src/main.cpp.o: /Users/atharvjain/code/pokerbots/cpp_skeleton/src/main.cpp
 CMakeFiles/pokerbot.dir/src/main.cpp.o: CMakeFiles/pokerbot.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/atharvjain/code/pokerbots/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/pokerbot.dir/src/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/atharvjain/code/pokerbots/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/pokerbot.dir/src/main.cpp.o"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/pokerbot.dir/src/main.cpp.o -MF CMakeFiles/pokerbot.dir/src/main.cpp.o.d -o CMakeFiles/pokerbot.dir/src/main.cpp.o -c /Users/atharvjain/code/pokerbots/cpp_skeleton/src/main.cpp
 
 CMakeFiles/pokerbot.dir/src/main.cpp.i: cmake_force
@@ -111,24 +125,42 @@ CMakeFiles/pokerbot.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/pokerbot.dir/src/main.cpp.s"
 	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/atharvjain/code/pokerbots/cpp_skeleton/src/main.cpp -o CMakeFiles/pokerbot.dir/src/main.cpp.s
 
+CMakeFiles/pokerbot.dir/src/preflop.cpp.o: CMakeFiles/pokerbot.dir/flags.make
+CMakeFiles/pokerbot.dir/src/preflop.cpp.o: /Users/atharvjain/code/pokerbots/cpp_skeleton/src/preflop.cpp
+CMakeFiles/pokerbot.dir/src/preflop.cpp.o: CMakeFiles/pokerbot.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/atharvjain/code/pokerbots/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/pokerbot.dir/src/preflop.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/pokerbot.dir/src/preflop.cpp.o -MF CMakeFiles/pokerbot.dir/src/preflop.cpp.o.d -o CMakeFiles/pokerbot.dir/src/preflop.cpp.o -c /Users/atharvjain/code/pokerbots/cpp_skeleton/src/preflop.cpp
+
+CMakeFiles/pokerbot.dir/src/preflop.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/pokerbot.dir/src/preflop.cpp.i"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/atharvjain/code/pokerbots/cpp_skeleton/src/preflop.cpp > CMakeFiles/pokerbot.dir/src/preflop.cpp.i
+
+CMakeFiles/pokerbot.dir/src/preflop.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/pokerbot.dir/src/preflop.cpp.s"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/atharvjain/code/pokerbots/cpp_skeleton/src/preflop.cpp -o CMakeFiles/pokerbot.dir/src/preflop.cpp.s
+
 # Object files for target pokerbot
 pokerbot_OBJECTS = \
 "CMakeFiles/pokerbot.dir/src/game_tree/helper_func.cpp.o" \
+"CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.o" \
 "CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.o" \
-"CMakeFiles/pokerbot.dir/src/main.cpp.o"
+"CMakeFiles/pokerbot.dir/src/main.cpp.o" \
+"CMakeFiles/pokerbot.dir/src/preflop.cpp.o"
 
 # External object files for target pokerbot
 pokerbot_EXTERNAL_OBJECTS =
 
 pokerbot: CMakeFiles/pokerbot.dir/src/game_tree/helper_func.cpp.o
+pokerbot: CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.o
 pokerbot: CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.o
 pokerbot: CMakeFiles/pokerbot.dir/src/main.cpp.o
+pokerbot: CMakeFiles/pokerbot.dir/src/preflop.cpp.o
 pokerbot: CMakeFiles/pokerbot.dir/build.make
 pokerbot: libs/skeleton/libskeleton.a
 pokerbot: /opt/homebrew/lib/libboost_system-mt.a
 pokerbot: /opt/homebrew/lib/libfmt.10.2.1.dylib
 pokerbot: CMakeFiles/pokerbot.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/atharvjain/code/pokerbots/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable pokerbot"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/atharvjain/code/pokerbots/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable pokerbot"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/pokerbot.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

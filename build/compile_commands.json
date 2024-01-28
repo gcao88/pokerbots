@@ -6,6 +6,11 @@
 },
 {
   "directory": "/Users/atharvjain/code/pokerbots/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DBOOST_SYSTEM_NO_LIB -DFMT_SHARED -I/Users/atharvjain/code/pokerbots/cpp_skeleton/include -I/Users/atharvjain/code/pokerbots/cpp_skeleton/libs/skeleton/include -isystem /opt/homebrew/include -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk -mmacosx-version-min=13.2 -std=gnu++17 -o CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.o -c /Users/atharvjain/code/pokerbots/cpp_skeleton/src/game_tree/info_set.cpp",
+  "file": "/Users/atharvjain/code/pokerbots/cpp_skeleton/src/game_tree/info_set.cpp"
+},
+{
+  "directory": "/Users/atharvjain/code/pokerbots/build",
   "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DBOOST_SYSTEM_NO_LIB -DFMT_SHARED -I/Users/atharvjain/code/pokerbots/cpp_skeleton/include -I/Users/atharvjain/code/pokerbots/cpp_skeleton/libs/skeleton/include -isystem /opt/homebrew/include -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk -mmacosx-version-min=13.2 -std=gnu++17 -o CMakeFiles/pokerbot.dir/src/game_tree/tree_node.cpp.o -c /Users/atharvjain/code/pokerbots/cpp_skeleton/src/game_tree/tree_node.cpp",
   "file": "/Users/atharvjain/code/pokerbots/cpp_skeleton/src/game_tree/tree_node.cpp"
 },
@@ -13,6 +18,11 @@
   "directory": "/Users/atharvjain/code/pokerbots/build",
   "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DBOOST_SYSTEM_NO_LIB -DFMT_SHARED -I/Users/atharvjain/code/pokerbots/cpp_skeleton/include -I/Users/atharvjain/code/pokerbots/cpp_skeleton/libs/skeleton/include -isystem /opt/homebrew/include -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk -mmacosx-version-min=13.2 -std=gnu++17 -o CMakeFiles/pokerbot.dir/src/main.cpp.o -c /Users/atharvjain/code/pokerbots/cpp_skeleton/src/main.cpp",
   "file": "/Users/atharvjain/code/pokerbots/cpp_skeleton/src/main.cpp"
+},
+{
+  "directory": "/Users/atharvjain/code/pokerbots/build",
+  "command": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DBOOST_SYSTEM_NO_LIB -DFMT_SHARED -I/Users/atharvjain/code/pokerbots/cpp_skeleton/include -I/Users/atharvjain/code/pokerbots/cpp_skeleton/libs/skeleton/include -isystem /opt/homebrew/include -g -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.3.sdk -mmacosx-version-min=13.2 -std=gnu++17 -o CMakeFiles/pokerbot.dir/src/preflop.cpp.o -c /Users/atharvjain/code/pokerbots/cpp_skeleton/src/preflop.cpp",
+  "file": "/Users/atharvjain/code/pokerbots/cpp_skeleton/src/preflop.cpp"
 },
 {
   "directory": "/Users/atharvjain/code/pokerbots/build/libs/skeleton",

@@ -166,6 +166,30 @@ src/game_tree/helper_func.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/src/game_tree/helper_func.cpp.s
 .PHONY : src/game_tree/helper_func.cpp.s
 
+src/game_tree/info_set.o: src/game_tree/info_set.cpp.o
+.PHONY : src/game_tree/info_set.o
+
+# target to build an object file
+src/game_tree/info_set.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.o
+.PHONY : src/game_tree/info_set.cpp.o
+
+src/game_tree/info_set.i: src/game_tree/info_set.cpp.i
+.PHONY : src/game_tree/info_set.i
+
+# target to preprocess a source file
+src/game_tree/info_set.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.i
+.PHONY : src/game_tree/info_set.cpp.i
+
+src/game_tree/info_set.s: src/game_tree/info_set.cpp.s
+.PHONY : src/game_tree/info_set.s
+
+# target to generate assembly for a file
+src/game_tree/info_set.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/src/game_tree/info_set.cpp.s
+.PHONY : src/game_tree/info_set.cpp.s
+
 src/game_tree/tree_node.o: src/game_tree/tree_node.cpp.o
 .PHONY : src/game_tree/tree_node.o
 
@@ -214,6 +238,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/preflop.o: src/preflop.cpp.o
+.PHONY : src/preflop.o
+
+# target to build an object file
+src/preflop.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/src/preflop.cpp.o
+.PHONY : src/preflop.cpp.o
+
+src/preflop.i: src/preflop.cpp.i
+.PHONY : src/preflop.i
+
+# target to preprocess a source file
+src/preflop.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/src/preflop.cpp.i
+.PHONY : src/preflop.cpp.i
+
+src/preflop.s: src/preflop.cpp.s
+.PHONY : src/preflop.s
+
+# target to generate assembly for a file
+src/preflop.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/src/preflop.cpp.s
+.PHONY : src/preflop.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -227,12 +275,18 @@ help:
 	@echo "... src/game_tree/helper_func.o"
 	@echo "... src/game_tree/helper_func.i"
 	@echo "... src/game_tree/helper_func.s"
+	@echo "... src/game_tree/info_set.o"
+	@echo "... src/game_tree/info_set.i"
+	@echo "... src/game_tree/info_set.s"
 	@echo "... src/game_tree/tree_node.o"
 	@echo "... src/game_tree/tree_node.i"
 	@echo "... src/game_tree/tree_node.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/preflop.o"
+	@echo "... src/preflop.i"
+	@echo "... src/preflop.s"
 .PHONY : help
 
 
