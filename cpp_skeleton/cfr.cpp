@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <fstream>
-
+#include <algorithm>
 using namespace std;
 
 struct Node;
@@ -17,16 +17,15 @@ struct Action {
     Action(const string &label, const float &prob) : label(label), prob(prob) {}
 };
 struct Node {
-    bool is_terminal;
     float reward;
     int player; //1/2, or 3 for chance, -1 for N/A
     vector<pair<Action*, Node*>> children;
-    Node(const bool &is_terminal, const int &reward, const int &player, vector<pair<Action*, Node*>> children) : is_terminal(is_terminal), reward(reward), player(player), children(children) {}
+    Node(const int &reward, const int &player, vector<pair<Action*, Node*>> children) : reward(reward), player(player), children(children) {}
 };
 
 
 void print_tree(Node* u, string prefix = "") { 
-    if (u->is_terminal) {
+    if (u->children.empty()) {
         cout << prefix << " : " << u->reward << "\n";
     }
     else {
@@ -44,10 +43,10 @@ float random_num() {
 };
 
 float epsilon = 0.05;
-float beta = 1e6;
+float beta_ = 1e6;
 float tau = 1000;
 float walk_tree(Node* h, int player, float q) {
-    if (h->is_terminal) {
+    if (h->children.empty()) {
         if (player == 1) return h->reward/q;
         else return -h->reward/q;
     }
@@ -95,7 +94,7 @@ float walk_tree(Node* h, int player, float q) {
         total_s += a->s;
     }
     for (auto [a, child] : h->children) {
-        float rho = min(1.0f, max(epsilon, (beta + tau * a->s)/(beta + total_s)));
+        float rho = min(1.0f, max(epsilon, (beta_ + tau * a->s)/(beta_ + total_s)));
         v[a] = 0;
         if (random_num() < rho) {
             v[a] = walk_tree(child, player, q*rho);
@@ -181,7 +180,7 @@ void print_s_values(unordered_map<string, vector<Action*>> p1_actions, unordered
 }
 
 int main() {
-    Node* root = new Node(false, 1e9, 3, {});
+    Node* root = new Node(1e9, 3, {});
     unordered_map<string, vector<Action*>> p1_actions = {
         {"A", {new Action("x", -1), new Action("f", -1), new Action("c", -1), new Action("b", -1)}},
         {"B", {new Action("x", -1), new Action("f", -1), new Action("c", -1), new Action("b", -1)}},
@@ -197,17 +196,17 @@ int main() {
         for (string card2 : {"A", "B", "C"}) {
             if (card1 == card2) continue;
 
-            Node* u = new Node(false, 1e9, 1, {
-                {p1_actions[card1][0], new Node(false, 1e9, 2, {
-                    {p2_actions[card2][0], new Node(true, card1>card2 ? 1 : -1, -1, {})},
-                    {p2_actions[card2][1], new Node(false, 1e9, 1, {
-                        {p1_actions[card1][1], new Node(true, -1, -1, {})},
-                        {p1_actions[card1][2], new Node(true, card1>card2 ? 2 : -2, -1, {})},
+            Node* u = new Node(1e9, 1, {
+                {p1_actions[card1][0], new Node(1e9, 2, {
+                    {p2_actions[card2][0], new Node(card1>card2 ? 1 : -1, -1, {})},
+                    {p2_actions[card2][1], new Node(1e9, 1, {
+                        {p1_actions[card1][1], new Node(-1, -1, {})},
+                        {p1_actions[card1][2], new Node(card1>card2 ? 2 : -2, -1, {})},
                     })},
                 })},
-                {p1_actions[card1][3], new Node(false, 1e9, 2, {
-                    {p2_actions[card2][2], new Node(true, 1, -1, {})},
-                    {p2_actions[card2][3], new Node(true, card1>card2 ? 2 : -2, -1, {})},
+                {p1_actions[card1][3], new Node(1e9, 2, {
+                    {p2_actions[card2][2], new Node(1, -1, {})},
+                    {p2_actions[card2][3], new Node(card1>card2 ? 2 : -2, -1, {})},
                 })},
             });
             root->children.emplace_back(new Action(card1+card2, 1/6), u);
