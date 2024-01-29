@@ -58,7 +58,6 @@ namespace helper_func {
                 cnt = 1;
             }
         }
-
         if (arr[4].size() >= 1) {
             int quad = arr[4][arr[4].size()-1];
             int kicker = cards[cards.size()-1] == quad ? cards[cards.size()-5] : cards[cards.size()-1];
@@ -69,7 +68,8 @@ namespace helper_func {
             int pair = arr[3].size() == 2 ? max(arr[3][0], arr[2][arr[2].size()]) : arr[2][arr[2].size()];
             return 5*pow13[5] + trip*pow13[4] + trip*pow13[3] + trip*pow13[2] + pair*pow13[1] + pair;
         }
-        for (int i=cards.size()-1; i>=4; i++) {
+
+        for (int i=cards.size()-1; i>=4; i--) {
             if (cards[i] == cards[i-1]+1 && cards[i-1] == cards[i-2]+1 && cards[i-2] == cards[i-3]+1 && cards[i-3] == cards[i-4]+1) {
                 return 4*pow13[5] + cards[i]*pow13[4] + cards[i-1]*pow13[3] + cards[i-2]*pow13[2] + cards[i-3]*pow13[1] + cards[i-4];
             }
@@ -131,5 +131,18 @@ namespace helper_func {
             return pow13[5] + pair*pow13[4] + pair*pow13[3] + kicker1*pow13[2] + kicker2*pow13[1] + kicker3;
         }
         return cards[cards.size()-1]*pow13[4] + cards[cards.size()-2]*pow13[3] + cards[cards.size()-3]*pow13[2] + cards[cards.size()-4]*pow13[1] + cards[cards.size()-5];
+    }
+}
+
+int main() {
+    vector<int> cards = {0,1,2,3,12,12,12,11};
+    int res = helper_func::eight_eval(cards);
+    vector<int> ans;
+    while (res > 0) {
+        ans.push_back(res%13);
+        res /= 13;
+    }
+    for (int i=ans.size()-1; i>=0; i--) {
+        cout << ans[i] << " ";
     }
 }
