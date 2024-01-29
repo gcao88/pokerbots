@@ -426,15 +426,25 @@ struct Bot {
         // RAINBOW
         // (OR TWOTONE)
 
+        if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+          return {Action::Type::CHECK};
+        }
+        return {Action::Type::CALL};
+
       }
     }
     else if (street == 4) {
-
+      if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+        return {Action::Type::CHECK};
+      }
+      return {Action::Type::CALL};
     }
     else { // street == 5
-
+      if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+        return {Action::Type::CHECK};
+      }
+      return {Action::Type::CALL};
     }
-
   }
 };
 
