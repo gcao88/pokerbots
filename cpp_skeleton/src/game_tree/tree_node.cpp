@@ -50,7 +50,7 @@ struct Node {
             for (int i = 0; i < history.size(); i++) {
 
                 auto h = history[i];
-                if (h != "P12" && h != "P13" && h != "P22" && h != "P23" && h != "t" && h != "r" && h.size() >= history[i + 1].size()) {
+                if (h != "P12" && h != "P13" && h != "P22" && h != "P23" && h != "t" && h != "r" && (i == history.size() || h.size() >= history[i + 1].size())) {
 
                     key += h + " ";
                 }
@@ -66,6 +66,7 @@ struct Node {
             if (mp.find(key) == mp.end()) {
                 mp[key] = new Action(-1);
             }
+            cout << key << " " << mp[key] << "\n";
             return mp[key];
         };
             num += 1;
@@ -132,7 +133,7 @@ struct Node {
             // cout << "\n";
             for (int i = 0; i < 13; i++) {
                 for (int j = 0; j <= i; j++) {
-                    for (int k = 0; k <= j; k++) {
+                    for (int k = 0; k <= 2; k++) { // CHANGE THIS BACK #WARNING TODO JKDJFKLSDJFLK
                         if ((i == j && j == k && cards__[i] >= 3) ||
                             (i == j && j != k && cards__[i] >= 2 && cards__[k]) ||
                             (i == k && j != k && cards__[i] >= 2 && cards__[j]) ||
