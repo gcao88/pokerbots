@@ -14,7 +14,7 @@
 using namespace std;
 
 __gnu_pbds::gp_hash_table<string, Action*> mp;
-int num = 0; 
+int num = 0;
 
 struct Node {
     // leads to all direct children in the gametree
@@ -24,7 +24,15 @@ struct Node {
     double reward = 1e9; // if theres a terminal state it will have some non-zero reward. positive reward implies player1 wins chips.
     // negative reward implies the opposite of that.
 
-
+    int turn() {
+        if (action == "P12" || action == "P13" || action == "P22" || action == "P23" || action == "t" || action == "r") {
+            return 3;
+        } else if (action.size() % 2 == 0) {
+            return 1;
+        } else {
+            return 2;
+        }
+    }
     /*
         key for what the actions mean:
         P12 means P1 is going to get 2 cards at this stage, P13 3 cards
@@ -43,17 +51,17 @@ struct Node {
 
                 auto h = history[i];
                 if (h != "P12" && h != "P13" && h != "P22" && h != "P23" && h != "t" && h != "r" && h.size() >= history[i + 1].size()) {
-                   
+
                     key += h + " ";
                 }
             }
-            key += childname + " "; 
+            key += childname + " ";
             if (action.size() % 2 == 0) {
-                for (auto c : h1) 
-                    key += to_string(c) + " "; 
+                for (auto c : h1)
+                    key += to_string(c) + " ";
             } else {
-                for (auto c : h2) 
-                    key += to_string(c) + " "; 
+                for (auto c : h2)
+                    key += to_string(c) + " ";
             }
             if (mp.find(key) == mp.end()) {
                 mp[key] = new Action(-1);
@@ -61,9 +69,9 @@ struct Node {
             return mp[key];
         };
             num += 1;
-        // if (num % 1'000'00 == 0) {
-        //     cout << num << "\n";
-        // }
+        if (num % 1'000'00 == 0) {
+            cout << num << "\n";
+        }
             // cout << num << "\n";
         auto get_cards = [&]() -> vector<int> {
             vector<int> cards(13, 4);
@@ -105,7 +113,7 @@ struct Node {
                         vector<int> h2_ = h2;
                         if (action == "P12") h1_ = {i, j};
                         else h2_ = {i, j};
-                        children.push_back({get_action(to_string(i) + " " + to_string(j)), 
+                        children.push_back({get_action(to_string(i) + " " + to_string(j)),
                             new Node(board, history, (action == "P12" ? "P23" : "F"), pot1, pot2, h1_, h2_)});
                     }
                 }
@@ -135,9 +143,9 @@ struct Node {
                             vector<int> h2_ = h2;
                             if (action == "P12") h1_ = {i, j, k};
                             else h2_ = {i, j, k};
-                            children.push_back({get_action(to_string(i) + " " + to_string(j) + " " + to_string(k)), 
+                            children.push_back({get_action(to_string(i) + " " + to_string(j) + " " + to_string(k)),
                                 new Node(board, history, (action == "P12" ? "P23" : "F"), pot1, pot2, h1_, h2_)});
-                        } 
+                        }
                     }
                 }
             }
@@ -325,7 +333,7 @@ struct Node {
                     if ((pot1 + pot2) >= min(400 - pot1, 400 - pot2)) {
                         continue;
                     }
-                } 
+                }
                 children.push_back({get_action(decision), new Node(board, history, action + string(decision), pot1, pot2, h1, h2)});
             }
         }
@@ -343,22 +351,22 @@ struct Node {
                 }
                 // FOLD
             }
-            children.push_back({get_action("."), new Node(board, history, action + ".", pot1 + bet[0], pot2 + bet[1], h1, h2)}); 
-            // CALL 
-            if (action[0] == 'F') children.push_back({get_action("C"), new Node(board, history, "t", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2)}); 
-            else if (action[0] == 'T') children.push_back({get_action("C"), new Node(board, history, "r", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2)}); 
-            else children.push_back({get_action("C"), new Node(board, history, "S", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2)}); 
-            // RAISE 
+            children.push_back({get_action("."), new Node(board, history, action + ".", pot1 + bet[0], pot2 + bet[1], h1, h2)});
+            // CALL
+            if (action[0] == 'F') children.push_back({get_action("C"), new Node(board, history, "t", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2)});
+            else if (action[0] == 'T') children.push_back({get_action("C"), new Node(board, history, "r", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2)});
+            else children.push_back({get_action("C"), new Node(board, history, "S", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2)});
+            // RAISE
             if (action[action.size() - 1] == 'A') {
                 // TRIVIALLY YOU CANNOT RAISE
             } else if (action[action.size() - 1] == '^') {
-                // RAISE ALL-IN 
+                // RAISE ALL-IN
                 children.push_back({get_action("A"), new Node(board, history, action + "A", pot1, pot2, h1, h2)});
             } else {
-                // RAISE ALL-IN 
-                children.push_back({get_action("A"), new Node(board, history, action + "A", pot1, pot2, h1, h2)}); 
+                // RAISE ALL-IN
+                children.push_back({get_action("A"), new Node(board, history, action + "A", pot1, pot2, h1, h2)});
                 if (3 * max(bet[0], bet[1]) < min(400 - pot1, 400 - pot2)) {
-                    children.push_back({get_action("^"), new Node(board, history, action + "^", pot1, pot2, h1, h2)}); 
+                    children.push_back({get_action("^"), new Node(board, history, action + "^", pot1, pot2, h1, h2)});
                 }
             }
             // CALL
@@ -371,7 +379,7 @@ struct Node {
 };
 
 
-int main() {
-    vector<string> v;
-    Node *a = new Node(vector<int>({8, 12, 10}), v);
-}
+// int main() {
+//     vector<string> v;
+//     Node *a = new Node(vector<int>({8, 12, 10}), v);
+// }

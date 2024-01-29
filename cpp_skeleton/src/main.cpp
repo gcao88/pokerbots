@@ -251,8 +251,8 @@ struct Bot {
 /*
   Main program for running a C++ pokerbot.
 */
-int main(int argc, char *argv[]) {
-  auto [host, port] = parseArgs(argc, argv);
-  runBot<Bot>(host, port);
-  return 0;
-}
+// int main(int argc, char *argv[]) {
+//   auto [host, port] = parseArgs(argc, argv);
+//   runBot<Bot>(host, port);
+//   return 0;
+// }
