@@ -26,7 +26,7 @@ struct Bot {
     // seconds your bot has left to play this game int roundNum =
     // gameState->roundNum;  // the round number from 1 to State.NUM_ROUNDS auto
     // myCards = roundState->hands[active];  // your cards bool bigBlind =
-    (active == 1);  // true if you are the big blind
+    active == 1;  // true if you are the big blind
   }
 
   /*
@@ -114,11 +114,14 @@ struct Bot {
           }
           if (myCards[0][1] == suit && myCards[1][1] == suit) {
             // hit flush
-            if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
-              auto raiseBounds = roundState->raiseBounds();
-              minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
-              maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
-              return {Action::Type::RAISE, min(max(int(minCost), int(pot/2)), int(maxCost))};
+            if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+              if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
+                auto raiseBounds = roundState->raiseBounds();
+                minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+                maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+                return {Action::Type::RAISE, min(max(int(minCost), int(pot/2)), int(maxCost))};
+              }
+              return {Action::Type::CHECK};
             }
             if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
               return {Action::Type::CALL};
@@ -128,7 +131,21 @@ struct Bot {
             if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
               return {Action::Type::CHECK};
             }
-            return {Action::Type::CALL};
+            char num = myCards[0][0];
+            if (myCards[1][1] == suit) {
+              num = myCards[1][0];
+            }
+            else if (myCards[2][1] == suit) {
+              num = myCards[2][0];
+            }
+            if (num == 'A' || num == 'K' || num == 'Q' || num == 'J') {
+              if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
+                return {Action::Type::CALL};
+              }
+            }
+            else {
+              return {Action::Type::FOLD};
+            }
           }
         }
         else {
@@ -167,10 +184,32 @@ struct Bot {
               num = myCards[2][0];
             }
             if (num == 'A' || num == 'K' || num == 'Q' || num == 'J') {
-              
+              if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
+                return {Action::Type::CALL};
+              }
+              if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
+                auto raiseBounds = roundState->raiseBounds();
+                minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+                maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+                return {Action::Type::RAISE, min(max(int(minCost), int(pot*4/10)), int(maxCost))};
+              }
+              if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+                return {Action::Type::CHECK};
+              }
             }
             else {
-
+              if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
+                return {Action::Type::CALL};
+              }
+              if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
+                auto raiseBounds = roundState->raiseBounds();
+                minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+                maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+                return {Action::Type::RAISE, min(max(int(minCost), int(pot*4/10)), int(maxCost))};
+              }
+              if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+                return {Action::Type::CHECK};
+              }
             }
           }
           else {
@@ -189,12 +228,21 @@ struct Bot {
           }
         }
       }
-      else if (boardCards[0][1] == boardCards[1][1] || boardCards[0][1] == boardCards[2][1] || boardCards[1][1] == boardCards[2][1]) {
-        // TWOTONE
-      }
+      // else if (boardCards[0][1] == boardCards[1][1] || boardCards[0][1] == boardCards[2][1] || boardCards[1][1] == boardCards[2][1]) {
+      //   // TWOTONE
+      // }
       else {
+        // FLOP
         // RAINBOW
+        // (OR TWOTONE)
+
       }
+    }
+    else if (street == 4) {
+
+    }
+    else { // street == 5
+
     }
 
   }
