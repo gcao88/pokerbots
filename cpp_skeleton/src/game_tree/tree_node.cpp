@@ -6,14 +6,13 @@
 #include <cassert>
 // #include "helper_func.cpp"
 #include "info_set.cpp"
-#include "../../libs/skeleton/include/pokerengine/SevenEval.h"
 #include "action.cpp"
 
-#include <ext/pb_ds/assoc_container.hpp>
+// #include <ext/pb_ds/assoc_container.hpp>
 
 using namespace std;
 
-__gnu_pbds::gp_hash_table<string, Action*> mp;
+unordered_map<string, Action*> mp;
 int num = 0;
 
 struct Node {

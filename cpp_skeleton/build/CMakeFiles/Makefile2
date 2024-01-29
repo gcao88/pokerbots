@@ -113,12 +113,12 @@ libs/skeleton/clean: libs/skeleton/CMakeFiles/skeleton.dir/clean
 CMakeFiles/pokerbot.dir/all: libs/skeleton/CMakeFiles/skeleton.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pokerbot.dir/build.make CMakeFiles/pokerbot.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/atharvjain/code/pokerbots/cpp_skeleton/build/CMakeFiles --progress-num=1,2 "Built target pokerbot"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/atharvjain/code/pokerbots/cpp_skeleton/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10 "Built target pokerbot"
 .PHONY : CMakeFiles/pokerbot.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/pokerbot.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/atharvjain/code/pokerbots/cpp_skeleton/build/CMakeFiles 5
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/atharvjain/code/pokerbots/cpp_skeleton/build/CMakeFiles 13
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/pokerbot.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/atharvjain/code/pokerbots/cpp_skeleton/build/CMakeFiles 0
 .PHONY : CMakeFiles/pokerbot.dir/rule
@@ -139,7 +139,7 @@ CMakeFiles/pokerbot.dir/clean:
 libs/skeleton/CMakeFiles/skeleton.dir/all:
 	$(MAKE) $(MAKESILENT) -f libs/skeleton/CMakeFiles/skeleton.dir/build.make libs/skeleton/CMakeFiles/skeleton.dir/depend
 	$(MAKE) $(MAKESILENT) -f libs/skeleton/CMakeFiles/skeleton.dir/build.make libs/skeleton/CMakeFiles/skeleton.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/atharvjain/code/pokerbots/cpp_skeleton/build/CMakeFiles --progress-num=3,4,5 "Built target skeleton"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/atharvjain/code/pokerbots/cpp_skeleton/build/CMakeFiles --progress-num=11,12,13 "Built target skeleton"
 .PHONY : libs/skeleton/CMakeFiles/skeleton.dir/all
 
 # Build rule for subdir invocation for target.

@@ -114,57 +114,58 @@ void encode_strategy(Node* h, int player, vector<int>* strategy, unordered_set<A
 }
 
 void list_actions(Node* h, vector<float> r_vals, vector<float> s_vals) {
-    if (h->turn() != player) {
-        for (auto [a, child] : h->children) {
-            encode_strategy(child, player, strategy, added);
-        }
-    }
-    else {
-        for (auto [a, child] : h->children) {
-            if (added->find(a) != added->end()) return;
-        }
 
-        float total_s = 0;
-        for (auto [a, child] : h->children) {
-            total_s += a->s;
-        }
-        float p_counter = 0;
-        float rand = random_num();
-        for (int i = 0; i < h->children.size(); i++) {
-            auto& [a, child] = h->children[i];
-            p_counter += a->s / total_s;
-            if (rand < p_counter) {
-                added->insert(a);
-                //cout << a->action << " " << i << endl;
-                strategy->push_back(i);
-                encode_strategy(child, player, strategy, added);
-                return;
-            }
-        }
-    }
+    // if (h->turn() != player) {
+    //     for (auto [a, child] : h->children) {
+    //         encode_strategy(child, player, strategy, added);
+    //     }
+    // }
+    // else {
+    //     for (auto [a, child] : h->children) {
+    //         if (added->find(a) != added->end()) return;
+    //     }
+
+    //     float total_s = 0;
+    //     for (auto [a, child] : h->children) {
+    //         total_s += a->s;
+    //     }
+    //     float p_counter = 0;
+    //     float rand = random_num();
+    //     for (int i = 0; i < h->children.size(); i++) {
+    //         auto& [a, child] = h->children[i];
+    //         p_counter += a->s / total_s;
+    //         if (rand < p_counter) {
+    //             added->insert(a);
+    //             //cout << a->action << " " << i << endl;
+    //             strategy->push_back(i);
+    //             encode_strategy(child, player, strategy, added);
+    //             return;
+    //         }
+    //     }
+    // }
 }
 
 
 
-int main() {
-    vector<string> a;
-    Node* root = new Node(vector<int>{6, 8, 10}, a);
+// int main() {
+//     vector<string> a;
+//     Node* root = new Node(vector<int>{6, 8, 10}, a);
 
-    for (int j=0; j<100000; j++) {
-        cout << 1000*j << endl;
-        for (int i=0; i<1000; i++) {
-            walk_tree(root, i%2+1, 1);
-        }
+//     for (int j=0; j<100000; j++) {
+//         cout << 1000*j << endl;
+//         for (int i=0; i<1000; i++) {
+//             walk_tree(root, i%2+1, 1);
+//         }
 
-        vector<int>* strategy1 = new vector<int>();
-        encode_strategy(root, 1, strategy1, new unordered_set<Action*>());
+//         vector<int>* strategy1 = new vector<int>();
+//         encode_strategy(root, 1, strategy1, new unordered_set<Action*>());
 
-        ofstream fout("data.txt");
+//         ofstream fout("data.txt");
 
-        for (int i = 0; i < strategy1->size(); i++) {
-            fout << strategy1->at(i) << endl;
-        }
-        fout << endl;
-    }
+//         for (int i = 0; i < strategy1->size(); i++) {
+//             fout << strategy1->at(i) << endl;
+//         }
+//         fout << endl;
+//     }
 
-}
+// }
