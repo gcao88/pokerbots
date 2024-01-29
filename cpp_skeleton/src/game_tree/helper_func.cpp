@@ -52,11 +52,41 @@ namespace helper_func {
             arr[pair.second]++;
         }
         if (arr[4] >= 1) {
-            return "QUADS";
+            vector<int> vec;
+            for (const auto& pair : card_frequencies) {
+                if (pair.second == 4) {
+                    vec.push_back(pair.first);
+                }
+            }
+            sort(vec.begin(), vec.end());
+            int quad = vec[vec.size()-1];
+            int kicker = -1;
+            for (int i=cards.size()-1; i>=0; i--) {
+                if (cards[i] != quad) {
+                    kicker = cards[i];
+                    break;
+                }
+            }
+            pair<int, vector<int>> ans = {6, {quad, quad, quad, quad, kicker}};
+            return ans;
         }
         if (arr[3] >= 2 || (arr[3] == 1 && arr[2] >= 1)) {
-
-            pair<int, vector<int>> ans = {5, };
+            vector<int> vec;
+            for (const auto& pair : card_frequencies) {
+                if (pair.second == 3) {
+                    vec.push_back(pair.first);
+                }
+            }
+            sort(vec.begin(), vec.end());
+            int trip = vec[vec.size()-1];
+            vector<int> vec;
+            for (const auto& pair : card_frequencies) {
+                if (pair.second >= 2 && pair.first != trip) {
+                    vec.push_back(pair.first);
+                }
+            }
+            int pairc = vec[vec.size()-1];
+            pair<int, vector<int>> ans = {5, {trip, trip, trip, pairc, pairc}};
             return ans;
         }
         sort(cards.begin(), cards.end());
@@ -66,18 +96,27 @@ namespace helper_func {
         }
         for (int i=diffs.size()-1; i>=3; i--) {
             if (diffs[i] == 1 && diffs[i-1] == 1 && diffs[i-2] == 1 & diffs[i-3] == 1) {
-                pair<int, vector<int>> ans = {4, {cards[i]}};
+                pair<int, vector<int>> ans = {4, {cards[i+1], cards[i], cards[i-1], cards[i-2], cards[i-3]}};
                 return ans;
             }
         }
         if (arr[3] >= 1) {
-            int trip = -1;
+            int pairc = -1;
             for (const auto& pair : card_frequencies) {
                 if (pair.second == 3) {
-                    trip = pair.first;
+                    pairc = pair.first;
                 }
             }
-            pair<int, vector<int>> ans = {3, {trip}};
+            vector<int> car = {pairc, pairc, pairc};
+            for (int i=cards.size()-1; i>=0; i--) {
+                if (cards[i] != pairc) {
+                    car.push_back(cards[i]);
+                    if (car.size() == 5) {
+                        break;
+                    }
+                }
+            }
+            pair<int, vector<int>> ans = {3, car};
             return ans;
         }
         if (arr[2] >= 2) {
@@ -88,7 +127,16 @@ namespace helper_func {
                 }
             }
             sort(vec.begin(), vec.end());
-            pair<int, vector<int>> ans = {2, {vec[vec.size()-1], vec[vec.size()-1]}};
+            vector<int> pairs = {vec[vec.size()-1], vec[vec.size()-2]};
+            int kicker = -1;
+            for (int i=cards.size()-1; i>=0; i--) {
+                if (cards[i] != pairs[0] && cards[i] != pairs[1]) {
+                    kicker = cards[i];
+                    break;
+                }
+            }
+            vector<int> vec = {pairs[0], pairs[0], pairs[1], pairs[1], kicker};
+            pair<int, vector<int>> ans = {2, vec};
             return ans;
         }
         if (arr[2] == 1) {
