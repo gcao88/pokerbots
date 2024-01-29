@@ -102,7 +102,12 @@ struct Bot {
         }
         return num;
     }
-
+  float random_real() {
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_real_distribution<double> dis(0.0, 1.0);
+    return dis(gen);
+  }
   /*
     Called when a new round starts. Called NUM_ROUNDS times.
 
@@ -190,19 +195,92 @@ struct Bot {
     if (street == 0) {
       // PREFLOP
       if (active == 1) { // bigblind
-
+        if (preflop == 0) {
+          // sb limp/raise
+          if (oppPip == 2) { //limp
+            if (sb_rfi[preflop_chart_pos.first][preflop_chart_pos.second]) {
+              return {Action::Type::RAISE, 3};
+            }
+            else {
+              return {Action::Type::CHECK};
+            }
+          }
+          else {
+            double rand = random_real();
+            float prob_3bet = bb_vs_2bet[preflop_chart_pos.first][preflop_chart_pos.second].first;
+            float prob_call = bb_vs_2bet[preflop_chart_pos.first][preflop_chart_pos.second].second + prob_3bet;
+            if (rand <= prob_3bet) {
+              auto raiseBounds = roundState->raiseBounds();
+              minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+              maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+              int raise = 4*oppPip;
+              return {Action::Type::RAISE, min(max(maxCost, raise), minCost)};
+            }
+            else if (rand <= prob_call) {
+              return {Action::Type::CALL};
+            }
+            else {
+              return {Action::Type::FOLD};
+            }
+          }
+        }
+        else if (preflop == 1) {
+          // sb 4bets
+          double rand = random_real();
+          float prob_5bet = bb_vs_4bet[preflop_chart_pos.first][preflop_chart_pos.second].first;
+          float prob_call = bb_vs_4bet[preflop_chart_pos.first][preflop_chart_pos.second].second + prob_5bet;
+          if (rand <= prob_5bet) {
+            auto raiseBounds = roundState->raiseBounds();
+            minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+            maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+            return {Action::Type::RAISE, maxCost};
+          }
+          else if (rand <= prob_call) {
+            return {Action::Type::CALL};
+          }
+          else {
+            return {Action::Type::FOLD};
+          }
+        }
+        // should never get here
+        return {Action::Type::FOLD};
       }
       else { // smallblind
         if (preflop == 0) {
           if (sb_rfi[preflop_chart_pos.first][preflop_chart_pos.second]) {
-            return {Action::Type::RAISE, 5};
+            return {Action::Type::RAISE, 4};
           }
           else {
             return {Action::Type::FOLD};
           }
         }
         else if (preflop == 1) { // bb 3bet
-
+          double rand = random_real();
+          float prob_4bet = sb_vs_3bet[preflop_chart_pos.first][preflop_chart_pos.second].first;
+          float prob_call = sb_vs_3bet[preflop_chart_pos.first][preflop_chart_pos.second].second + prob_4bet;
+          if (rand <= prob_4bet) {
+            auto raiseBounds = roundState->raiseBounds();
+            minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+            maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+            int raise = 2.2*oppPip;
+            return {Action::Type::RAISE, min(max(maxCost, raise), minCost)};
+          }
+          else if (rand <= prob_call) {
+            return {Action::Type::CALL};
+          }
+          else {
+            return {Action::Type::FOLD};
+          }
+        }
+        else {
+          // bb 5bet
+          vector<pair<int,int>> call5bet = {{0,0}, {0,1}, {1,0}, {1,1}, {2,2}, {3,3}};
+          if (find(call5bet.begin(), call5bet.end(), preflop_chart_pos) != call5bet.end()) {
+            return {Action::Type::CALL};
+          }
+          else {
+            return {Action::Type::FOLD};
+          }
         }
       }
       preflop++;
@@ -348,15 +426,25 @@ struct Bot {
         // RAINBOW
         // (OR TWOTONE)
 
+        if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+          return {Action::Type::CHECK};
+        }
+        return {Action::Type::CALL};
+
       }
     }
     else if (street == 4) {
-
+      if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+        return {Action::Type::CHECK};
+      }
+      return {Action::Type::CALL};
     }
     else { // street == 5
-
+      if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+        return {Action::Type::CHECK};
+      }
+      return {Action::Type::CALL};
     }
-
   }
 };
 
