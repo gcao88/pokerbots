@@ -304,12 +304,14 @@ struct Node {
             // history.pop_back();
             // return;// end early
             auto cards = get_cards();
-            for (int i = 0; i < 13; i++) {
-                if (cards[i]) {
-                    board.push_back(i);
-                    children.push_back({get_action(to_string(i)), new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2)});
-                    board.pop_back();
-                }
+            if (cards[0]) {
+                board.push_back(0);
+                children.push_back({get_action(to_string(0)), new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2)});
+                board.pop_back();
+            } else if(cards[1]) {
+                board.push_back(1);
+                children.push_back({get_action(to_string(1)), new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2)}); 
+                board.pop_back();
             }
         } else if (action == "F" || action == "T" || action == "R" || action == "FC" || action == "TC" || action == "RC") {
             for (auto decision : {"C", "H", "P", "A"}) {
@@ -379,7 +381,7 @@ struct Node {
 };
 
 
-// int main() {
-//     vector<string> v;
-//     Node *a = new Node(vector<int>({8, 12, 10}), v);
-// }
+int main() {
+    vector<string> v;
+    Node *a = new Node(vector<int>({8, 12, 10}), v);
+}
