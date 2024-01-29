@@ -12,7 +12,7 @@ struct Node;
 struct Action {
     string label;
     float r = 0;
-    float s = 0;
+    float s = 0.001;
     float prob = -1; //for chance node
     Action(const string &label, const float &prob) : label(label), prob(prob) {}
 };
@@ -179,6 +179,71 @@ void print_s_values(unordered_map<string, vector<Action*>> p1_actions, unordered
     cout << "\n";
 }
 
+float calculate_exploit_ev(vector<pair<float, Node*>> infoset, int player) {
+    if (infoset[0].second->children.empty()) {
+        float p1_reward = 0;
+        for (const auto& [prob, node] : infoset) {
+            p1_reward += prob * node->reward;
+        }
+        if (player == 1) return p1_reward;
+        else return -p1_reward;
+    }
+    else if (infoset[0].second->player != player) {
+        unordered_map<Action*, float> action_probs;
+        if (infoset[0].second->player == 3) {
+            for (const auto& [a, child] : infoset[0].second->children) {
+                action_probs[a] = a->prob;
+            }
+        }
+        else {
+            float total_s = 0;
+            for (const auto& [a, child] : infoset[0].second->children) {
+                total_s += a->s;
+            }
+            for (const auto& [a, child] : infoset[0].second->children) {
+                action_probs[a] = (total_s == 0 ? (1/infoset[0].second->children.size()) : (a->s / total_s));
+            }
+
+        }
+
+        unordered_map<Action*, vector<pair<float, Node*>>> next_infosets_unnormalized;
+        for (const auto& [prob, node] : infoset) {
+            for (const auto& [a, child] : node->children) {
+                next_infosets_unnormalized[a].push_back({prob * action_probs[a], child});
+            }
+        }
+        float res = 0;
+        for (const auto& [a, next_infoset_unnormalized] : next_infosets_unnormalized) {
+            float next_infoset_prob = 0;
+            for (const auto& [prob, node] : next_infoset_unnormalized) {
+                next_infoset_prob += prob;
+            }
+            if (next_infoset_prob == 0) {
+                continue;
+            }
+            vector<pair<float, Node*>> next_infoset;
+            for (const auto& [prob, node] : next_infoset_unnormalized) {
+                next_infoset.push_back({prob/next_infoset_prob, node});
+            }
+            res += next_infoset_prob * calculate_exploit_ev(next_infoset, player);
+        }
+        return res;
+    }
+    else {
+        unordered_map<Action*, vector<pair<float, Node*>>> next_infosets;
+        for (const auto& [prob, node] : infoset) {
+            for (const auto& [a, child] : node->children) {
+                next_infosets[a].push_back({prob, child});
+            }
+        }
+        float res = -1e9;
+        for (const auto& [a, next_infoset] : next_infosets) {
+            res = max(res, calculate_exploit_ev(next_infoset, player));
+        }
+        return res;
+    }
+}
+
 int main() {
     Node* root = new Node(1e9, 3, {});
     unordered_map<string, vector<Action*>> p1_actions = {
@@ -236,6 +301,9 @@ int main() {
 
     print_s_values(p1_actions, p2_actions);
 
+    cout << "p1 ev" << calculate_exploit_ev({{1, root}}, 1) << endl;
+
+
     vector<int>* strategy1 = new vector<int>();
     encode_strategy(root, 1, strategy1, new unordered_set<Action*>());
     int ind1 = 0;
@@ -249,4 +317,5 @@ int main() {
     decode_strategy(root, 2, strategy2, &ind2, new unordered_set<Action*>());
 
     print_s_values(p1_actions, p2_actions);
+
 }
