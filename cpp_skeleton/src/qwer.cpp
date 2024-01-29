@@ -40,7 +40,7 @@ float walk_tree(Node* h, int player, float q) {
         total_regret += max(0.0f, a->r);
     }
     for (auto [a, child] : h->children) {
-        if (total_regret == 0) sigma[a] = 1.0/h->children.size();
+        if (total_regret == 0) sigma[a] = 1.0f/h->children.size();
         else sigma[a] = max(0.0f, a->r)/total_regret;
     }
 
@@ -121,11 +121,10 @@ int main() {
     vector<string> a;
     Node* root = new Node(vector<int>{6, 8, 10}, a);
 
-
     for (int j=0; j<100000; j++) {
+        cout << 1000*j << endl;
         for (int i=0; i<1000; i++) {
             walk_tree(root, i%2+1, 1);
-            if (i % 100) cout << i << endl;
         }
 
         vector<int>* strategy1 = new vector<int>();
@@ -134,7 +133,7 @@ int main() {
         ofstream fout("data.txt");
 
         for (int i = 0; i < strategy1->size(); i++) {
-            fout << strategy1->at(i) << " ";
+            fout << strategy1->at(i) << endl;
         }
         fout << endl;
     }
