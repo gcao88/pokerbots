@@ -11,6 +11,98 @@ using namespace pokerbots::skeleton;
 using namespace std;
 
 struct Bot {
+  vector<vector<bool>> sb_rfi;
+  vector<vector<pair<float, float>>> bb_vs_2bet;
+  vector<vector<pair<float, float>>> sb_vs_3bet;
+  vector<vector<pair<float, float>>> bb_vs_4bet;
+  int preflop;
+  pair<int,int> preflop_chart_pos;
+  string cards = "23456789TJQKA";
+  string suits = "shcd";
+
+
+
+  Bot() {
+    import_preflop();
+
+
+
+  }
+  void import_preflop_floats(string filepath, vector<vector<pair<float, float>>>* vec_ptr) {
+      ifstream inputFile(filepath);
+      string line;
+      while (getline(inputFile, line)) {
+          stringstream ss(line);
+          string field;
+          vec_ptr->push_back(vector<pair<float, float>>());
+
+          while (getline(ss, field, ',')) {
+              stringstream sss(field);
+              string probability;
+              int i = 0;
+              pair<float, float> prob_pair;
+              while (getline(sss, probability, ';')) {
+                  if (i == 0) {
+                      prob_pair.first = stof(probability);
+                  }
+                  else {
+                      prob_pair.second = stof(probability);
+                  }
+                  i++;
+              }
+              vec_ptr->back().push_back(prob_pair);
+          }
+      }
+      inputFile.close();
+  }
+  void import_preflop() {
+      ifstream inputFile("preflop_data/preflop - btn rfi.csv");
+      string line;
+      while (getline(inputFile, line)) {
+          stringstream ss(line);
+          string field;
+          sb_rfi.push_back(vector<bool>());
+
+          while (getline(ss, field, ',')) {
+              sb_rfi.back().push_back(field == "1");
+          }
+      }
+      inputFile.close();
+
+      import_preflop_floats("preflop_data/preflop - bb vs. 2bet.csv", &bb_vs_2bet);
+      import_preflop_floats("preflop_data/preflop - btn vs. 3bet.csv", &sb_vs_3bet);
+      import_preflop_floats("preflop_data/preflop - bb vs. 4bet.csv", &bb_vs_4bet);
+
+      return;
+  }
+  pair<int,int> hand_to_chart_pos(int x, int y) {
+    bool suited = (x/13 == y/13);
+    int num1 = x%13;
+    int num2 = y%13;
+    if (suited) {
+        pair<int,int> p(min(num1, num2), max(num1, num2));
+        return p;
+    }
+    else {
+        pair<int,int> p(max(num1, num2), max(num1, num2));
+        return p;
+    }
+  }
+  int card_to_num(string card) {
+        int num = 0;
+        for (int i = 0; i < 13; i++) {
+            if (card[0] == cards[i]) {
+                num += i;
+            }
+        }
+        for (int i = 0; i < 4; i++) {
+            if (suits[i] == card[1]) {
+                num += 13 * i;
+            }
+        }
+        return num;
+    }
+
   /*
     Called when a new round starts. Called NUM_ROUNDS times.
 
@@ -18,15 +110,18 @@ struct Bot {
     @param roundState The RoundState object.
     @param active Your player's index.
   */
-  void handleNewRound(GameInfoPtr gameState, RoundStatePtr roundState,
-                      int active) {
-    // int myBankroll = gameState->bankroll;  // the total number of chips
-    // you've gained or lost from the beginning of the game to the start of this
-    // round float gameClock = gameState->gameClock;  // the total number of
-    // seconds your bot has left to play this game int roundNum =
-    // gameState->roundNum;  // the round number from 1 to State.NUM_ROUNDS auto
-    // myCards = roundState->hands[active];  // your cards bool bigBlind =
+  void handleNewRound(GameInfoPtr gameState, RoundStatePtr roundState, int active) {
+    int myBankroll = gameState->bankroll;  // the total number of chips
+    // you've gained or lost from the beginning of the game to the start of this round
+    float gameClock = gameState->gameClock;  // the total number of
+    // seconds your bot has left to play this game
+    int roundNum = gameState->roundNum;  // the round number from 1 to State.NUM_ROUNDS
+    auto myCards = roundState->hands[active];  // your cards bool bigBlind =
     active == 1;  // true if you are the big blind
+
+    // Own stuff:
+    preflop = 0;
+    preflop_chart_pos = hand_to_chart_pos(card_to_num(myCards[0]), card_to_num(myCards[1]));
   }
 
   /*
@@ -93,7 +188,24 @@ struct Bot {
     int pot = 800 - myStack - oppStack;
 
     if (street == 0) {
-      // preflop
+      // PREFLOP
+      if (active == 1) { // bigblind
+
+      }
+      else { // smallblind
+        if (preflop == 0) {
+          if (sb_rfi[preflop_chart_pos.first][preflop_chart_pos.second]) {
+            return {Action::Type::RAISE, 5};
+          }
+          else {
+            return {Action::Type::FOLD};
+          }
+        }
+        else if (preflop == 1) { // bb 3bet
+
+        }
+      }
+      preflop++;
     }
     else if (street == 3) {
       if (legalActions.find(Action::Type::BID) != legalActions.end()) {

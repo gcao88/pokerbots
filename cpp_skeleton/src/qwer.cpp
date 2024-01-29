@@ -56,10 +56,8 @@ float walk_tree(Node* h, int player, float q) {
                 return walk_tree(child, player, q);
             }
         }
-        if (p_counter != 1) {
-            cout << p_counter << endl;
-            throw exception();
-        }
+        cout << "ERROR " << p_counter << endl;
+        return walk_tree(h->children[0].second, player, q);
     }
 
     float total_s = 0;
@@ -85,6 +83,37 @@ float walk_tree(Node* h, int player, float q) {
 }
 
 void encode_strategy(Node* h, int player, vector<int>* strategy, unordered_set<Action*>* added) {
+    if (h->turn() != player) {
+        for (auto [a, child] : h->children) {
+            encode_strategy(child, player, strategy, added);
+        }
+    }
+    else {
+        for (auto [a, child] : h->children) {
+            if (added->find(a) != added->end()) return;
+        }
+
+        float total_s = 0;
+        for (auto [a, child] : h->children) {
+            total_s += a->s;
+        }
+        float p_counter = 0;
+        float rand = random_num();
+        for (int i = 0; i < h->children.size(); i++) {
+            auto& [a, child] = h->children[i];
+            p_counter += a->s / total_s;
+            if (rand < p_counter) {
+                added->insert(a);
+                //cout << a->action << " " << i << endl;
+                strategy->push_back(i);
+                encode_strategy(child, player, strategy, added);
+                return;
+            }
+        }
+    }
+}
+
+void list_actions(Node* h, vector<float> r_vals, vector<float> s_vals) {
     if (h->turn() != player) {
         for (auto [a, child] : h->children) {
             encode_strategy(child, player, strategy, added);
