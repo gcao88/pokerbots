@@ -11,6 +11,7 @@ namespace helper_func {
     string cards = "23456789TJQKA";
     string suits = "shcd";
 
+    int pow13[6] = {1, 13, 169, 2197, 28561, 371293};
 
     int card_to_num(string card) {
         int num = 0;
@@ -44,20 +45,21 @@ namespace helper_func {
         return dis(gen);
     }
 
+    /*
     pair<int, vector<int>> EightEval(vector<int> cards) {
-        unordered_map<int, int> card_frequencies;
+        int card_frequencies[13];
         for (int num : cards) {
             card_frequencies[num]++;
         }
         int arr[5];
-        for (const auto& pair : card_frequencies) {
-            arr[pair.second]++;
+        for (int i=0; i<13; i++) {
+            arr[cards[i]]++;
         }
         if (arr[4] >= 1) {
             vector<int> vec;
-            for (const auto& pair : card_frequencies) {
-                if (pair.second == 4) {
-                    vec.push_back(pair.first);
+            for (int i=0; i<13; i++) {
+                if (card_frequencies[i] == 4) {
+                    vec.push_back(i);
                 }
             }
             sort(vec.begin(), vec.end());
@@ -74,20 +76,20 @@ namespace helper_func {
         }
         if (arr[3] >= 2 || (arr[3] == 1 && arr[2] >= 1)) {
             vector<int> vec;
-            for (const auto& pair : card_frequencies) {
-                if (pair.second == 3) {
-                    vec.push_back(pair.first);
+            for (int i=0; i<13; i++) {
+                if (card_frequencies[i] == 3) {
+                    vec.push_back(i);
                 }
             }
             sort(vec.begin(), vec.end());
             int trip = vec[vec.size()-1];
-            vector<int> vec;
+            vector<int> vec2;
             for (const auto& pair : card_frequencies) {
                 if (pair.second >= 2 && pair.first != trip) {
-                    vec.push_back(pair.first);
+                    vec2.push_back(pair.first);
                 }
             }
-            int pairc = vec[vec.size()-1];
+            int pairc = vec2[vec2.size()-1];
             pair<int, vector<int>> ans = {5, {trip, trip, trip, pairc, pairc}};
             return ans;
         }
@@ -137,8 +139,8 @@ namespace helper_func {
                     break;
                 }
             }
-            vector<int> vec = {pairs[0], pairs[0], pairs[1], pairs[1], kicker};
-            pair<int, vector<int>> ans = {2, vec};
+            vector<int> vec2 = {pairs[0], pairs[0], pairs[1], pairs[1], kicker};
+            pair<int, vector<int>> ans = {2, vec2};
             return ans;
         }
         if (arr[2] == 1) {
@@ -166,5 +168,31 @@ namespace helper_func {
             return ans;
         }
     }
+    */
 
+    int eight_eval(vector<int> cards) {
+        sort(cards.begin(), cards.end());
+        vector<int> arr[5];
+        int cnt = 1;
+        for (int i=0; i<cards.size(); i++) {
+            if (i != cards.size()-1 && cards[i] == cards[i+1]) {
+                cnt++;
+            }
+            else {
+                arr[cnt].push_back(cards[i]);
+                cnt = 1;
+            }
+        }
+        
+        if (arr[4].size() >= 1) {
+            int quad = arr[4][arr[4].size()-1];
+            int kicker = cards[cards.size()-1] == quad ? cards[cards.size()-5] : cards[cards.size()-1];
+            return 6*pow13[5] + quad*pow13[4] + quad*pow13[3] + quad*pow13[2] + quad*pow13[1] + kicker;
+        }
+        
+    }
+}
+
+int main() {
+    helper_func::eight_eval({1,2,3,4,6,6,8});
 }
