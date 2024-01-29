@@ -143,19 +143,6 @@ struct Bot {
       }
     }
 
-    if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
-      auto raiseBounds =
-          roundState->raiseBounds();     // the smallest and largest numbers of
-                                         // chips for a legal bet/raise
-      minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
-      maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
-    }
-
-    if (legalActions.find(Action::Type::CHECK) !=
-        legalActions.end()) {  // check-call
-      return {Action::Type::CHECK};
-    }
-    return {Action::Type::CALL};
   }
 };
 
