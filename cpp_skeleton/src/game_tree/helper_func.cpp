@@ -133,3 +133,7 @@ namespace helper_func {
         return cards[cards.size()-1]*pow13[4] + cards[cards.size()-2]*pow13[3] + cards[cards.size()-3]*pow13[2] + cards[cards.size()-4]*pow13[1] + cards[cards.size()-5];
     }
 }
+
+// int main() {
+//     helper_func::eight_eval({1,2,3,4,6,6,8});
+// }
