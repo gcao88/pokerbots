@@ -93,6 +93,17 @@ struct Bot {
     if (street == 0) {
       // preflop
     }
+    else if (street == 3) {
+      if (boardCards[0][1] == boardCards[1][1] && boardCards[0][1] == boardCards[2][1]) {
+        // MONOTONE
+      }
+      else if (boardCards[0][1] == boardCards[1][1] || boardCards[0][1] == boardCards[2][1] || boardCards[1][1] == boardCards[2][1]) {
+        // TWOTONE
+      }
+      else {
+        // RAINBOW
+      }
+    }
 
     if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
       auto raiseBounds =
