@@ -133,16 +133,3 @@ namespace helper_func {
         return cards[cards.size()-1]*pow13[4] + cards[cards.size()-2]*pow13[3] + cards[cards.size()-3]*pow13[2] + cards[cards.size()-4]*pow13[1] + cards[cards.size()-5];
     }
 }
-
-int main() {
-    vector<int> cards = {0,1,2,3,12,12,12,11};
-    int res = helper_func::eight_eval(cards);
-    vector<int> ans;
-    while (res > 0) {
-        ans.push_back(res%13);
-        res /= 13;
-    }
-    for (int i=ans.size()-1; i>=0; i--) {
-        cout << ans[i] << " ";
-    }
-}
