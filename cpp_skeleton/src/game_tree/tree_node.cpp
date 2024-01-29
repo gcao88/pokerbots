@@ -14,7 +14,7 @@
 using namespace std;
 
 __gnu_pbds::gp_hash_table<string, Action*> mp;
-int num = 0;
+int num = 0; 
 
 struct Node {
     // leads to all direct children in the gametree
@@ -43,30 +43,28 @@ struct Node {
 
                 auto h = history[i];
                 if (h != "P12" && h != "P13" && h != "P22" && h != "P23" && h != "t" && h != "r" && h.size() >= history[i + 1].size()) {
-
+                   
                     key += h + " ";
                 }
             }
-            key += childname + " ";
+            key += childname + " "; 
             if (action.size() % 2 == 0) {
-                for (auto c : h1)
-                    key += to_string(c) + " ";
+                for (auto c : h1) 
+                    key += to_string(c) + " "; 
             } else {
-                for (auto c : h2)
-                    key += to_string(c) + " ";
+                for (auto c : h2) 
+                    key += to_string(c) + " "; 
             }
             if (mp.find(key) == mp.end()) {
                 mp[key] = new Action(-1);
             }
             return mp[key];
         };
-        // if (h1 == vector<int>{0, 0}) {
             num += 1;
+        // if (num % 1'000'00 == 0) {
+        //     cout << num << "\n";
         // }
-        if (num % 1'000'000 == 0) {
-            cout << num << "\n";
-        }
-
+            // cout << num << "\n";
         auto get_cards = [&]() -> vector<int> {
             vector<int> cards(13, 4);
             for (auto v : board)
@@ -107,7 +105,7 @@ struct Node {
                         vector<int> h2_ = h2;
                         if (action == "P12") h1_ = {i, j};
                         else h2_ = {i, j};
-                        children.push_back({get_action(to_string(i) + " " + to_string(j)),
+                        children.push_back({get_action(to_string(i) + " " + to_string(j)), 
                             new Node(board, history, (action == "P12" ? "P23" : "F"), pot1, pot2, h1_, h2_)});
                     }
                 }
@@ -120,22 +118,26 @@ struct Node {
             }
         } else if (action == "P13" || action == "P23") {
             auto cards__ = get_cards();
+            // for (auto c : cards__) {
+            //     cout << c << " ";
+            // }
+            // cout << "\n";
             for (int i = 0; i < 13; i++) {
                 for (int j = 0; j <= i; j++) {
                     for (int k = 0; k <= j; k++) {
                         if ((i == j && j == k && cards__[i] >= 3) ||
-                            (i == j && cards__[i] >= 2 && cards__[k]) ||
-                            (i == k && cards__[i] >= 2 && cards__[j]) ||
-                            (j == k && cards__[j] >= 2 && cards__[i]) ||
-                            (cards__[i] && cards__[j] && cards__[k])) {
+                            (i == j && j != k && cards__[i] >= 2 && cards__[k]) ||
+                            (i == k && j != k && cards__[i] >= 2 && cards__[j]) ||
+                            (j == k && i != k && cards__[j] >= 2 && cards__[i]) ||
+                            (i != j && j != k && cards__[i] && cards__[j] && cards__[k])) {
 
                             vector<int> h1_ = h1;
                             vector<int> h2_ = h2;
                             if (action == "P12") h1_ = {i, j, k};
                             else h2_ = {i, j, k};
-                            children.push_back({get_action(to_string(i) + " " + to_string(j) + " " + to_string(k)),
+                            children.push_back({get_action(to_string(i) + " " + to_string(j) + " " + to_string(k)), 
                                 new Node(board, history, (action == "P12" ? "P23" : "F"), pot1, pot2, h1_, h2_)});
-                        }
+                        } 
                     }
                 }
             }
@@ -145,14 +147,14 @@ struct Node {
                 auto cards2 = h2;
                 cards1.insert(cards1.end(), board.begin(), board.end());
                 cards2.insert(cards2.end(), board.begin(), board.end());
-                for (auto c : cards1) {
-                    cout << c << " ";
-                }
-                cout << "\n";
-                for (auto c : cards2) {
-                    cout << c << " ";
-                }
-                cout << "\n";
+                // for (auto c : cards1) {
+                //     cout << c << " ";
+                // }
+                // cout << "\n";
+                // for (auto c : cards2) {
+                //     cout << c << " ";
+                // }
+                // cout << "\n";
 
                 // for (auto v : cards1) {
                 //     cout << helper_func::num_to_card(v) << " ";
@@ -163,6 +165,7 @@ struct Node {
                 // }
                 // cout << "\n";
                 uint16_t ma1 = helper_func::eight_eval(cards1), ma2 = helper_func::eight_eval(cards2);
+                // uint16_t ma1 = 0, ma2 = 0;
                 // for (int i = 0; i < 8; i++) {
                 //     vector<int> A;
                 //     vector<int> B;
@@ -322,7 +325,7 @@ struct Node {
                     if ((pot1 + pot2) >= min(400 - pot1, 400 - pot2)) {
                         continue;
                     }
-                }
+                } 
                 children.push_back({get_action(decision), new Node(board, history, action + string(decision), pot1, pot2, h1, h2)});
             }
         }
@@ -340,22 +343,22 @@ struct Node {
                 }
                 // FOLD
             }
-            children.push_back({get_action("."), new Node(board, history, action + ".", pot1 + bet[0], pot2 + bet[1], h1, h2)});
-            // CALL
-            if (action[0] == 'F') children.push_back({get_action("C"), new Node(board, history, "t", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2)});
-            else if (action[0] == 'T') children.push_back({get_action("C"), new Node(board, history, "r", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2)});
-            else children.push_back({get_action("C"), new Node(board, history, "S", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2)});
-            // RAISE
+            children.push_back({get_action("."), new Node(board, history, action + ".", pot1 + bet[0], pot2 + bet[1], h1, h2)}); 
+            // CALL 
+            if (action[0] == 'F') children.push_back({get_action("C"), new Node(board, history, "t", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2)}); 
+            else if (action[0] == 'T') children.push_back({get_action("C"), new Node(board, history, "r", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2)}); 
+            else children.push_back({get_action("C"), new Node(board, history, "S", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2)}); 
+            // RAISE 
             if (action[action.size() - 1] == 'A') {
                 // TRIVIALLY YOU CANNOT RAISE
             } else if (action[action.size() - 1] == '^') {
-                // RAISE ALL-IN
+                // RAISE ALL-IN 
                 children.push_back({get_action("A"), new Node(board, history, action + "A", pot1, pot2, h1, h2)});
             } else {
-                // RAISE ALL-IN
-                children.push_back({get_action("A"), new Node(board, history, action + "A", pot1, pot2, h1, h2)});
+                // RAISE ALL-IN 
+                children.push_back({get_action("A"), new Node(board, history, action + "A", pot1, pot2, h1, h2)}); 
                 if (3 * max(bet[0], bet[1]) < min(400 - pot1, 400 - pot2)) {
-                    children.push_back({get_action("^"), new Node(board, history, action + "^", pot1, pot2, h1, h2)});
+                    children.push_back({get_action("^"), new Node(board, history, action + "^", pot1, pot2, h1, h2)}); 
                 }
             }
             // CALL
