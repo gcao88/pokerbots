@@ -213,8 +213,25 @@ int main() {
             root->children.emplace_back(new Action(card1+card2, 1/6), u);
         }
     }
-  
-    for (int i=0; i<6561; i++) {
+    
+    vector<int> run_resets = {1};
+    for (int i=1; i<=20; i++) {
+        float reset = 4;
+        run_resets.push_back(ceil(reset*run_resets[run_resets.size()-1]));
+    }
+
+    for (int i=0; i<5e3; i++) {
+        if (find(run_resets.begin(), run_resets.end(), i) != run_resets.end()) {
+            float scale = 3.8 + (-2.3)/(1+pow(2,-0.009*(i-500)));
+            for (string card : {"A", "B", "C"}) {
+                for (Action* a : p1_actions[card]) {
+                    a->s /= scale;
+                }
+                for (Action* a : p2_actions[card]) {
+                    a->s /= scale;
+                }
+            }
+        }
         walk_tree(root, i%2+1, 1);
     }
 
@@ -226,11 +243,7 @@ int main() {
     decode_strategy(root, 1, strategy1, &ind1, new unordered_set<Action*>());
 
     cout << "player 2" << endl;
-    /*
-    bug:
-    A
-    x 715.709 b 1e+09 f 1e+09 c 0.5
-    */
+    
     vector<int>* strategy2 = new vector<int>();
     encode_strategy(root, 2, strategy2, new unordered_set<Action*>());
     int ind2 = 0;
