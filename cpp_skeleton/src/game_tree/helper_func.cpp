@@ -183,13 +183,79 @@ namespace helper_func {
                 cnt = 1;
             }
         }
-        
+
         if (arr[4].size() >= 1) {
             int quad = arr[4][arr[4].size()-1];
             int kicker = cards[cards.size()-1] == quad ? cards[cards.size()-5] : cards[cards.size()-1];
             return 6*pow13[5] + quad*pow13[4] + quad*pow13[3] + quad*pow13[2] + quad*pow13[1] + kicker;
         }
-        
+        if (arr[3].size() >= 2 || (arr[3].size() == 1 && arr[2].size() >= 1)) {
+            int trip = arr[3][arr[3].size()-1];
+            int pair = arr[3].size() == 2 ? max(arr[3][0], arr[2][arr[2].size()]) : arr[2][arr[2].size()];
+            return 5*pow13[5] + trip*pow13[4] + trip*pow13[3] + trip*pow13[2] + pair*pow13[1] + pair;
+        }
+        for (int i=cards.size()-1; i>=4; i++) {
+            if (cards[i] == cards[i-1]+1 && cards[i-1] == cards[i-2]+1 && cards[i-2] == cards[i-3]+1 && cards[i-3] == cards[i-4]+1) {
+                return 4*pow13[5] + cards[i]*pow13[4] + cards[i-1]*pow13[3] + cards[i-2]*pow13[2] + cards[i-3]*pow13[1] + cards[i-4];
+            }
+        }
+        // WheeL straight:
+        if (cards[cards.size()-1] == 12) {
+            int want_to_appear = 0;
+            for (int i=0; i<cards.size()-1; i++) {
+                if (cards[i] == want_to_appear) {
+                    want_to_appear++;
+                    if (want_to_appear == 4) {
+                        return 4*pow13[5];
+                    }
+                }
+                else if (cards[i] > want_to_appear) {
+                    break;
+                }
+            }
+        }
+        if (arr[3].size() == 1) {
+            int trip = arr[3][0];
+            int kicker1 = cards[cards.size()-1];
+            int kicker2 = cards[cards.size()-2];
+            if (kicker1 == trip) {
+                kicker1 = cards[cards.size()-4];
+                kicker2 = cards[cards.size()-5];
+            }
+            else if (kicker2 == trip) {
+                kicker2 = cards[cards.size()-5];
+            }
+            return 3*pow13[5] + trip*pow13[4] + trip*pow13[3] + trip*pow13[2] + kicker1*pow13[1] + kicker2;
+        }
+        if (arr[2].size() >= 2) {
+            int pair1 = arr[2][arr[2].size()-1];
+            int pair2 = arr[2][arr[2].size()-2];
+            int kicker = cards[cards.size()-1];
+            if (kicker == pair1) {
+                kicker = cards[cards.size()-3] == pair2 ? cards[cards.size()-5] : cards[cards.size()-3];
+            }
+            return 2*pow13[5] + pair1*pow13[4] + pair1*pow13[3] + pair2*pow13[2] + pair2*pow13[1] + kicker;
+        }
+        if (arr[2].size() == 1) {
+            int pair = arr[2][0];
+            int kicker1 = cards[cards.size()-1];
+            int kicker2 = cards[cards.size()-2];
+            int kicker3 = cards[cards.size()-3];
+            if (kicker1 == pair) {
+                kicker1 = cards[cards.size()-3];
+                kicker2 = cards[cards.size()-4];
+                kicker3 = cards[cards.size()-5];
+            }
+            else if (kicker2 == pair) {
+                kicker2 = cards[cards.size()-4];
+                kicker3 = cards[cards.size()-5];
+            }
+            else if (kicker3 == pair) {
+                kicker3 = cards[cards.size()-5];
+            }
+            return pow13[5] + pair*pow13[4] + pair*pow13[3] + kicker1*pow13[2] + kicker2*pow13[1] + kicker3;
+        }
+        return cards[cards.size()-1]*pow13[4] + cards[cards.size()-2]*pow13[3] + cards[cards.size()-3]*pow13[2] + cards[cards.size()-4]*pow13[1] + cards[cards.size()-5];
     }
 }
 
