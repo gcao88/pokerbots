@@ -31,6 +31,7 @@ struct Node {
                 return child.second;
             }
         }
+        return nullptr;
     }
 };
 struct InfoSet {

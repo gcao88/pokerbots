@@ -8,6 +8,7 @@
 #include "../libs/skeleton/include/skeleton/util.h"
 
 using namespace pokerbots::skeleton;
+using namespace std;
 
 struct Bot {
   /*
@@ -93,29 +94,55 @@ struct Bot {
     if (street == 0) {
       // preflop
     }
+    else if (street == 3) {
+      if (legalActions.find(Action::Type::BID) != legalActions.end()) {
+        int pot = 800 - myStack - oppStack;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<int> bid_distribution(3*pot, 4*pot);
+        return {Action::Type::BID, bid_distribution(gen)};
+      }
+      if (boardCards[0][1] == boardCards[1][1] && boardCards[0][1] == boardCards[2][1]) {
+        // MONOTONE
+        if (myCards.size() == 2) {
+          if (myCards[0][1] != boardCards[0][1] && myCards[1][1] != boardCards[0][1]) {
+            if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+              return {Action::Type::CHECK};
+            }
+            return {Action::Type::FOLD};
+          }
+          if (myCards[0][1] == boardCards[0][1] && myCards[1][1] == boardCards[0][1]) {
+            // hit flush
+            if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
+              auto raiseBounds = roundState->raiseBounds();
+              minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+              maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+              return {Action::Type::RAISE, min(max(int(minCost), int((800-myStack-oppStack)/2)), int(maxCost))};
+            }
+            if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
+              return {Action::Type::CALL};
+            }
+          }
+          else {
+            if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+              return {Action::Type::CHECK};
+            }
+            return {Action::Type::CALL};
+          }
+        }
+        else {
+          // 3 cards
 
-    if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
-      auto raiseBounds =
-          roundState->raiseBounds();     // the smallest and largest numbers of
-                                         // chips for a legal bet/raise
-      minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
-      maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+        }
+      }
+      else if (boardCards[0][1] == boardCards[1][1] || boardCards[0][1] == boardCards[2][1] || boardCards[1][1] == boardCards[2][1]) {
+        // TWOTONE
+      }
+      else {
+        // RAINBOW
+      }
     }
 
-    // Basic bot that randomly bids or just checks/calls.
-    std::random_device rd;
-    std::mt19937 gen(rd());  // Mersenne Twister engine
-    std::uniform_int_distribution<int> bid_distribution(
-        0, myStack);  // random bid between 0 and my stack
-
-    if (legalActions.find(Action::Type::BID) != legalActions.end()) {
-      return {Action::Type::BID, bid_distribution(gen)};  // random bid
-    }
-    if (legalActions.find(Action::Type::CHECK) !=
-        legalActions.end()) {  // check-call
-      return {Action::Type::CHECK};
-    }
-    return {Action::Type::CALL};
   }
 };
 

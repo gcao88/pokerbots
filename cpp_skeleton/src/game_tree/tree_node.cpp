@@ -21,8 +21,8 @@ struct Node {
     vector<pair<Action*, Node*>> children;
     // next action
     string action;
-    double reward = 1e9; // if theres a terminal state it will have some non-zero reward. positive reward implies player1 wins chips. 
-    // negative reward implies the opposite of that. 
+    double reward = 1e9; // if theres a terminal state it will have some non-zero reward. positive reward implies player1 wins chips.
+    // negative reward implies the opposite of that.
 
 
     /*
@@ -68,42 +68,42 @@ struct Node {
             cout << num << "\n";
         auto get_cards = [&]() -> vector<int> {
             vector<int> cards(13, 4);
-            for (auto v : board) 
+            for (auto v : board)
                 cards[v]--;
-            for (auto v : h1) 
-                cards[v]--; 
-            for (auto v : h2) 
-                cards[v]--; 
-            return cards; 
-        }; 
+            for (auto v : h1)
+                cards[v]--;
+            for (auto v : h2)
+                cards[v]--;
+            return cards;
+        };
         if (pot1 == 0 || pot2 == 0) {
 
             if (preflop == 2) {
-                pot1 = pot2 = 6; 
+                pot1 = pot2 = 6;
             } else if (preflop == 3) {
                 pot1 = pot2 = 18;
-            } 
+            }
             if (helper_func::random_number(0, 1) == 0) {
-                pot1 = pot1 * 7 / 2; 
+                pot1 = pot1 * 7 / 2;
             } else pot2 = pot2 * 7 / 2;
         }
         action = _action;
         history.push_back(action);
 
-        if (action != "P12" && action != "P13" && action != "P22" 
+        if (action != "P12" && action != "P13" && action != "P22"
             && action != "P23" && action != "t" && action != "r") {
             // cout << key << " " << mp[key] << "\n";
         }
         if (action == "P12" || action == "P22") {
-            auto cards__ = get_cards(); 
+            auto cards__ = get_cards();
 
             for (int i = 0; i < 13; i++) {
                 // cout << "DONE WITH " << i << "\n";
                 for (int j = 0; j <= i; j++) {
-                    if ((i != j && cards__[i] && cards__[j]) || 
+                    if ((i != j && cards__[i] && cards__[j]) ||
                         (i == j && cards__[i] >= 2)) {
-                        vector<int> h1_ = h1; 
-                        vector<int> h2_ = h2; 
+                        vector<int> h1_ = h1;
+                        vector<int> h2_ = h2;
                         if (action == "P12") h1_ = {i, j};
                         else h2_ = {i, j};
                         children.push_back({get_action(to_string(i) + " " + to_string(j)), 
@@ -113,23 +113,23 @@ struct Node {
             }
         } else if (action[action.size() - 1] == '.') {
             if (action.size() % 2 == 1) {
-                reward = pot2; 
+                reward = pot2;
             } else {
-                reward = -pot1; 
+                reward = -pot1;
             }
         } else if (action == "P13" || action == "P23") {
-            auto cards__ = get_cards(); 
+            auto cards__ = get_cards();
             for (int i = 0; i < 13; i++) {
                 for (int j = 0; j <= i; j++) {
                     for (int k = 0; k <= j; k++) {
-                        if ((i == j && j == k && cards__[i] >= 3) || 
-                            (i == j && cards__[i] >= 2 && cards__[k]) || 
+                        if ((i == j && j == k && cards__[i] >= 3) ||
+                            (i == j && cards__[i] >= 2 && cards__[k]) ||
                             (i == k && cards__[i] >= 2 && cards__[j]) ||
                             (j == k && cards__[j] >= 2 && cards__[i]) ||
                             (cards__[i] && cards__[j] && cards__[k])) {
 
-                            vector<int> h1_ = h1; 
-                            vector<int> h2_ = h2; 
+                            vector<int> h1_ = h1;
+                            vector<int> h2_ = h2;
                             if (action == "P12") h1_ = {i, j, k};
                             else h2_ = {i, j, k};
                             children.push_back({get_action(to_string(i) + " " + to_string(j) + " " + to_string(k)), 
@@ -140,10 +140,10 @@ struct Node {
             }
         } else if (action == "r" || max(pot1, pot2) == 400) { // we have reached showdown (or someone is all-in)
             auto get_winner = [&]() {
-                auto cards1 = h1; 
-                auto cards2 = h2; 
-                cards1.insert(cards1.end(), board.begin(), board.end()); 
-                cards2.insert(cards2.end(), board.begin(), board.end()); 
+                auto cards1 = h1;
+                auto cards2 = h2;
+                cards1.insert(cards1.end(), board.begin(), board.end());
+                cards2.insert(cards2.end(), board.begin(), board.end());
                 // for (auto v : cards1) {
                 //     cout << helper_func::num_to_card(v) << " ";
                 // }
@@ -152,11 +152,11 @@ struct Node {
                 //     cout << helper_func::num_to_card(v) << " ";
                 // }
                 // cout << "\n";
-                uint16_t ma1 = 0, ma2 = 0; 
+                uint16_t ma1 = 0, ma2 = 0;
                 for (int i = 0; i < 8; i++) {
-                    vector<int> A; 
-                    vector<int> B; 
-                    int counter = 0; 
+                    vector<int> A;
+                    vector<int> B;
+                    int counter = 0;
                     auto convert = [&](int C) {
                         auto suit = counter++ % 4;
                         auto card = C;
@@ -170,19 +170,19 @@ struct Node {
                         } else {
                             A.push_back(convert(cards1[j]));
                         }
-                    } 
+                    }
                     for (int j = 0; j < cards2.size(); j++) {
                         if (cards2.size() == 8) {
                             if (i != j) {
                                 B.push_back(convert(cards2[j]));
-                            } 
+                            }
                         } else {
                             B.push_back(convert(cards2[j]));
                         }
                     }
 
-                    ma1 = max(ma1, SevenEval::GetRank(A[0], A[1], A[2], A[3], A[4], A[5], A[6])); 
-                    ma2 = max(ma2, SevenEval::GetRank(B[0], B[1], B[2], B[3], B[4], B[5], B[6])); 
+                    ma1 = max(ma1, SevenEval::GetRank(A[0], A[1], A[2], A[3], A[4], A[5], A[6]));
+                    ma2 = max(ma2, SevenEval::GetRank(B[0], B[1], B[2], B[3], B[4], B[5], B[6]));
                 }
                 // if (ma1 > ma2) {
                 //     cout << "P1\n";
@@ -191,21 +191,21 @@ struct Node {
                 // } else {
                 //     cout << "TIE\n";
                 // }
-                if (ma1 > ma2) return -1; 
-                else if (ma1 < ma2) return 1; 
-                else return 0; 
-            }; 
+                if (ma1 > ma2) return -1;
+                else if (ma1 < ma2) return 1;
+                else return 0;
+            };
             history.pop_back();
             return;
-            if (board.size() == 5) { 
-                // omp::Hand p1 = omp::Hand::empty(); 
-                auto win = get_winner(); 
+            if (board.size() == 5) {
+                // omp::Hand p1 = omp::Hand::empty();
+                auto win = get_winner();
                 if (win == -1) {
                     reward = pot2;
                 } else if (win == 1) {
                     reward = -pot1;
                 } else {
-                    reward = 1.0 * (pot1 + pot2) / 2 - pot1; 
+                    reward = 1.0 * (pot1 + pot2) / 2 - pot1;
                 }
             } else if (board.size() == 4) {
                 // history.pop_back();
@@ -221,9 +221,9 @@ struct Node {
                         if (win == -1) {
                             reward += 1.0 * pot2 / sz;
                         } else if (win == 1) {
-                            reward += 1.0 * -pot1 / sz; 
+                            reward += 1.0 * -pot1 / sz;
                         } else {
-                            reward += 1.0 * ((pot1 + pot2) / 2 - pot1) / sz; 
+                            reward += 1.0 * ((pot1 + pot2) / 2 - pot1) / sz;
                         }
                         board.pop_back();
                     }
@@ -242,9 +242,9 @@ struct Node {
                             if (win == -1) {
                                 reward += 1.0 * pot2 / sz;
                             } else if (win == 1) {
-                                reward += 1.0 * -pot1 / sz; 
+                                reward += 1.0 * -pot1 / sz;
                             } else {
-                                reward += 1.0 * ((pot1 + pot2) / 2 - pot1) / sz; 
+                                reward += 1.0 * ((pot1 + pot2) / 2 - pot1) / sz;
                             }
                             board.pop_back();
                             board.pop_back();
@@ -267,7 +267,7 @@ struct Node {
                 // cout << reward << "\n";
             }
         } else if (action == "t" || action == "r") { // CHANCE NODE
-            // cout << "HISTORY: "; 
+            // cout << "HISTORY: ";
             // for (int x : h1) {
             //     cout << x << " ";
             // }
@@ -275,14 +275,14 @@ struct Node {
             //     cout << x << " ";
             // }
 
-            // cout << pot1 << " "; 
+            // cout << pot1 << " ";
             // cout << pot2 << " ";
             // for (string s : history)
-            //     cout << s << " "; 
+            //     cout << s << " ";
             // cout << endl;
             // history.pop_back();
             // return;// end early
-            auto cards = get_cards(); 
+            auto cards = get_cards();
             for (int i = 0; i < 13; i++) {
                 if (cards[i]) {
                     board.push_back(i);
@@ -328,7 +328,7 @@ struct Node {
                 } else if (action[i] == '^') {
                     bet[i & 1 ^ 1] = 3 * bet[i & 1];
                 }
-                // FOLD 
+                // FOLD
             }
             children.push_back({get_action("."), new Node(board, history, action + ".", pot1 + bet[0], pot2 + bet[1], h1, h2)}); 
             // CALL 
@@ -337,7 +337,7 @@ struct Node {
             else children.push_back({get_action("C"), new Node(board, history, "S", pot1 + max(bet[0], bet[1]), pot2 + max(bet[0], bet[1]), h1, h2)}); 
             // RAISE 
             if (action[action.size() - 1] == 'A') {
-                // TRIVIALLY YOU CANNOT RAISE 
+                // TRIVIALLY YOU CANNOT RAISE
             } else if (action[action.size() - 1] == '^') {
                 // RAISE ALL-IN 
                 children.push_back({get_action("A"), new Node(board, history, action + "A", pot1, pot2, h1, h2)});
@@ -352,7 +352,7 @@ struct Node {
             // RAISE
             // FOLD
 
-        } 
+        }
         history.pop_back();
     }
 };
@@ -360,5 +360,5 @@ struct Node {
 
 int main() {
     vector<string> v;
-    Node *a = new Node(vector<int>({8, 12, 10}), v); 
+    Node *a = new Node(vector<int>({8, 12, 10}), v);
 }
