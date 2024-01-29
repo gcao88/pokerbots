@@ -26,7 +26,7 @@ struct Bot {
     // seconds your bot has left to play this game int roundNum =
     // gameState->roundNum;  // the round number from 1 to State.NUM_ROUNDS auto
     // myCards = roundState->hands[active];  // your cards bool bigBlind =
-    // (active == 1);  // true if you are the big blind
+    (active == 1);  // true if you are the big blind
   }
 
   /*
@@ -90,13 +90,13 @@ struct Bot {
                                     // contributed to the pot
     int minCost = 0;
     int maxCost = 0;
+    int pot = 800 - myStack - oppStack;
 
     if (street == 0) {
       // preflop
     }
     else if (street == 3) {
       if (legalActions.find(Action::Type::BID) != legalActions.end()) {
-        int pot = 800 - myStack - oppStack;
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<int> bid_distribution(3*pot, 4*pot);
@@ -104,20 +104,21 @@ struct Bot {
       }
       if (boardCards[0][1] == boardCards[1][1] && boardCards[0][1] == boardCards[2][1]) {
         // MONOTONE
+        char suit = boardCards[0][1];
         if (myCards.size() == 2) {
-          if (myCards[0][1] != boardCards[0][1] && myCards[1][1] != boardCards[0][1]) {
+          if (myCards[0][1] != suit && myCards[1][1] != suit) {
             if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
               return {Action::Type::CHECK};
             }
             return {Action::Type::FOLD};
           }
-          if (myCards[0][1] == boardCards[0][1] && myCards[1][1] == boardCards[0][1]) {
+          if (myCards[0][1] == suit && myCards[1][1] == suit) {
             // hit flush
             if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
               auto raiseBounds = roundState->raiseBounds();
               minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
               maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
-              return {Action::Type::RAISE, min(max(int(minCost), int((800-myStack-oppStack)/2)), int(maxCost))};
+              return {Action::Type::RAISE, min(max(int(minCost), int(pot/2)), int(maxCost))};
             }
             if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
               return {Action::Type::CALL};
@@ -132,7 +133,60 @@ struct Bot {
         }
         else {
           // 3 cards
+          int hits = (suit==myCards[0][1])+(suit==myCards[1][1])+(suit==myCards[2][1]);
+          if (hits >= 2) {
+            if (active == 1) {
+              if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
+                auto raiseBounds = roundState->raiseBounds();
+                minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+                maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+                return {Action::Type::RAISE, min(max(int(minCost), int(pot*4/10)), int(maxCost))};
+              }
+            }
+            else {
+              if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
+                return {Action::Type::CALL};
+              }
+              if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
+                auto raiseBounds = roundState->raiseBounds();
+                minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+                maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+                return {Action::Type::RAISE, min(max(int(minCost), int(pot*4/10)), int(maxCost))};
+              }
+              if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+                return {Action::Type::CHECK};
+              }
+            }
+          }
+          else if (hits == 1) {
+            char num = myCards[0][0];
+            if (myCards[1][1] == suit) {
+              num = myCards[1][0];
+            }
+            else if (myCards[2][1] == suit) {
+              num = myCards[2][0];
+            }
+            if (num == 'A' || num == 'K' || num == 'Q' || num == 'J') {
+              
+            }
+            else {
 
+            }
+          }
+          else {
+            if (continueCost > 0) {
+              return {Action::Type::FOLD};
+            }
+            if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
+              auto raiseBounds = roundState->raiseBounds();
+              minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+              maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+              return {Action::Type::RAISE, min(max(int(minCost), int(pot/3)), int(maxCost))};
+            }
+            if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+              return {Action::Type::CHECK};
+            }
+          }
         }
       }
       else if (boardCards[0][1] == boardCards[1][1] || boardCards[0][1] == boardCards[2][1] || boardCards[1][1] == boardCards[2][1]) {

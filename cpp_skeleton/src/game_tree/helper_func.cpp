@@ -65,7 +65,7 @@ namespace helper_func {
         }
         if (arr[3].size() >= 2 || (arr[3].size() == 1 && arr[2].size() >= 1)) {
             int trip = arr[3][arr[3].size()-1];
-            int pair = arr[3].size() == 2 ? max(arr[3][0], arr[2][arr[2].size()]) : arr[2][arr[2].size()];
+            int pair = arr[3].size() == 2 ? max(arr[3][0], arr[2][arr[2].size()-1]) : arr[2][arr[2].size()-1];
             return 5*pow13[5] + trip*pow13[4] + trip*pow13[3] + trip*pow13[2] + pair*pow13[1] + pair;
         }
 
