@@ -144,6 +144,15 @@ struct Node {
                 auto cards2 = h2;
                 cards1.insert(cards1.end(), board.begin(), board.end());
                 cards2.insert(cards2.end(), board.begin(), board.end());
+                for (auto c : cards1) {
+                    cout << c << " ";
+                }
+                cout << "\n";
+                for (auto c : cards2) {
+                    cout << c << " ";
+                }
+                cout << "\n";
+
                 // for (auto v : cards1) {
                 //     cout << helper_func::num_to_card(v) << " ";
                 // }
@@ -152,38 +161,38 @@ struct Node {
                 //     cout << helper_func::num_to_card(v) << " ";
                 // }
                 // cout << "\n";
-                uint16_t ma1 = 0, ma2 = 0;
-                for (int i = 0; i < 8; i++) {
-                    vector<int> A;
-                    vector<int> B;
-                    int counter = 0;
-                    auto convert = [&](int C) {
-                        auto suit = counter++ % 4;
-                        auto card = C;
-                        return suit + ((13 - card) % 13) * 4;
-                    };
-                    for (int j = 0; j < cards1.size(); j++) {
-                        if (cards1.size() == 8) {
-                            if (i != j) {
-                                A.push_back(convert(cards1[j]));
-                            }
-                        } else {
-                            A.push_back(convert(cards1[j]));
-                        }
-                    }
-                    for (int j = 0; j < cards2.size(); j++) {
-                        if (cards2.size() == 8) {
-                            if (i != j) {
-                                B.push_back(convert(cards2[j]));
-                            }
-                        } else {
-                            B.push_back(convert(cards2[j]));
-                        }
-                    }
+                uint16_t ma1 = helper_func::eight_eval(cards1), ma2 = helper_func::eight_eval(cards2);
+                // for (int i = 0; i < 8; i++) {
+                //     vector<int> A;
+                //     vector<int> B;
+                //     int counter = 0;
+                //     auto convert = [&](int C) {
+                //         auto suit = counter++ % 4;
+                //         auto card = C;
+                //         return suit + ((13 - card) % 13) * 4;
+                //     };
+                //     for (int j = 0; j < cards1.size(); j++) {
+                //         if (cards1.size() == 8) {
+                //             if (i != j) {
+                //                 A.push_back(convert(cards1[j]));
+                //             }
+                //         } else {
+                //             A.push_back(convert(cards1[j]));
+                //         }
+                //     }
+                //     for (int j = 0; j < cards2.size(); j++) {
+                //         if (cards2.size() == 8) {
+                //             if (i != j) {
+                //                 B.push_back(convert(cards2[j]));
+                //             }
+                //         } else {
+                //             B.push_back(convert(cards2[j]));
+                //         }
+                //     }
 
-                    ma1 = max(ma1, SevenEval::GetRank(A[0], A[1], A[2], A[3], A[4], A[5], A[6]));
-                    ma2 = max(ma2, SevenEval::GetRank(B[0], B[1], B[2], B[3], B[4], B[5], B[6]));
-                }
+                //     ma1 = max(ma1, SevenEval::GetRank(A[0], A[1], A[2], A[3], A[4], A[5], A[6]));
+                //     ma2 = max(ma2, SevenEval::GetRank(B[0], B[1], B[2], B[3], B[4], B[5], B[6]));
+                // }
                 // if (ma1 > ma2) {
                 //     cout << "P1\n";
                 // } else if (ma1 < ma2) {
@@ -195,8 +204,8 @@ struct Node {
                 else if (ma1 < ma2) return 1;
                 else return 0;
             };
-            history.pop_back();
-            return;
+            // history.pop_back();
+            // return;
             if (board.size() == 5) {
                 // omp::Hand p1 = omp::Hand::empty();
                 auto win = get_winner();
