@@ -47,7 +47,7 @@ struct Node {
     // WARNING: you should put cards in that dont have the cards on the flop
 
     Node(vector<int> board, vector<string> &history, string _action = "P12", int pot1 = 0, int pot2 = 0, vector<int> h1 = {}, vector<int> h2 = {}, int preflop = 2) { // start building the game tree from here
-        auto get_action = [&](string childname) -> Action* {
+        auto get_action = [&](string childname, float prob = -1) -> Action* {
             string key = "";
             for (int i = 0; i < history.size(); i++) {
                 auto h = history[i];
@@ -69,7 +69,7 @@ struct Node {
                     key += to_string(c) + " ";
             }
             if (mp.find(key) == mp.end()) {
-                mp[key] = new Action(childname, -1.0);
+                mp[key] = new Action(childname, prob);
             }
             
             // cout << key << " " << mp[key] << "\n";
@@ -115,8 +115,13 @@ struct Node {
                         vector<int> h2_ = h2;
                         if (action == "P12") h1_ = {i, j};
                         else h2_ = {i, j};
-                        children.push_back({get_action(to_string(i) + " " + to_string(j)),
-                            new Node(board, history, (action == "P12" ? "P23" : "F"), pot1, pot2, h1_, h2_)});
+                        int decksz = 52 - h1.size() - h2.size(); 
+                        float prob = 2.0 * cards__[i] * cards__[j]  / (decksz * (decksz - 1)); 
+                        if (i == j) {
+                            prob = 1.0 * cards__[i] * (cards__[i] - 1) / (decksz * (decksz - 1));
+                        } 
+                        children.push_back(make_pair(get_action(to_string(i) + " " + to_string(j), prob),
+                            new Node(board, history, (action == "P12" ? "P23" : "F"), pot1, pot2, h1_, h2_)));
                     }
                 }
             }
@@ -140,18 +145,32 @@ struct Node {
                             (i == k && j != k && cards__[i] >= 2 && cards__[j]) ||
                             (j == k && i != k && cards__[j] >= 2 && cards__[i]) ||
                             (i != j && j != k && cards__[i] && cards__[j] && cards__[k])) {
-
+                            int decksz = 52 - h1.size() - h2.size(); 
+                            double prob = 6 * cards__[i] * cards__[j] * cards__[k] / (decksz * (decksz - 1) * (decksz - 2));
+                            if (i == j && j == k) {
+                                prob = 1.0 * cards__[i] * (cards__[i] - 1) * (cards__[i] - 2) / 
+                                    (decksz * (decksz - 1) * (decksz - 2)); 
+                            } else if (i == j) {
+                                prob = 3.0 * cards__[i] * (cards__[i] - 1) * cards__[k] / 
+                                    (decksz * (decksz - 1) * (decksz - 2));
+                            } else if (i == k) {
+                                prob = 3.0 * cards__[i] * (cards__[i] - 1) * cards__[j] / 
+                                    (decksz * (decksz - 1) * (decksz - 2));
+                            } else if (k == j) {
+                                prob = 3.0 * cards__[k] * (cards__[k] - 1) * cards__[i] / 
+                                    (decksz * (decksz - 1) * (decksz - 2));
+                            } 
                             vector<int> h1_ = h1;
                             vector<int> h2_ = h2;
                             if (action == "P12") h1_ = {i, j, k};
                             else h2_ = {i, j, k};
-                            children.push_back({get_action(to_string(i) + " " + to_string(j) + " " + to_string(k)),
+                            children.push_back({get_action(to_string(i) + " " + to_string(j) + " " + to_string(k), prob),
                                 new Node(board, history, (action == "P12" ? "P23" : "F"), pot1, pot2, h1_, h2_)});
                         }
                     }
                 }
             }
-        } else if (action == "t" || max(pot1, pot2) == 400) { // we have reached showdown (or someone is all-in)
+        } else if (action == "r" || max(pot1, pot2) == 400) { // we have reached showdown (or someone is all-in)
             auto get_winner = [&]() {
                 auto cards1 = h1;
                 auto cards2 = h2;
