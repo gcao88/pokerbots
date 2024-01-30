@@ -19,12 +19,13 @@ struct Bot {
   pair<int,int> preflop_chart_pos;
   string cards = "23456789TJQKA";
   string suits = "shcd";
-
+  bool bigBlind;
 
 
   Bot() {
     import_preflop();
-
+    cout << "preflop loaded in" << endl;
+    preflop = 0;
 
 
   }
@@ -121,8 +122,8 @@ struct Bot {
     float gameClock = gameState->gameClock;  // the total number of
     // seconds your bot has left to play this game
     int roundNum = gameState->roundNum;  // the round number from 1 to State.NUM_ROUNDS
-    auto myCards = roundState->hands[active];  // your cards bool bigBlind =
-    active == 1;  // true if you are the big blind
+    auto myCards = roundState->hands[active];  // your cards
+    bigBlind = (active == 1);  // true if you are the big blind
 
     // Own stuff:
     preflop = 0;
@@ -194,7 +195,7 @@ struct Bot {
 
     if (street == 0) {
       // PREFLOP
-      if (active == 1) { // bigblind
+      if (bigBlind) { // bigblind
         if (preflop == 0) {
           // sb limp/raise
           if (oppPip == 2) { //limp
@@ -342,7 +343,7 @@ struct Bot {
           // 3 cards
           int hits = (suit==myCards[0][1])+(suit==myCards[1][1])+(suit==myCards[2][1]);
           if (hits >= 2) {
-            if (active == 1) {
+            if (bigBlind) {
               if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
                 auto raiseBounds = roundState->raiseBounds();
                 minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
