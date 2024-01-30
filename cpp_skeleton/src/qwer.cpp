@@ -22,7 +22,9 @@ float random_num() {
 float epsilon = 0.05;
 float beta_ = 1e6;
 float tau = 1000;
+long long walk_tree_counter = 0;
 float walk_tree(Node* h, int player, float q) {
+    walk_tree_counter++;
     if (h->children.empty()) {
         if (player == 1) return h->reward/q;
         else return -h->reward/q;
@@ -36,61 +38,65 @@ float walk_tree(Node* h, int player, float q) {
                 return walk_tree(child, player, q);
             }
         }
+        cout << "ERROR 3 " << p_counter;
+        return 0;
     }
-    float total_regret = 0;
-    vector<float> sigma;
-    for (const auto& [a, child] : h->children) {
-        total_regret += max(0.0f, a->r);
-    }
-    int i = 0;
-    for (const auto& [a, child] : h->children) {
-        if (total_regret == 0) sigma.push_back(1.0f/h->children.size());
-        else sigma.push_back(max(0.0f, a->r)/total_regret);
-        i++;
-    }
-
-    if (h->turn() != player) {
-        i = 0;
+    else {
+        float total_regret = 0;
+        vector<float> sigma;
         for (const auto& [a, child] : h->children) {
-            a->s += sigma[i]/q;
+            total_regret += max(0.0f, a->r);
+        }
+        int i = 0;
+        for (const auto& [a, child] : h->children) {
+            if (total_regret == 0) sigma.push_back(1.0f/h->children.size());
+            else sigma.push_back(max(0.0f, a->r)/total_regret);
             i++;
         }
-        float p_counter = 0;
-        float rand = random_num();
-        i = 0;
-        for (const auto& [a, child] : h->children) {
-            p_counter += sigma[i];
-            if (rand < p_counter) {
-                return walk_tree(child, player, q);
+
+        if (h->turn() != player) {
+            i = 0;
+            for (const auto& [a, child] : h->children) {
+                a->s += sigma[i]/q;
+                i++;
             }
+            float p_counter = 0;
+            float rand = random_num();
+            i = 0;
+            for (const auto& [a, child] : h->children) {
+                p_counter += sigma[i];
+                if (rand < p_counter) {
+                    return walk_tree(child, player, q);
+                }
+                i++;
+            }
+            cout << "ERROR " << p_counter << endl;
+            return walk_tree(h->children[0].second, player, q);
+        }
+
+        float total_s = 0;
+        vector<float> v;
+        for (const auto& [a, child] : h->children) {
+            total_s += a->s;
+        }
+        float expected_v = 0;
+        i = 0;
+        for (const auto& [a, child] : h->children) {
+            float rho = min(1.0f, max(epsilon, (beta_ + tau * a->s)/(beta_ + total_s)));
+            v.push_back(0);
+            if (random_num() < rho) {
+                v[i] = walk_tree(child, player, q*rho);
+            }
+            expected_v += sigma[i] * v[i];
             i++;
         }
-        cout << "ERROR " << p_counter << endl;
-        return walk_tree(h->children[0].second, player, q);
-    }
-
-    float total_s = 0;
-    vector<float> v;
-    for (const auto& [a, child] : h->children) {
-        total_s += a->s;
-    }
-    float expected_v = 0;
-    i = 0;
-    for (const auto& [a, child] : h->children) {
-        float rho = min(1.0f, max(epsilon, (beta_ + tau * a->s)/(beta_ + total_s)));
-        v.push_back(0);
-        if (random_num() < rho) {
-            v[i] = walk_tree(child, player, q*rho);
+        i = 0;
+        for (const auto& [a, child] : h->children) {
+            a->r += v[i] - expected_v;
+            i++;
         }
-        expected_v += sigma[i] * v[i];
-        i++;
+        return expected_v;
     }
-    i = 0;
-    for (const auto& [a, child] : h->children) {
-        a->r += v[i] - expected_v;
-        i++;
-    }
-    return expected_v;
 }
 
 void encode_strategy(Node* h, string history, int player, vector<int>* strategy, unordered_map<string, string>* strategy_str, unordered_set<Action*>* added) {
@@ -154,7 +160,7 @@ int main() {
         run_resets.push_back(ceil(reset*run_resets[run_resets.size()-1]));
     }
 
-    for (int i=0; i<2e9; i++) {
+    for (long long i=0; i<1e11; i++) {
         if (find(run_resets.begin(), run_resets.end(), i) != run_resets.end()) {
             float scale = 3.8 + (-2.3)/(1+pow(2,-0.009*(i-500)));
             for (Action* a : *actions) {
@@ -163,8 +169,13 @@ int main() {
         }
         walk_tree(root, i%2+1, 1);
 
-        if (i%10000 == 0) {
-            cout << i << endl;
+        if (i%100000000 == 0) {
+            cout << i << " " << walk_tree_counter << endl;
+        }
+
+
+        if (i%10000000 == 0) {
+            cout << "Saving at " << i << endl;
             vector<int>* strategy1 = new vector<int>();
             unordered_map<string, string>* strategy_str1 = new unordered_map<string, string>();
             encode_strategy(root, "", 1, strategy1, strategy_str1, new unordered_set<Action*>());

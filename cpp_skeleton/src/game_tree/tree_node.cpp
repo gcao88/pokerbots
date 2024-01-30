@@ -211,17 +211,17 @@ struct Node {
 
                 reward = 0;
                 auto deck = get_cards();
-                int sz = deck.size();
+                int sz = 52 - 3 - 2 - 4;
                 for (int i = 0; i < 13; i++) {
                     if (deck[i]) {
                         board.push_back(i);
                         auto win = get_winner();
                         if (win == -1) {
-                            reward += 1.0 * pot2 / sz;
+                            reward += 1.0 * pot2 * deck[i] / sz;
                         } else if (win == 1) {
-                            reward += 1.0 * -pot1 / sz;
+                            reward += 1.0 * -pot1 * deck[i] / sz;
                         } else {
-                            reward += 1.0 * ((pot1 + pot2) / 2 - pot1) / sz;
+                            reward += 1.0 * ((pot1 + pot2) / 2 - pot1) * deck[i] / sz;
                         }
                         board.pop_back();
                     }
