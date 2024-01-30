@@ -21,13 +21,15 @@ struct Node {
     vector<pair<Action*, Node*>> children;
     // next action
     string action;
-    double reward = 1e9; // if theres a terminal state it will have some non-zero reward. positive reward implies player1 wins chips.
+    double reward = 1e9;
+    
+    // if theres a terminal state it will have some non-zero reward. positive reward implies player1 wins chips.
     // negative reward implies the opposite of that.
 
     int turn() {
         if (action == "P12" || action == "P13" || action == "P22" || action == "P23" || action == "t" || action == "r") {
             return 3;
-        } else if (action.size() % 2 == 0) {
+        } else if (action.size() % 2 == 1) {
             return 1;
         } else {
             return 2;
@@ -44,19 +46,23 @@ struct Node {
         FA means that you were bet all-in
     */
     // WARNING: you should put cards in that dont have the cards on the flop
+
     Node(vector<int> board, vector<string> &history, string _action = "P12", int pot1 = 0, int pot2 = 0, vector<int> h1 = {}, vector<int> h2 = {}, int preflop = 2) { // start building the game tree from here
         auto get_action = [&](string childname) -> Action* {
             string key = "";
             for (int i = 0; i < history.size(); i++) {
-
                 auto h = history[i];
-                if (h != "P12" && h != "P13" && h != "P22" && h != "P23" && h != "t" && h != "r" && (i == history.size() || h.size() >= history[i + 1].size())) {
-
+                if (h == "t") {
+                    key += to_string(board[3]) + " ";
+                } else if (h == "r") {
+                    key += to_string(board[4]) + " ";
+                }
+                else if (h != "P12" && h != "P13" && h != "P22" && h != "P23" && (i == history.size() - 1 || h.size() >= history[i + 1].size())) {
                     key += h + " ";
                 }
             }
             key += childname + " ";
-            if (action.size() % 2 == 0) {
+            if (action.size() % 2 == 1) {
                 for (auto c : h1)
                     key += to_string(c) + " ";
             } else {
@@ -64,9 +70,10 @@ struct Node {
                     key += to_string(c) + " ";
             }
             if (mp.find(key) == mp.end()) {
-                mp[key] = new Action(-1);
+                mp[key] = new Action(childname, -1.0);
             }
-            cout << key << " " << mp[key] << "\n";
+            
+            // cout << key << " " << mp[key] << "\n";
             return mp[key];
         };
             num += 1;
@@ -91,17 +98,12 @@ struct Node {
             } else if (preflop == 3) {
                 pot1 = pot2 = 18;
             }
-            if (helper_func::random_number(0, 1) == 0) {
-                pot1 = pot1 * 7 / 2;
-            } else pot2 = pot2 * 7 / 2;
+            pot2 += 7 * (pot1 + pot2) / 2;
         }
         action = _action;
         history.push_back(action);
-
-        if (action != "P12" && action != "P13" && action != "P22"
-            && action != "P23" && action != "t" && action != "r") {
-            // cout << key << " " << mp[key] << "\n";
-        }
+   
+        
         if (action == "P12" || action == "P22") {
             auto cards__ = get_cards();
 
@@ -133,7 +135,7 @@ struct Node {
             // cout << "\n";
             for (int i = 0; i < 13; i++) {
                 for (int j = 0; j <= i; j++) {
-                    for (int k = 0; k <= 2; k++) { // CHANGE THIS BACK #WARNING TODO JKDJFKLSDJFLK
+                    for (int k = 0; k <= j; k++) { // CHANGE THIS BACK #WARNING TODO JKDJFKLSDJFLK
                         if ((i == j && j == k && cards__[i] >= 3) ||
                             (i == j && j != k && cards__[i] >= 2 && cards__[k]) ||
                             (i == k && j != k && cards__[i] >= 2 && cards__[j]) ||
@@ -150,69 +152,25 @@ struct Node {
                     }
                 }
             }
-        } else if (action == "r" || max(pot1, pot2) == 400) { // we have reached showdown (or someone is all-in)
+        } else if (action == "t" || max(pot1, pot2) == 400) { // we have reached showdown (or someone is all-in)
             auto get_winner = [&]() {
                 auto cards1 = h1;
                 auto cards2 = h2;
                 cards1.insert(cards1.end(), board.begin(), board.end());
                 cards2.insert(cards2.end(), board.begin(), board.end());
-                // for (auto c : cards1) {
-                //     cout << c << " ";
-                // }
-                // cout << "\n";
-                // for (auto c : cards2) {
-                //     cout << c << " ";
-                // }
-                // cout << "\n";
-
-                // for (auto v : cards1) {
-                //     cout << helper_func::num_to_card(v) << " ";
-                // }
-                // cout << "\n";
-                // for (auto v : cards2) {
-                //     cout << helper_func::num_to_card(v) << " ";
-                // }
-                // cout << "\n";
-                uint16_t ma1 = helper_func::eight_eval(cards1), ma2 = helper_func::eight_eval(cards2);
-                // uint16_t ma1 = 0, ma2 = 0;
-                // for (int i = 0; i < 8; i++) {
-                //     vector<int> A;
-                //     vector<int> B;
-                //     int counter = 0;
-                //     auto convert = [&](int C) {
-                //         auto suit = counter++ % 4;
-                //         auto card = C;
-                //         return suit + ((13 - card) % 13) * 4;
-                //     };
-                //     for (int j = 0; j < cards1.size(); j++) {
-                //         if (cards1.size() == 8) {
-                //             if (i != j) {
-                //                 A.push_back(convert(cards1[j]));
-                //             }
-                //         } else {
-                //             A.push_back(convert(cards1[j]));
-                //         }
-                //     }
-                //     for (int j = 0; j < cards2.size(); j++) {
-                //         if (cards2.size() == 8) {
-                //             if (i != j) {
-                //                 B.push_back(convert(cards2[j]));
-                //             }
-                //         } else {
-                //             B.push_back(convert(cards2[j]));
-                //         }
-                //     }
-
-                //     ma1 = max(ma1, SevenEval::GetRank(A[0], A[1], A[2], A[3], A[4], A[5], A[6]));
-                //     ma2 = max(ma2, SevenEval::GetRank(B[0], B[1], B[2], B[3], B[4], B[5], B[6]));
-                // }
-                // if (ma1 > ma2) {
-                //     cout << "P1\n";
-                // } else if (ma1 < ma2) {
-                //     cout << "P2\n";
-                // } else {
-                //     cout << "TIE\n";
-                // }
+                int ma1 = helper_func::eight_eval(cards1), ma2 = helper_func::eight_eval(cards2);
+                if (helper_func::random_number(1, 100'000'000) < -1) {
+                    for (auto v : cards1) {
+                        cout << v << " ";
+                    } 
+                    cout << "\n";
+                    for (auto v : cards2) {
+                        cout << v << " ";
+                    }
+                    cout << "\n";
+                    cout << ma1 << " " << ma2 << "\n";
+                } 
+                
                 if (ma1 > ma2) return -1;
                 else if (ma1 < ma2) return 1;
                 else return 0;
@@ -254,65 +212,71 @@ struct Node {
                 assert(board.size() == 3);
                 reward = 0;
                 auto deck = get_cards();
-                int sz = deck.size();
+                // int sz = deck.size();
+                
                 for (int i = 0; i < 13; i++) {
                     for (int j = 0; j < 13; j++) {
                         if ((i == j && deck[i] >= 2) || (i != j && deck[i] && deck[j])) {
                             board.push_back(i);
                             board.push_back(j);
                             auto win = get_winner();
+
+                            double prob = (1.0 * deck[i] / 44) * (1.0 * deck[j] / 43); 
+                            if (i == j) {
+                                prob = (1.0 * deck[i] / 44) * (1.0 * (deck[i] - 1)) / 43; 
+                            }
                             if (win == -1) {
-                                reward += 1.0 * pot2 / sz;
+                                reward += 1.0 * pot2 * prob;
                             } else if (win == 1) {
-                                reward += 1.0 * -pot1 / sz;
+                                reward += 1.0 * (-pot1) * prob;
                             } else {
-                                reward += 1.0 * ((pot1 + pot2) / 2 - pot1) / sz;
+                                reward += 1.0 * ((pot1 + pot2) / 2 - pot1) * prob;
                             }
                             board.pop_back();
                             board.pop_back();
                         }
                     }
                 }
-                // cout << pot1 << " " << pot2 << "\n";
-                // for (auto v : board) {
-                //     cout << helper_func::num_to_card(v) << " ";
+                // if (helper_func::random_number(1, 100000) < 100) {
+                //     for (auto v : board) {
+                //         cout << v << " ";
+                //     }
+                //     cout << "\n";
+                //     for (auto v : h1) {
+                //         cout << v << " ";
+                //     }
+                //     cout << "\n";
+                //     for (auto v : h2) {
+                //         cout << v <<  " ";
+                //     }
+                //     cout << "\n";
+                //     cout << pot1 << " " << pot2 << " " << reward << "\n";
                 // }
-                // cout << "\n";
-                // for (auto v : h1) {
-                //     cout << helper_func::num_to_card(v) << " ";
-                // }
-                // cout << "\n";
-                // for (auto v : h2) {
-                //     cout << helper_func::num_to_card(v) << " ";
-                // }
-                // cout << "\n";
-                // cout << reward << "\n";
             }
         } else if (action == "t" || action == "r") { // CHANCE NODE
-            // cout << "HISTORY: ";
-            // for (int x : h1) {
-            //     cout << x << " ";
-            // }
-            // for (int x : h2) {
-            //     cout << x << " ";
-            // }
-
-            // cout << pot1 << " ";
-            // cout << pot2 << " ";
-            // for (string s : history)
-            //     cout << s << " ";
-            // cout << endl;
-            // history.pop_back();
-            // return;// end early
+          
             auto cards = get_cards();
-            if (cards[0]) {
-                board.push_back(0);
-                children.push_back({get_action(to_string(0)), new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2)});
-                board.pop_back();
-            } else if(cards[1]) {
-                board.push_back(1);
-                children.push_back({get_action(to_string(1)), new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2)}); 
-                board.pop_back();
+            // if (cards[0]) {
+            //     // history.push_back("0");
+            //     board.push_back(0);
+            //     children.push_back({get_action(to_string(0)), new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2)});
+            //     board.pop_back();
+            //     // history.pop_back();
+            // } else if(cards[1]) {
+            //     // history.push_back("1");
+            //     board.push_back(1);
+            //     children.push_back({get_action(to_string(1)), new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2)}); 
+            //     board.pop_back();
+            //     // history.pop_back();
+            // }
+            for (int i = 0; i < 13; i++) {
+                if (cards[i]) {
+                    // history.push_back(to_string(i))
+                    board.push_back(i);
+                    children.push_back({get_action(to_string(i)), new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2)}); 
+                    board.pop_back();
+                    // history.pop_back();
+                }
             }
         } else if (action == "F" || action == "T" || action == "R" || action == "FC" || action == "TC" || action == "RC") {
             for (auto decision : {"C", "H", "P", "A"}) {
@@ -377,12 +341,13 @@ struct Node {
             // FOLD
 
         }
+       
         history.pop_back();
     }
 };
 
 
-int main() {
-    vector<string> v;
-    Node *a = new Node(vector<int>({8, 12, 10}), v);
-}
+// int main() {
+//     vector<string> v;
+//     Node *a = new Node(vector<int>({8, 12, 10}), v);
+// }
