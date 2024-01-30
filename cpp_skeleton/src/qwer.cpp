@@ -169,7 +169,7 @@ int main() {
         }
         walk_tree(root, i%2+1, 1);
 
-        if (i%100000000 == 0) {
+        if (i%1000000 == 0) {
             cout << i << " " << walk_tree_counter << endl;
         }
 
