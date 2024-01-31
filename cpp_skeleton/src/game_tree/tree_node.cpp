@@ -106,7 +106,7 @@ struct Node {
         if (action == "P12" || action == "P22") {
             auto cards__ = get_cards();
             float sum_prob = 0; 
-            for (int i = 0; i < 13; i++) {
+            for (int i = 0; i < 3; i++) {
                 // cout << "DONE WITH " << i << "\n";
                 for (int j = 0; j <= i; j++) {
                     if ((i != j && cards__[i] && cards__[j]) ||
@@ -141,7 +141,7 @@ struct Node {
             // }
             // cout << "\n";
             float sum_prob = 0; 
-            for (int i = 0; i < 13; i++) {
+            for (int i = 0; i < 3; i++) {
                 for (int j = 0; j <= i; j++) {
                     for (int k = 0; k <= j; k++) { // CHANGE THIS BACK #WARNING TODO JKDJFKLSDJFLK
                         if ((i == j && j == k && cards__[i] >= 3) ||
@@ -382,7 +382,7 @@ struct Node {
 };
 
 
-int main() {
-    vector<string> v;
-    Node *a = new Node(vector<int>({8, 12, 10}), v);
-}
+// int main() {
+//     vector<string> v;
+//     Node *a = new Node(vector<int>({8, 12, 10}), v);
+// }
