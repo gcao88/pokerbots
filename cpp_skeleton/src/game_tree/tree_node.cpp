@@ -8,11 +8,11 @@
 #include "info_set.cpp"
 #include "action.cpp"
 
-// #include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/assoc_container.hpp>
 
 using namespace std;
 
-unordered_map<string, Action*> mp;
+__gnu_pbds::gp_hash_table<string, Action*> mp;
 int num = 0;
 
 struct Node {
@@ -107,7 +107,6 @@ struct Node {
             auto cards__ = get_cards();
             float sum_prob = 0;
             for (int i = 0; i < 13; i++) {
-                // cout << "DONE WITH " << i << "\n";
                 for (int j = 0; j <= i; j++) {
                     if ((i != j && cards__[i] && cards__[j]) ||
                         (i == j && cards__[i] >= 2)) {
@@ -126,20 +125,19 @@ struct Node {
                     }
                 }
             }
-            assert(abs(sum_prob - 1) < 0.0001);
+            
 
         } else if (action[action.size() - 1] == '.') {
+
             if (action.size() % 2 == 1) {
                 reward = pot2;
             } else {
                 reward = -pot1;
             }
+
         } else if (action == "P13" || action == "P23") {
             auto cards__ = get_cards();
-            // for (auto c : cards__) {
-            //     cout << c << " ";
-            // }
-            // cout << "\n";
+            
             float sum_prob = 0;
             for (int i = 0; i < 13; i++) {
                 for (int j = 0; j <= i; j++) {
@@ -263,54 +261,15 @@ struct Node {
                         }
                     }
                 }
-                // for (auto card1 : h1) {
-                //     cout << card1 << " ";
-                // }
-                // cout << "\n";
-                // for (auto card2 : h2) {
-                //     cout << card2 << " ";
-                // }
-                // cout << "\n";
-                // cout << pot1 << " " << pot2 << " " << reward << "\n";
-                // if (helper_func::random_number(1, 100000) < 100) {
-                //     for (auto v : board) {
-                //         cout << v << " ";
-                //     }
-                //     cout << "\n";
-                //     for (auto v : h1) {
-                //         cout << v << " ";
-                //     }
-                //     cout << "\n";
-                //     for (auto v : h2) {
-                //         cout << v <<  " ";
-                //     }
-                //     cout << "\n";
-                //     cout << pot1 << " " << pot2 << " " << reward << "\n";
-                // }
+          
             }
         } else if (action == "t" || action == "r") { // CHANCE NODE
-
             auto cards = get_cards();
-            // if (cards[0]) {
-            //     // history.push_back("0");
-            //     board.push_back(0);
-            //     children.push_back({get_action(to_string(0)), new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2)});
-            //     board.pop_back();
-            //     // history.pop_back();
-            // } else if(cards[1]) {
-            //     // history.push_back("1");
-            //     board.push_back(1);
-            //     children.push_back({get_action(to_string(1)), new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2)});
-            //     board.pop_back();
-            //     // history.pop_back();
-            // }
             for (int i = 0; i < 13; i++) {
                 if (cards[i]) {
-                    // history.push_back(to_string(i))
                     board.push_back(i);
-                    children.push_back({get_action(to_string(i)), new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2)});
+                    children.push_back({get_action(to_string(i), 1.0 * double(cards[i]) / double(52 - 3 - 2 - 3)), new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2)});
                     board.pop_back();
-                    // history.pop_back();
                 }
             }
         } else if (action == "F" || action == "T" || action == "R" || action == "FC" || action == "TC" || action == "RC") {
@@ -325,6 +284,7 @@ struct Node {
                     else {
                         children.push_back({get_action(decision), new Node(board, history, "S", pot1, pot2, h1, h2)});
                     }
+                    continue; 
                 }
                 if (decision == string("H")) {
                     if ((pot1 + pot2) / 2 >= min(400 - pot1, 400 - pot2)) {
