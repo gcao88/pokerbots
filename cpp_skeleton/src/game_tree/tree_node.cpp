@@ -169,7 +169,7 @@ struct Node {
                             if (action == "P12") h1_ = {i, j, k};
                             else h2_ = {i, j, k};
                             children.push_back({get_action(to_string(i) + " " + to_string(j) + " " + to_string(k), prob),
-                                new Node(board, history, (action == "P12" ? "P23" : "F"), pot1, pot2, h1_, h2_)});
+                                new Node(board, history, (action == "P13" ? "P22" : "F"), pot1, pot2, h1_, h2_)});
                         }
                     }
                 }
