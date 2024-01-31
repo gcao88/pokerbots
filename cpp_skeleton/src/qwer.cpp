@@ -39,9 +39,9 @@ float walk_tree(Node* h, int player, float q) {
         for (const auto& [a, child] : h->children) {
             total_p += a->prob;
         }
-        // if (abs(total_p - 1) > 0.01) {
-        //     cout << "ERROR 1" << total_p << endl;
-        // }
+        if (abs(total_p - 1) > 0.01) {
+            //cout << "ERROR 1" << total_p << endl;
+        }
 
 
         float p_counter = 0;
@@ -83,7 +83,7 @@ float walk_tree(Node* h, int player, float q) {
                 }
                 i++;
             }
-            cout << "ERROR " << p_counter << endl;
+            //cout << "ERROR " << p_counter << endl;
             return walk_tree(h->children[0].second, player, q);
         }
 
