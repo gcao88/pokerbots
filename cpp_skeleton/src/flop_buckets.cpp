@@ -33,15 +33,23 @@ vector<vector<int>> computed_flops = {
 };
 vector<vector<int>> computed_diffs;
 
-int zeroDif = 12;
+int zeroDif = 16;
+int oneDif = 3;
 
 void compute_diffs() {
     for (int i=0; i<computed_flops.size(); i++) {
-        vector<int> diffs = {computed_flops[i][0]-(-1), computed_flops[i][1]-computed_flops[i][0], computed_flops[i][2]-computed_flops[i][1]};
+        sort(computed_flops[i].begin(), computed_flops[i].end());
+        vector<int> diffs = {computed_flops[i][0]-(-1), computed_flops[i][1]-computed_flops[i][0], computed_flops[i][2]-computed_flops[i][1], computed_flops[i][0]+computed_flops[i][1]+computed_flops[i][2]};
         if (diffs[1] == 0) {
             diffs[1] -= zeroDif;
         }
         if (diffs[2] == 0) {
+            diffs[2] -= zeroDif;
+        }
+        if (diffs[1] == 1) {
+            diffs[1] -= zeroDif;
+        }
+        if (diffs[2] == 1) {
             diffs[2] -= zeroDif;
         }
         computed_diffs.push_back(diffs);
@@ -50,12 +58,18 @@ void compute_diffs() {
 
 pair<int, vector<pair<int, int>>> flopbuckets(vector<int> flop) {
     sort(flop.begin(), flop.end());
-    vector<int> flop_diffs = {flop[0]-(-1), flop[1]-flop[0], flop[2]-flop[1]};
+    vector<int> flop_diffs = {flop[0]-(-1), flop[1]-flop[0], flop[2]-flop[1], flop[0]+flop[1]+flop[2]};
     if (flop_diffs[1] == 0) {
         flop_diffs[1] -= zeroDif;
     }
     if (flop_diffs[2] == 0) {
         flop_diffs[2] -= zeroDif;
+    }
+    if (flop_diffs[1] == 1) {
+        flop_diffs[1] -= oneDif;
+    }
+    if (flop_diffs[2] == 1) {
+        flop_diffs[2] -= oneDif;
     }
     int closest_dist = INT_MAX;
     int best_flop_index = -1;
@@ -63,6 +77,7 @@ pair<int, vector<pair<int, int>>> flopbuckets(vector<int> flop) {
         int dist = (flop_diffs[0]-computed_diffs[i][0])*(flop_diffs[0]-computed_diffs[i][0]);
         dist += (flop_diffs[1]-computed_diffs[i][1])*(flop_diffs[1]-computed_diffs[i][1]);
         dist += (flop_diffs[2]-computed_diffs[i][2])*(flop_diffs[2]-computed_diffs[i][2]);
+        dist += 0.5*(flop_diffs[3]-computed_diffs[i][3])*(flop_diffs[3]-computed_diffs[i][3]);
         if (dist < closest_dist) {
             closest_dist = dist;
             best_flop_index = i;
@@ -77,7 +92,9 @@ pair<int, vector<pair<int, int>>> flopbuckets(vector<int> flop) {
     }
     else if (flop_diffs[1] == 0 && flop_diffs[2] == 0) {
         // trips flop
-        throw exception();
+        vector<pair<int,int>> vec;
+        pair<int, vector<pair<int,int>>> p(-1, vec);
+        return p;
     }
     else {
         // pair flop
@@ -93,6 +110,7 @@ pair<int, vector<pair<int, int>>> flopbuckets(vector<int> flop) {
 int main() {
     compute_diffs();
     vector<int> flop = {8, 4, 3};
+    sort(flop.begin(), flop.end());
 
     pair<int, vector<pair<int, int>>> ans = flopbuckets(flop);
 
