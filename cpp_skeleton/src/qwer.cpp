@@ -147,8 +147,7 @@ void list_actions(Node* h, vector<Action*>* actions, unordered_set<Action*>* add
 
 int main() {
     vector<string> a;
-    vector<int> flop = {5, 6, 11};
-    Node* root = new Node(flop, a);
+    Node* root = new Node(vector<int>{5, 6, 11}, a);
 
     vector<Action*>* actions = new vector<Action*>();
     list_actions(root, actions, new unordered_set<Action*>());
