@@ -27,21 +27,21 @@ float walk_tree(Node* h, int player, float q) {
     walk_tree_counter++;
     if (h->children.empty()) {
         if (h->reward == 1e9) {
-            cout << "ERROR: h->reward is 1e9" << endl;   
+            cout << "ERROR: h->reward is 1e9" << endl;
         }
         if (player == 1) return h->reward/q;
         else return -h->reward/q;
     }
     else if (h->turn() == 3) {
 
-        
+
         float total_p = 0;
         for (const auto& [a, child] : h->children) {
             total_p += a->prob;
         }
-        if (abs(total_p - 1) > 0.01) {
-            cout << "ERROR 1" << total_p << endl;
-        }
+        // if (abs(total_p - 1) > 0.01) {
+        //     cout << "ERROR 1" << total_p << endl;
+        // }
 
 
         float p_counter = 0;
@@ -173,7 +173,7 @@ void print_s(Node* h, string history) {
 
 int main() {
     vector<string> a;
-    Node* root = new Node(vector<int>{3, 5, 10}, a);
+    Node* root = new Node(vector<int>{4, 8, 9}, a);
 
     vector<Action*>* actions = new vector<Action*>();
     list_actions(root, actions, new unordered_set<Action*>());
@@ -208,7 +208,7 @@ int main() {
             vector<int>* strategy1 = new vector<int>();
             unordered_map<string, string>* strategy_str1 = new unordered_map<string, string>();
             encode_strategy(root, "", 1, strategy1, strategy_str1, new unordered_set<Action*>());
-            ofstream fout1("strategy1_Q75.txt");
+            ofstream fout1("strategy1_6TJ.txt");
             for (auto [history, a_label] : *strategy_str1) {
                 fout1 << history << " " << a_label << endl;
             }
@@ -217,7 +217,7 @@ int main() {
             vector<int>* strategy2 = new vector<int>();
             unordered_map<string, string>* strategy_str2 = new unordered_map<string, string>();
             encode_strategy(root, "", 2, strategy2, strategy_str2, new unordered_set<Action*>());
-            ofstream fout2("strategy2_Q75.txt");
+            ofstream fout2("strategy2_6TJ.txt");
             for (auto [history, a_label] : *strategy_str2) {
                 fout2 << history << " " << a_label << endl;
             }
