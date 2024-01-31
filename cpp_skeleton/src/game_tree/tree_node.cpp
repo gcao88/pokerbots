@@ -265,13 +265,19 @@ struct Node {
             }
         } else if (action == "t" || action == "r") { // CHANCE NODE
             auto cards = get_cards();
+            double sum_prob = 0; 
             for (int i = 0; i < 13; i++) {
                 if (cards[i]) {
                     board.push_back(i);
                     children.push_back({get_action(to_string(i), 1.0 * double(cards[i]) / double(52 - 3 - 2 - 3)), new Node(board, history, action == "t" ? "T" : "R", pot1, pot2, h1, h2)});
+                    sum_prob += 1.0 * double(cards[i]) / double(52 - 3 - 2 - 3);
                     board.pop_back();
                 }
             }
+            // if (abs(sum_prob - 1) > 0.001) {
+            //     cout << "TURN " << sum_prob << " " << endl;
+            //     assert(false);
+            // }
         } else if (action == "F" || action == "T" || action == "R" || action == "FC" || action == "TC" || action == "RC") {
             for (auto decision : {"C", "H", "P", "A"}) {
                 if (action.length() >= 2 && decision == string("C")) {
@@ -338,6 +344,16 @@ struct Node {
         }
 
         history.pop_back();
+        // if (children.size() == 0) return;
+        // double sum = 0; 
+        // for (auto [a, b] : children) {
+        //     sum += a->prob; 
+        //     if (a->prob == -1) sum = 1; 
+        // }
+        // if (abs(1 - sum) > 0.01) {
+        //     cout << sum << " " << action << "\n";
+        // }
+
     }
 };
 
