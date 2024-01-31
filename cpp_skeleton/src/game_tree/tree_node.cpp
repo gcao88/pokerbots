@@ -105,7 +105,7 @@ struct Node {
         
         if (action == "P12" || action == "P22") {
             auto cards__ = get_cards();
-
+            float sum_prob = 0; 
             for (int i = 0; i < 13; i++) {
                 // cout << "DONE WITH " << i << "\n";
                 for (int j = 0; j <= i; j++) {
@@ -120,11 +120,14 @@ struct Node {
                         if (i == j) {
                             prob = 1.0 * cards__[i] * (cards__[i] - 1) / (decksz * (decksz - 1));
                         } 
+                        sum_prob += prob;
                         children.push_back(make_pair(get_action(to_string(i) + " " + to_string(j), prob),
                             new Node(board, history, (action == "P12" ? "P23" : "F"), pot1, pot2, h1_, h2_)));
                     }
                 }
             }
+            assert(abs(sum_prob - 1) < 0.0001);
+            
         } else if (action[action.size() - 1] == '.') {
             if (action.size() % 2 == 1) {
                 reward = pot2;
@@ -137,6 +140,7 @@ struct Node {
             //     cout << c << " ";
             // }
             // cout << "\n";
+            float sum_prob = 0; 
             for (int i = 0; i < 13; i++) {
                 for (int j = 0; j <= i; j++) {
                     for (int k = 0; k <= j; k++) { // CHANGE THIS BACK #WARNING TODO JKDJFKLSDJFLK
@@ -145,8 +149,8 @@ struct Node {
                             (i == k && j != k && cards__[i] >= 2 && cards__[j]) ||
                             (j == k && i != k && cards__[j] >= 2 && cards__[i]) ||
                             (i != j && j != k && cards__[i] && cards__[j] && cards__[k])) {
-                            int decksz = 52 - h1.size() - h2.size(); 
-                            double prob = 6 * cards__[i] * cards__[j] * cards__[k] / (decksz * (decksz - 1) * (decksz - 2));
+                            int decksz = 52 - h1.size() - h2.size() - board.size(); 
+                            double prob = 6.0 * cards__[i] * cards__[j] * cards__[k] / (decksz * (decksz - 1) * (decksz - 2));
                             if (i == j && j == k) {
                                 prob = 1.0 * cards__[i] * (cards__[i] - 1) * (cards__[i] - 2) / 
                                     (decksz * (decksz - 1) * (decksz - 2)); 
@@ -160,6 +164,8 @@ struct Node {
                                 prob = 3.0 * cards__[k] * (cards__[k] - 1) * cards__[i] / 
                                     (decksz * (decksz - 1) * (decksz - 2));
                             } 
+                            // prob /= decksz * (decksz - 1) * (decksz - 2); 
+                            sum_prob += prob; 
                             vector<int> h1_ = h1;
                             vector<int> h2_ = h2;
                             if (action == "P12") h1_ = {i, j, k};
@@ -170,6 +176,16 @@ struct Node {
                     }
                 }
             }
+            // cout << sum_prob << "\n";
+            // if (abs(sum_prob - 1) > 0.0001) {
+                
+            //     cout << "Sum prob: " << sum_prob << endl; 
+            //     for (int i = 0; i < 13; i++) {
+            //         cout << cards__[i] << " ";
+            //     }
+            //     cout << "\n";
+            // }
+            // // assert(abs(sum_prob - 1) < 0.0001); 
         } else if (action == "r" || max(pot1, pot2) == 400) { // we have reached showdown (or someone is all-in)
             auto get_winner = [&]() {
                 auto cards1 = h1;
@@ -177,17 +193,7 @@ struct Node {
                 cards1.insert(cards1.end(), board.begin(), board.end());
                 cards2.insert(cards2.end(), board.begin(), board.end());
                 int ma1 = helper_func::eight_eval(cards1), ma2 = helper_func::eight_eval(cards2);
-                if (helper_func::random_number(1, 100'000'000) < -1) {
-                    for (auto v : cards1) {
-                        cout << v << " ";
-                    } 
-                    cout << "\n";
-                    for (auto v : cards2) {
-                        cout << v << " ";
-                    }
-                    cout << "\n";
-                    cout << ma1 << " " << ma2 << "\n";
-                } 
+        
                 
                 if (ma1 > ma2) return -1;
                 else if (ma1 < ma2) return 1;
@@ -226,6 +232,8 @@ struct Node {
                         board.pop_back();
                     }
                 }
+                
+
             } else {
                 assert(board.size() == 3);
                 reward = 0;
@@ -255,6 +263,15 @@ struct Node {
                         }
                     }
                 }
+                for (auto card1 : h1) {
+                    cout << card1 << " ";
+                }
+                cout << "\n";
+                for (auto card2 : h2) {
+                    cout << card2 << " ";
+                }
+                cout << "\n";
+                cout << pot1 << " " << pot2 << " " << reward << "\n";
                 // if (helper_func::random_number(1, 100000) < 100) {
                 //     for (auto v : board) {
                 //         cout << v << " ";
@@ -365,7 +382,7 @@ struct Node {
 };
 
 
-// int main() {
-//     vector<string> v;
-//     Node *a = new Node(vector<int>({8, 12, 10}), v);
-// }
+int main() {
+    vector<string> v;
+    Node *a = new Node(vector<int>({8, 12, 10}), v);
+}
