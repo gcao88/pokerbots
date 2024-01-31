@@ -173,7 +173,7 @@ void print_s(Node* h, string history) {
 
 int main() {
     vector<string> a;
-    Node* root = new Node(vector<int>{3, 5, 10}, a);
+    Node* root = new Node(vector<int>{5, 11, 11}, a);
 
     vector<Action*>* actions = new vector<Action*>();
     list_actions(root, actions, new unordered_set<Action*>());
@@ -208,7 +208,7 @@ int main() {
             vector<int>* strategy1 = new vector<int>();
             unordered_map<string, string>* strategy_str1 = new unordered_map<string, string>();
             encode_strategy(root, "", 1, strategy1, strategy_str1, new unordered_set<Action*>());
-            ofstream fout1("strategy1_Q75.txt");
+            ofstream fout1("strategy1_KK7.txt");
             for (auto [history, a_label] : *strategy_str1) {
                 fout1 << history << " " << a_label << endl;
             }
@@ -217,7 +217,7 @@ int main() {
             vector<int>* strategy2 = new vector<int>();
             unordered_map<string, string>* strategy_str2 = new unordered_map<string, string>();
             encode_strategy(root, "", 2, strategy2, strategy_str2, new unordered_set<Action*>());
-            ofstream fout2("strategy2_Q75.txt");
+            ofstream fout2("strategy2_KK7.txt");
             for (auto [history, a_label] : *strategy_str2) {
                 fout2 << history << " " << a_label << endl;
             }
