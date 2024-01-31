@@ -109,7 +109,7 @@ pair<int, vector<pair<int, int>>> flopbuckets(vector<int> flop) {
 
 int main() {
     compute_diffs();
-    vector<int> flop = {8, 4, 3};
+    vector<int> flop = {8, 9, 10};
     sort(flop.begin(), flop.end());
 
     pair<int, vector<pair<int, int>>> ans = flopbuckets(flop);
