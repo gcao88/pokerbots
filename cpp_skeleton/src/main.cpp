@@ -51,6 +51,7 @@ struct Bot {
   pair<int, vector<int>> flop_bucketing;
   vector<int> cur_flop;
   bool flop_is_monotone;
+  bool mustfold;
 
   Bot() {
     cout << "FUCK" << endl;
@@ -362,6 +363,7 @@ struct Bot {
     flop_bucketing = {-2,{}};
     cur_flop = {};
     flop_is_monotone = false;
+    mustfold = false;
   }
 
   /*
@@ -445,7 +447,7 @@ struct Bot {
       }
     };
 
-    if (myBankroll > 1.5*(1001-roundNum)) {
+    if (myBankroll > 1.5*(1001-roundNum) || mustfold == true) {
         return {Action::Type::FOLD};
     }
 
@@ -558,6 +560,9 @@ struct Bot {
       if (flop_bucketing.first == -2) {
         vector<int> curFlop = {helper_func::card_to_num(boardCards[0]), helper_func::card_to_num(boardCards[1]), helper_func::card_to_num(boardCards[2])};
         flop_bucketing = flopbuckets(curFlop, inpos);
+        if (flop_bucketing.first == -1) {
+          must_fold = true;
+        }
         cur_flop = inpos ? computed_flops_ip[flop_bucketing.first] : computed_flops_op[flop_bucketing.first];
       }
       // MONOTONE
@@ -798,15 +803,10 @@ struct Bot {
       }
     else if (street == 4) {
       if (flop_is_monotone) {
-        if (helper_func::eight_eval_suit() >= 5*13*13*13*13*13) {
-          
+        if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+          return {Action::Type::CHECK};
         }
-        else {
-          if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-            return {Action::Type::CHECK};
-          }
-          return {Action::Type::Fold};
-        }
+        return {Action::Type::Fold};
       }
       else {
         // USE CFR HERE
