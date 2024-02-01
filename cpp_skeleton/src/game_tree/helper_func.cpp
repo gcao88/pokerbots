@@ -217,9 +217,16 @@ namespace helper_func {
             int x = isFlushVec.size();
             return 5*pow13[5] + isFlushVec[x-1]*pow13[4] + isFlushVec[x-2]*pow13[3] + isFlushVec[x-3]*pow13[2] + isFlushVec[x-4]*pow13[1] + isFlushVec[x-5];
         }
-        for (int i=cards.size()-1; i>=4; i--) {
-            if (cards[i] == cards[i-1]+1 && cards[i-1] == cards[i-2]+1 && cards[i-2] == cards[i-3]+1 && cards[i-3] == cards[i-4]+1) {
-                return 4*pow13[5] + cards[i]*pow13[4] + cards[i-1]*pow13[3] + cards[i-2]*pow13[2] + cards[i-3]*pow13[1] + cards[i-4];
+        vector<int> cardsNoDup;
+        cardsNoDup.push_back(cards[0]);
+        for (int i=1; i<cards.size(); i++) {
+            if (cards[i] != cardsNoDup[cardsNoDup.size()-1]) {
+                cardsNoDup.push_back(cards[i]);
+            }
+        }
+        for (int i=cardsNoDup.size()-1; i>=4; i--) {
+            if (cardsNoDup[i] == cardsNoDup[i-1]+1 && cardsNoDup[i-1] == cardsNoDup[i-2]+1 && cardsNoDup[i-2] == cardsNoDup[i-3]+1 && cardsNoDup[i-3] == cardsNoDup[i-4]+1) {
+                return 4*pow13[5] + cardsNoDup[i]*pow13[4] + cardsNoDup[i-1]*pow13[3] + cardsNoDup[i-2]*pow13[2] + cardsNoDup[i-3]*pow13[1] + cardsNoDup[i-4];
             }
         }
         // WheeL straight:
@@ -311,25 +318,34 @@ namespace helper_func {
         float total;
         for (int i = 0; i < 500; i++) {
             int a = random_number(0, deck.size()-1);
+            hand2.push_back(deck[a]);
             int b = random_number(0, deck.size()-1);
             while (a == b) {
                 b = random_number(0, deck.size()-1);
             }
-            int c = random_number(0, deck.size()-1);
-            while (c == a || c == b) {
-                c = random_number(0, deck.size()-1);
+            hand2.push_back(deck[b]);
+            if (hand.size() == 2) {
+                int c = random_number(0, deck.size()-1);
+                while (c == a || c == b) {
+                    c = random_number(0, deck.size()-1);
+                }
+                hand2.push_back(deck[c]);
             }
 
-            hand2.push_back(a);
-            hand2.push_back(b);
-            hand2.push_back(c);
             int hand2_strength = eight_eval_suit(hand2);
             if (hand1_strength > hand2_strength) win++;
-            if (hand1_strength == hand2_strength) win+=0.5;
+            if (hand1_strength == hand2_strength) win += 0.5;
             total++;
-            hand2.pop_back();
-            hand2.pop_back();
-            hand2.pop_back();
+
+            if (hand.size() == 2) {
+                hand2.pop_back();
+                hand2.pop_back();
+                hand2.pop_back();
+            }
+            if (hand.size() == 3) {
+                hand2.pop_back();
+                hand2.pop_back();
+            }
         }
         
         return win/total;
@@ -357,10 +373,23 @@ namespace helper_func {
 int mc(int rank, int suit) {
     return rank + 13*suit;
 }
-/*
-int main() {
-    cout << helper_func::get_equity(vector<int>{mc(3,0), mc(3,1), mc(9,2), mc(0,3), mc(1,3)}, vector<int>{mc(4,2), mc(8,3)}) << endl;
 
+int main() {
+    cout << helper_func::get_equity(vector<int>{mc(3,0), mc(3,1), mc(9,2), mc(5,3), mc(1,0)}, vector<int>{mc(5,1), mc(4,2), mc(0,3)}) << endl;
+
+    /*
+    int a = helper_func::eight_eval_suit(vector<int>{mc(3,0), mc(3,1), mc(9,2), mc(5,3), mc(1,3), mc(2,2), mc(4,3)});
+    while (a > 0) {
+        cout << a%13 << " ";
+        a /= 13;
+    }
+    cout << endl;
+
+    cout << helper_func::eight_eval_suit(vector<int>{mc(3,0), mc(3,1), mc(9,2), mc(5,3), mc(1,3), mc(2,2), mc(4,3)}) << endl;
+    cout << helper_func::eight_eval_suit(vector<int>{mc(3,0), mc(3,1), mc(9,2), mc(5,3), mc(1,3), mc(2,2), mc(8,3)}) << endl;
+    */
+
+    /*
     auto start = std::chrono::high_resolution_clock::now();
     for (int i = 0; i < 2000; i++) {
         helper_func::get_equity(vector<int>{mc(3,0), mc(3,1), mc(9,3), mc(0,3), mc(1,3)}, vector<int>{mc(3,2), mc(9,3)});
@@ -369,5 +398,5 @@ int main() {
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = end - start;
     std::cout << "Time taken: " << elapsed.count() << " ms\n";
+    */
 }
-*/
