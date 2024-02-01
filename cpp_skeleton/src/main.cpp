@@ -919,131 +919,143 @@ struct Bot {
       }
     else { // street == 5
       // facing agression vs agressor
-      std::vector<int>* board = new std::vector<int>();
-      std::vector<int>* hand = new std::vector<int>();
-      std::vector<int>* total = new std::vector<int>();
+  //     std::vector<int>* board = new std::vector<int>();
+  //     std::vector<int>* hand = new std::vector<int>();
+  //     std::vector<int>* total = new std::vector<int>();
 
 
-      for(int i = 0; i < 5; i++){
-        board->push_back(helper_func::card_to_num(boardCards[i]));
-        total->push_back(helper_func::card_to_num(boardCards[i]));
-      }
+  //     for(int i = 0; i < 5; i++){
+  //       board->push_back(helper_func::card_to_num(boardCards[i]));
+  //       total->push_back(helper_func::card_to_num(boardCards[i]));
+  //     }
 
 
-      for(int i = 0; i < myCards.size(); i++){
-        hand->push_back(helper_func::card_to_num(myCards[i]));
-        total->push_back(helper_func::card_to_num(myCards[i]));
-      }
+  //     for(int i = 0; i < (oppBid > myBid ? 2 : 3); i++){
+  //       hand->push_back(helper_func::card_to_num(myCards[i]));
+  //       total->push_back(helper_func::card_to_num(myCards[i]));
+  //     }
 
 
-      int hand_strength = helper_func::eight_eval_suit(*total);
-      int hand_type_num = hand_strength / (13*13*13*13*13);
-      float handEquity = helper_func::get_equity(board, hand);
-      bool canCheck = legalActions.find(Action::Type::CHECK) != legalActions.end();
-      int aggressionLevel = -1;
-      if(aggressionLevel == -1){
-        aggressionLevel = pot / preAggression;
-      }
-      if(hand_type_num == 8){ //The nuts
-        return {Action::Type::RAISE, pot / 2};
-      }
+  //     int hand_strength = helper_func::eight_eval_suit(*total);
+  //     int hand_type_num = hand_strength / (13*13*13*13*13);
+  //     float handEquity = helper_func::get_equity(*board, *hand);
+  //     bool canCheck = legalActions.find(Action::Type::CHECK) != legalActions.end();
+  //     int aggressionLevel = -1;
+  //     if(aggressionLevel == -1){
+  //       aggressionLevel = pot / preAggression;
+  //     }
+  //     if(hand_type_num == 8){ //The nuts
+  //       return {Action::Type::RAISE, pot / 2};
+  //     }
 
 
-      if(hand_type_num == 7){ //Good unless board quad which is unlikely
-        if(handEquity >= .65){
-          return {Action::Type::RAISE, pot / 2};
-        } else{
-          if(canCheck){
-            return {Action::Type::CHECK};
-          }else{
-            return {Action::Type::FOLD};
-          }
-        }
-      }
+  //     if(hand_type_num == 7){ //Good unless board quad which is unlikely
+  //       if(handEquity >= .65){
+  //         return {Action::Type::RAISE, pot / 2};
+  //       } else{
+  //         if(canCheck){
+  //           return {Action::Type::CHECK};
+  //         }else{
+  //           return {Action::Type::FOLD};
+  //         }
+  //       }
+  //     }
 
 
-      if(hand_type_num == 6){ // Bet for equity scared of better full house combos if lower equity
-        if(handEquity >= .7){
-          return {Action::Type::RAISE, pot / 2};
-        }else{
-          if(canCheck){
-            return {Action::Type::CHECK};
-          }else{
-            return {Action::Type::FOLD};
-          }
-        }
-      }
+  //     if(hand_type_num == 6){ // Bet for equity scared of better full house combos if lower equity
+  //       if(handEquity >= .7){
+  //         return {Action::Type::RAISE, pot / 2};
+  //       }else{
+  //         if(canCheck){
+  //           return {Action::Type::CHECK};
+  //         }else{
+  //           return {Action::Type::FOLD};
+  //         }
+  //       }
+  //     }
 
 
-      if(hand_type_num == 5){
-        if(handEquity >= .7){
-          return {Action::Type::RAISE, pot / 2};
-        }else{
-          if(canCheck){
-            return {Action::Type::CHECK};
-          }else{
-            if(aggressionLevel >= 5){
-              return {Action::Type::FOLD};
-            }
-          }
-        }
-      }
+  //     if(hand_type_num == 5){
+  //       if(handEquity >= .7){
+  //         return {Action::Type::RAISE, pot / 2};
+  //       }else{
+  //         if(canCheck){
+  //           return {Action::Type::CHECK};
+  //         }else{
+  //           if(aggressionLevel >= 5){
+  //             return {Action::Type::FOLD};
+  //           }
+  //         }
+  //       }
+  //     }
 
 
-      if(hand_type_num == 4){
-        if(handEquity >= .8){
-          bet for value
-        }else{
-          randomize
-        }
-      }
+  //     if(hand_type_num == 4){
+  //       if(handEquity >= .8){
+  //         return {Action::Type::RAISE, pot / 2};
+  //       }else{
+  //         if(canCheck){
+  //           return {Action::Type::CHECK};
+  //         }else{
+  //           if(aggressionLevel >= 5){
+  //             return {Action::Type::FOLD};
+  //           }
+  //         }
+  //       }
+  //     }
 
 
-      if(hand_type_num == 3){
-        if(handEquity >= .75){
-          return {Action::Type::RAISE, pot / 2};
-        }else{
-          if(canCheck){
-            return {Action::Type::CHECK};
-          }else{
-            return {Action::Type::FOLD};
-          }
-        }
-      }
+  //     if(hand_type_num == 3){
+  //       if(handEquity >= .75){
+  //         return {Action::Type::RAISE, pot / 2};
+  //       }else{
+  //         if(canCheck){
+  //           return {Action::Type::CHECK};
+  //         }else{
+  //           return {Action::Type::FOLD};
+  //         }
+  //       }
+  //     }
 
 
-      if(hand_type_num == 2){
-        if(handEquity >= .7){
-          return {Action::Type::RAISE, pot / 2};
-        }else{
-          if(canCheck){
-            return {Action::Type::CHECK};
-          }else{
-            return {Action::Type::FOLD};
-          }
-        }
-      }
+  //     if(hand_type_num == 2){
+  //       if(handEquity >= .7){
+  //         return {Action::Type::RAISE, pot / 2};
+  //       }else{
+  //         if(canCheck){
+  //           return {Action::Type::CHECK};
+  //         }else{
+  //           return {Action::Type::FOLD};
+  //         }
+  //       }
+  //     }
 
 
-      if(hand_type_num == 1){
-        if(!canCheck){
-          if(handEquity >= .75){
-            return {Action::Type::CALL};
-          }
-          return {Action::Type::FOLD}
-        }
+  //     if(hand_type_num == 1){
+  //       if(!canCheck){
+  //         if(handEquity >= .75){
+  //           return {Action::Type::CALL};
+  //         }
+  //         return {Action::Type::FOLD};
+  //       }
 
 
-      if(handEquity >= .75){
-        return {Action::Type::RAISE, pot / 2};
-      }else{
-        return {Action::Type::CHECK};
-      }
-    }
-    else{
+  //     if(handEquity >= .75){
+  //       return {Action::Type::RAISE, pot / 2};
+  //     }else{
+  //       return {Action::Type::CHECK};
+  //     }
+  //   }
+  //   else{
+  //     return {Action::Type::FOLD};
+  //   }
+  // }
+    if (legalActions.find(Action::Type::FOLD) != legalActions.end()) {
       return {Action::Type::FOLD};
+    } else {
+      return {Action::Type::CHECK};
+
     }
-  }
   }
 };
 
