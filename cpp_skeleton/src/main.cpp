@@ -919,30 +919,31 @@ struct Bot {
           if(canCheck){
             return {Action::Type::CHECK};
           }else{
+            return {Action::Type::FOLD};
+          }
+        }
+      }
+
+
+      if(hand_type_num == 1){
+        if(!canCheck){
+          if(handEquity >= .75){
+            return {Action::Type::CALL};
+          }
+          return {Action::Type::FOLD}
+        }
+
+
+      if(handEquity >= .75){
+        return {Action::Type::RAISE, pot / 2};
+      }else{
+        return {Action::Type::CHECK};
+      }
+    }
+    else{
       return {Action::Type::FOLD};
-      }
-      }
-      }
-
-
-if(hand_type_num == 1){
-if(!canCheck){
-if(handEquity >= .75){
-return {Action::Type::CALL};
-}return {Action::Type::FOLD}
-}
-
-
-if(handEquity >= .75){
-return {Action::Type::RAISE, pot / 2};
-}else{
-return {Action::Type::CHECK};
-}
-}
-else{
-return {Action::Type::FOLD};
-}
-}
+    }
+  }
   }
 };
 
