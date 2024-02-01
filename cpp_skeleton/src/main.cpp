@@ -28,7 +28,7 @@ struct Bot {
   bool bigBlind;
   int myBankroll;
   int roundNum;
-  unordered_map<string, string> post_flop_data; 
+  unordered_map<string, string> post_flop_data;
   string history = "";
   bool inpos = false;
   // FLOP BUCKETING:
@@ -48,10 +48,11 @@ struct Bot {
   };
   vector<vector<int>> computed_features_ip;
   vector<vector<int>> computed_features_op;
+  pair<int, vector<int>> flop_bucketing;
 
   Bot() {
     import_preflop();
-    post_flop_data = data::get_data(); 
+    post_flop_data = data::get_data();
     cout << "preflop loaded in" << endl;
     preflop = 0;
     compute_diffs();
@@ -132,12 +133,6 @@ struct Bot {
         }
         return num;
     }
-  float random_real() {
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_real_distribution<double> dis(0.0, 1.0);
-    return dis(gen);
-  }
   void compute_diffs() {
     for (int i=0; i<computed_flops_ip.size(); i++) {
         sort(computed_flops_ip[i].begin(), computed_flops_ip[i].end());
@@ -150,7 +145,7 @@ struct Bot {
         computed_features_ip.push_back(diffs);
     }
   }
-  pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
+  pair<int, vector<int>> flopbuckets(vector<int> flop, bool isInPosition) {
     sort(flop.begin(), flop.end());
     vector<int> swaps;
     for (int i=0; i<13; i++) {
@@ -361,6 +356,7 @@ struct Bot {
     preflop = 0;
     preflop_chart_pos = hand_to_chart_pos(card_to_num_preflop(myCards[0]), card_to_num_preflop(myCards[1]));
     history = "";
+    flop_bucketing = {-2,{}};
   }
 
   /*
@@ -434,15 +430,15 @@ struct Bot {
       } else if (continueCost >= 1.5 * (pot - continueCost)) {
         return 'A';
       } else return 'C';
-    }; 
+    };
 
     auto classifyraise = [&]() {
       if (myPip * 5.0 < oppPip) {
         return 'A';
       } else {
-        return '^'; 
+        return '^';
       }
-    }; 
+    };
 
     if (myBankroll > 1.5*(1001-roundNum)) {
         return {Action::Type::FOLD};
@@ -463,7 +459,7 @@ struct Bot {
             }
           }
           else {
-            double rand = random_real();
+            double rand = helper_func::random_real();
             float prob_3bet = bb_vs_2bet[preflop_chart_pos.first][preflop_chart_pos.second].first;
             float prob_call = bb_vs_2bet[preflop_chart_pos.first][preflop_chart_pos.second].second + prob_3bet;
             if (rand <= prob_3bet) {
@@ -483,7 +479,7 @@ struct Bot {
         }
         else if (preflop == 2) {
           // sb 4bets
-          double rand = random_real();
+          double rand = helper_func::random_real();
           float prob_5bet = bb_vs_4bet[preflop_chart_pos.first][preflop_chart_pos.second].first;
           float prob_call = bb_vs_4bet[preflop_chart_pos.first][preflop_chart_pos.second].second + prob_5bet;
           if (rand <= prob_5bet) {
@@ -512,7 +508,7 @@ struct Bot {
           }
         }
         else if (preflop == 2) { // bb 3bet
-          double rand = random_real();
+          double rand = helper_func::random_real();
           float prob_4bet = sb_vs_3bet[preflop_chart_pos.first][preflop_chart_pos.second].first;
           float prob_call = sb_vs_3bet[preflop_chart_pos.first][preflop_chart_pos.second].second + prob_4bet;
           if (rand <= prob_4bet) {
@@ -553,6 +549,10 @@ struct Bot {
         inpos = true;
       } else {
         inpos = false;
+      }
+      if (flop_bucketing.first == -2) {
+        vector<int> curFlop = {helper_func::card_to_num(board[0]), helper_func::card_to_num(board[1]), helper_func::card_to_num(board[2])};
+        flop_bucketing = flopbuckets(curFlop, inpos);
       }
       if (boardCards[0][1] == boardCards[1][1] && boardCards[0][1] == boardCards[2][1]) {
         // MONOTONE
@@ -692,28 +692,28 @@ struct Bot {
         // RAINBOW
         // (OR TWOTONE)
       if (bigBlind) {
-        if (continueCost > 0) { // they raised on us 
+        if (continueCost > 0) { // they raised on us
           if (history.back() == 'C') {
-            history += classifybet(); 
+            history += classifybet();
           } else {
-            history += classifyraise(); 
+            history += classifyraise();
           }
           if (history.back() == 'C') {
             return {Action::Type::CALL};
           }
           string next_action = get_action(post_flop_data, history, vector<int>{
-              helper_func::card_to_num(boardCards[0]) % 13, 
-              helper_func::card_to_num(boardCards[1]) % 13, 
+              helper_func::card_to_num(boardCards[0]) % 13,
+              helper_func::card_to_num(boardCards[1]) % 13,
               helper_func::card_to_num(boardCards[2]) % 13
           }, inpos);
           if (next_action == ".") {
             return {Action::Type::FOLD};
           } else if (next_action == "C") {
-            return {Action::Type::CALL}; 
+            return {Action::Type::CALL};
           } else if (next_action == "^") {
             return {Action::Type::RAISE, 3 * oppPip};
           } else if (next_action == "A") {
-            return {Action::Type::RAISE, min(myStack, oppStack)}; 
+            return {Action::Type::RAISE, min(myStack, oppStack)};
           }
         }
 
