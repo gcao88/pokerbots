@@ -554,8 +554,8 @@ struct Bot {
         vector<int> curFlop = {helper_func::card_to_num(board[0]), helper_func::card_to_num(board[1]), helper_func::card_to_num(board[2])};
         flop_bucketing = flopbuckets(curFlop, inpos);
       }
+      // MONOTONE
       if (boardCards[0][1] == boardCards[1][1] && boardCards[0][1] == boardCards[2][1]) {
-        // MONOTONE
         cout << "MONOTONE" << " " << roundNum << endl;
         char suit = boardCards[0][1];
         if (oppBid > myBid) {
@@ -684,45 +684,42 @@ struct Bot {
           }
         }
       }
-      // else if (boardCards[0][1] == boardCards[1][1] || boardCards[0][1] == boardCards[2][1] || boardCards[1][1] == boardCards[2][1]) {
-      //   // TWOTONE
-      // }
       else {
         // FLOP
         // RAINBOW
         // (OR TWOTONE)
-      if (bigBlind) {
-        if (continueCost > 0) { // they raised on us
-          if (history.back() == 'C') {
-            history += classifybet();
-          } else {
-            history += classifyraise();
+        if (bigBlind) {
+          if (continueCost > 0) { // they raised on us
+            if (history.back() == 'C') {
+              history += classifybet();
+            } else {
+              history += classifyraise();
+            }
+            if (history.back() == 'C') {
+              return {Action::Type::CALL};
+            }
+            string next_action = get_action(post_flop_data, history, vector<int>{
+                helper_func::card_to_num(boardCards[0]) % 13,
+                helper_func::card_to_num(boardCards[1]) % 13,
+                helper_func::card_to_num(boardCards[2]) % 13
+            }, inpos);
+            if (next_action == ".") {
+              return {Action::Type::FOLD};
+            } else if (next_action == "C") {
+              return {Action::Type::CALL};
+            } else if (next_action == "^") {
+              return {Action::Type::RAISE, 3 * oppPip};
+            } else if (next_action == "A") {
+              return {Action::Type::RAISE, min(myStack, oppStack)};
+            }
           }
-          if (history.back() == 'C') {
-            return {Action::Type::CALL};
+          if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+            return {Action::Type::CHECK};
           }
-          string next_action = get_action(post_flop_data, history, vector<int>{
-              helper_func::card_to_num(boardCards[0]) % 13,
-              helper_func::card_to_num(boardCards[1]) % 13,
-              helper_func::card_to_num(boardCards[2]) % 13
-          }, inpos);
-          if (next_action == ".") {
-            return {Action::Type::FOLD};
-          } else if (next_action == "C") {
-            return {Action::Type::CALL};
-          } else if (next_action == "^") {
-            return {Action::Type::RAISE, 3 * oppPip};
-          } else if (next_action == "A") {
-            return {Action::Type::RAISE, min(myStack, oppStack)};
-          }
+          return {Action::Type::CALL};
         }
-
-      if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-        return {Action::Type::CHECK};
       }
-      return {Action::Type::CALL};
-
-      }
+    }
     else if (street == 4) {
       if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
         return {Action::Type::CHECK};
