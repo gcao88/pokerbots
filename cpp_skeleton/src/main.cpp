@@ -13,6 +13,7 @@ using namespace pokerbots::skeleton;
 using namespace std;
 
 struct Bot {
+  // PREFLOP STUFF:
   vector<vector<bool>> sb_rfi;
   vector<vector<pair<float, float>>> bb_vs_2bet;
   vector<vector<pair<float, float>>> sb_vs_3bet;
@@ -21,12 +22,14 @@ struct Bot {
   pair<int,int> preflop_chart_pos;
   string cards = "23456789TJQKA";
   string suits = "shcd";
+  // OTHER STUFF:
   bool bigBlind;
   int myBankroll;
   int roundNum;
   unordered_map<string, string> pre_flop_data;
   string history = "";
   bool inpos = false;
+  // FLOP BUCKETING:
   vector<vector<int>> computed_flops_ip = {
     {3, 3, 10}, {5, 11, 11},
     {4, 8, 9}, {1, 6, 8}, {3, 4, 12},
