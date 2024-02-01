@@ -280,6 +280,71 @@ namespace helper_func {
         }
         return cards[cards.size()-1]*pow13[4] + cards[cards.size()-2]*pow13[3] + cards[cards.size()-3]*pow13[2] + cards[cards.size()-4]*pow13[1] + cards[cards.size()-5];
     }
+
+
+
+    //5 card board, 2 or 3 card hand (this will detect which care it is and make the opponent the other)
+    float get_equity(const vector<int>& board, const vector<int>& hand) {
+        if (board.size() != 5) cout << "ERROR: board size is not 5 in get_equity" << endl;
+        if (hand.size() != 2 && hand.size() != 3) cout << "ERROR: hand size is not 2 or 3 in get_equity" << endl;
+
+        vector<int> deck;
+        for (int i=0; i<52; i++) {
+            if (find(board.begin(), board.end(), i) != board.end() ||
+                find(hand.begin(), hand.end(), i) != hand.end()) {
+                    continue;
+            }
+            deck.push_back(i);
+        }
+        vector<int> hand1;
+        for (int x : board) {
+            hand1.push_back(x);
+        }
+        for (int x : hand) {
+            hand1.push_back(x);
+        }
+        int hand1_strength = eight_eval_suit(hand1);
+
+        vector<int> hand2;
+        for (int x : board) {
+            hand2.push_back(x);
+        }
+        float win;
+        float total;
+        for (int i = 0; i < 500; i++) {
+            int a = random_number(0, deck.size()-1);
+            hand2.push_back(deck[a]);
+            int b = random_number(0, deck.size()-1);
+            while (a == b) {
+                b = random_number(0, deck.size()-1);
+            }
+            hand2.push_back(deck[b]);
+            if (hand.size() == 2) {
+                int c = random_number(0, deck.size()-1);
+                while (c == a || c == b) {
+                    c = random_number(0, deck.size()-1);
+                }
+                hand2.push_back(deck[c]);
+            }
+
+            int hand2_strength = eight_eval_suit(hand2);
+            if (hand1_strength > hand2_strength) win++;
+            if (hand1_strength == hand2_strength) win += 0.5;
+            total++;
+
+            if (hand.size() == 2) {
+                hand2.pop_back();
+                hand2.pop_back();
+                hand2.pop_back();
+            }
+            if (hand.size() == 3) {
+                hand2.pop_back();
+                hand2.pop_back();
+            }
+        }
+
+        return win/total;
+    }
 }
 
 // int main() {
