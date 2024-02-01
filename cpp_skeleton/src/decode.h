@@ -9,8 +9,7 @@ using namespace std;
 
 
 
-namespace data {
-unordered_map<string, string> get_data() {
+unordered_map<string, string> get_data_69() {
     unordered_map<string, string> mp;
 
     string files[] = {
@@ -61,7 +60,6 @@ unordered_map<string, string> get_data() {
     }
     return mp; 
 } 
-};
 // int main() {
 //     get_data(); 
 // }

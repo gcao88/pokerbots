@@ -51,8 +51,9 @@ struct Bot {
   pair<int, vector<int>> flop_bucketing;
 
   Bot() {
+    cout << "FUCK" << endl;
     import_preflop();
-    post_flop_data = data::get_data();
+    post_flop_data = get_data_69(); 
     cout << "preflop loaded in" << endl;
     preflop = 0;
     compute_diffs();
@@ -716,8 +717,107 @@ struct Bot {
           if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
             return {Action::Type::CHECK};
           }
-          return {Action::Type::CALL};
+          string next_action = get_action(post_flop_data, history, vector<int>{
+              helper_func::card_to_num(boardCards[0]) % 13, 
+              helper_func::card_to_num(boardCards[1]) % 13, 
+              helper_func::card_to_num(boardCards[2]) % 13
+          }, inpos);
+          if (next_action == ".") {
+            return {Action::Type::FOLD};
+          } else if (next_action == "C") {
+            return {Action::Type::CALL}; 
+          } else if (next_action == "^") {
+            return {Action::Type::RAISE, 3 * oppPip};
+          } else if (next_action == "A") {
+            return {Action::Type::RAISE, min(myStack, oppStack)}; 
+          } else {
+            if (legalActions.find(Action::Type::FOLD) != legalActions.end())
+              return {Action::Type::FOLD}; 
+            return {Action::Type::CHECK}; 
+          }
+        } else {
+          string next_action = get_action(post_flop_data, history, vector<int>{
+              helper_func::card_to_num(boardCards[0]) % 13, 
+              helper_func::card_to_num(boardCards[1]) % 13, 
+              helper_func::card_to_num(boardCards[2]) % 13
+          }, inpos);
+          if (next_action == ".") {
+            return {Action::Type::FOLD};
+          } else if (next_action == "C") {
+            return {Action::Type::CALL}; 
+          } else if (next_action == "H") {
+            return {Action::Type::RAISE, pot / 2};
+          } else if (next_action == "P") {
+            return {Action::Type::RAISE, pot};
+          }  else if (next_action == "A") {
+            return {Action::Type::RAISE, min(myStack, oppStack)}; 
+          } else {
+            if (legalActions.find(Action::Type::FOLD) != legalActions.end())
+              return {Action::Type::FOLD}; 
+            return {Action::Type::CHECK}; 
+          }
+        } 
         }
+        else {
+          if (continueCost > 0) {
+            if (history.back() == 'C') {
+              history += classifybet(); 
+            } else if(history.back() == '^'){
+              history += 'A';
+            } else {
+              history += classifyraise(); 
+            }
+            if (history.back() == 'C') {
+              return {Action::Type::CALL};
+            }
+            string next_action = get_action(post_flop_data, history, vector<int>{
+                helper_func::card_to_num(boardCards[0]) % 13, 
+                helper_func::card_to_num(boardCards[1]) % 13, 
+                helper_func::card_to_num(boardCards[2]) % 13
+            }, inpos);
+            if (next_action == ".") {
+              return {Action::Type::FOLD};
+            } else if (next_action == "C") {
+              return {Action::Type::CALL}; 
+            } else if (next_action == "^") {
+              return {Action::Type::RAISE, 3 * oppPip};
+            } else if (next_action == "A") {
+              return {Action::Type::RAISE, min(myStack, oppStack)}; 
+            } else {
+              if (legalActions.find(Action::Type::FOLD) != legalActions.end())
+                return {Action::Type::FOLD}; 
+              return {Action::Type::CHECK}; 
+            }
+          } else {
+            string next_action = get_action(post_flop_data, history, vector<int>{
+              helper_func::card_to_num(boardCards[0]) % 13, 
+              helper_func::card_to_num(boardCards[1]) % 13, 
+              helper_func::card_to_num(boardCards[2]) % 13
+
+            }, inpos); 
+            if (next_action == ".") {
+              return {Action::Type::FOLD};
+            } else if (next_action == "C") {
+              return {Action::Type::CALL}; 
+            } else if (next_action == "H") {
+              return {Action::Type::RAISE, pot / 2};
+            } else if (next_action == "P") {
+              return {Action::Type::RAISE, pot};
+            }  else if (next_action == "A") {
+              return {Action::Type::RAISE, min(myStack, oppStack)}; 
+            } else {
+              if (legalActions.find(Action::Type::FOLD) != legalActions.end())
+                return {Action::Type::FOLD}; 
+              return {Action::Type::CHECK}; 
+            }
+          }
+        }
+
+      if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+        return {Action::Type::CHECK};
+      }
+      return {Action::Type::CALL};
+
       }
     }
     else if (street == 4) {
