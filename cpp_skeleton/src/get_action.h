@@ -8,7 +8,7 @@
 
 using namespace std; 
 
-string get_action(__gnu_pbds::gp_hash_table<string, string> &mp, string history, vector<int> flop, bool ip) {
+string get_action(unordered_map<string, string> &mp, string history, vector<int> flop, bool ip) {
     cout << "HELLO\n";
     auto new_flop = flop; 
     // cout << "HELLO\n";

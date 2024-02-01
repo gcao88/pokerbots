@@ -7,7 +7,9 @@
 #include "../libs/skeleton/include/skeleton/states.h"
 #include "../libs/skeleton/include/skeleton/util.h"
 #include "fstream"
+#include "get_action.h"
 #include "decode.h"
+#include "helper_func.h"
 
 using namespace pokerbots::skeleton;
 using namespace std;
@@ -24,14 +26,14 @@ struct Bot {
   bool bigBlind;
   int myBankroll;
   int roundNum;
-  unordered_map<string, string> pre_flop_data; 
+  unordered_map<string, string> post_flop_data; 
   string history = "";
   bool inpos = false;
 
 
   Bot() {
     import_preflop();
-    pre_flop_data = data::get_data(); 
+    post_flop_data = data::get_data(); 
     cout << "preflop loaded in" << endl;
     preflop = 0;
   }
@@ -201,11 +203,21 @@ struct Bot {
     int pot = 800 - myStack - oppStack;
 
     auto classifybet = [&]() {
-      if (continueCost <= 0.2 * (pot - continueCost) && continueCost <= (pot - continueCost) * 0.7) {
+      if (continueCost >= 0.2 * (pot - continueCost) && continueCost <= (pot - continueCost) * 0.7) {
         return 'H';
-      } else if (continueCost <= 0.2 * (pot - continueCost) && continueCost <= (pot - continueCost) * 0.7) {
-        return 'H';
-      } 
+      } else if (continueCost >= 0.7 * (pot - continueCost) && continueCost <= (pot - continueCost) * 1.5) {
+        return 'P';
+      } else if (continueCost >= 1.5 * (pot - continueCost)) {
+        return 'A';
+      } else return 'C';
+    }; 
+
+    auto classifyraise = [&]() {
+      if (myPip * 5.0 < oppPip) {
+        return 'A';
+      } else {
+        return '^'; 
+      }
     }; 
 
     if (myBankroll > 1.5*(1001-roundNum)) {
@@ -455,20 +467,38 @@ struct Bot {
         // FLOP
         // RAINBOW
         // (OR TWOTONE)
-        if (bigBlind) {
-          if (continueCost > 0) { // they raised on us 
-            if (history.back() == 'C') {
-              
-            }
+      if (bigBlind) {
+        if (continueCost > 0) { // they raised on us 
+          if (history.back() == 'C') {
+            history += classifybet(); 
+          } else {
+            history += classifyraise(); 
           }
-        } 
-        if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-          return {Action::Type::CHECK};
+          if (history.back() == 'C') {
+            return {Action::Type::CALL};
+          }
+          string next_action = get_action(post_flop_data, history, vector<int>{
+              helper_func::card_to_num(boardCards[0]) % 13, 
+              helper_func::card_to_num(boardCards[1]) % 13, 
+              helper_func::card_to_num(boardCards[2]) % 13
+          }, inpos);
+          if (next_action == ".") {
+            return {Action::Type::FOLD};
+          } else if (next_action == "C") {
+            return {Action::Type::CALL}; 
+          } else if (next_action == "^") {
+            return {Action::Type::RAISE, 3 * oppPip};
+          } else if (next_action == "A") {
+            return {Action::Type::RAISE, min(myStack, oppStack)}; 
+          }
         }
-        return {Action::Type::CALL};
+
+      if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+        return {Action::Type::CHECK};
+      }
+      return {Action::Type::CALL};
 
       }
-    }
     else if (street == 4) {
       if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
         return {Action::Type::CHECK};
