@@ -396,6 +396,7 @@ struct Bot {
   Action getAction(GameInfoPtr gameState, RoundStatePtr roundState,
                    int active) {
     // May be useful, but you can choose to not use.
+    auto preAggression = -1; 
     auto legalActions =
         roundState->legalActions();   // the actions you are allowed to take
     int street = roundState->street;  // 0, 3, 4, or 5 representing pre-flop,
@@ -551,6 +552,9 @@ struct Bot {
         std::uniform_int_distribution<int> bid_distribution(3*pot, 4*pot);
         int bid = min(bid_distribution(gen), myStack);
         return {Action::Type::BID, bid};
+      } 
+      if (preAggression == -1) {
+        preAggression = pot; 
       }
       if ((oppBid > myBid && bigBlind) || (myBid > oppBid && !bigBlind)) {
         inpos = true;
@@ -561,7 +565,7 @@ struct Bot {
         vector<int> curFlop = {helper_func::card_to_num(boardCards[0]), helper_func::card_to_num(boardCards[1]), helper_func::card_to_num(boardCards[2])};
         flop_bucketing = flopbuckets(curFlop, inpos);
         if (flop_bucketing.first == -1) {
-          must_fold = true;
+          mustfold = true;
         }
         cur_flop = inpos ? computed_flops_ip[flop_bucketing.first] : computed_flops_op[flop_bucketing.first];
       }
@@ -932,7 +936,7 @@ struct Bot {
       }
 
 
-      int hand_strength = helper_func::eight_eval_suit(total);
+      int hand_strength = helper_func::eight_eval_suit(*total);
       int hand_type_num = hand_strength / (13*13*13*13*13);
       float handEquity = helper_func::get_equity(board, hand);
       bool canCheck = legalActions.find(Action::Type::CHECK) != legalActions.end();
