@@ -7,6 +7,7 @@
 #include "../libs/skeleton/include/skeleton/states.h"
 #include "../libs/skeleton/include/skeleton/util.h"
 #include "fstream"
+#include "decode.h"
 
 using namespace pokerbots::skeleton;
 using namespace std;
@@ -23,10 +24,14 @@ struct Bot {
   bool bigBlind;
   int myBankroll;
   int roundNum;
+  unordered_map<string, string> pre_flop_data; 
+  string history = "";
+  bool inpos = false;
 
 
   Bot() {
     import_preflop();
+    pre_flop_data = data::get_data(); 
     cout << "preflop loaded in" << endl;
     preflop = 0;
   }
@@ -129,6 +134,7 @@ struct Bot {
     // Own stuff:
     preflop = 0;
     preflop_chart_pos = hand_to_chart_pos(card_to_num(myCards[0]), card_to_num(myCards[1]));
+    history = "";
   }
 
   /*
@@ -193,6 +199,14 @@ struct Bot {
     int minCost = 0;
     int maxCost = 0;
     int pot = 800 - myStack - oppStack;
+
+    auto classifybet = [&]() {
+      if (continueCost <= 0.2 * (pot - continueCost) && continueCost <= (pot - continueCost) * 0.7) {
+        return 'H';
+      } else if (continueCost <= 0.2 * (pot - continueCost) && continueCost <= (pot - continueCost) * 0.7) {
+        return 'H';
+      } 
+    }; 
 
     if (myBankroll > 1.5*(1001-roundNum)) {
         return {Action::Type::FOLD};
@@ -299,10 +313,16 @@ struct Bot {
         int bid = min(bid_distribution(gen), myStack);
         return {Action::Type::BID, bid};
       }
+      if ((oppBid > myBid && bigBlind) || (myBid > oppBid && !bigBlind)) {
+        inpos = true;
+      } else {
+        inpos = false;
+      }
       if (boardCards[0][1] == boardCards[1][1] && boardCards[0][1] == boardCards[2][1]) {
         // MONOTONE
+        cout << "MONOTONE" << " " << roundNum << endl;
         char suit = boardCards[0][1];
-        if (myCards.size() == 2) {
+        if (oppBid > myBid) {
           if (myCards[0][1] != suit && myCards[1][1] != suit) {
             if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
               return {Action::Type::CHECK};
@@ -355,6 +375,9 @@ struct Bot {
                 minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
                 maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
                 return {Action::Type::RAISE, min(max(int(minCost), int(pot*4/10)), int(maxCost))};
+              } else if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
+                return {Action::Type::CALL}; 
+
               }
             }
             else {
@@ -412,7 +435,7 @@ struct Bot {
           else {
             if (continueCost > 0) {
               return {Action::Type::FOLD};
-            }
+            } 
             if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
               auto raiseBounds = roundState->raiseBounds();
               minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
@@ -432,7 +455,13 @@ struct Bot {
         // FLOP
         // RAINBOW
         // (OR TWOTONE)
-
+        if (bigBlind) {
+          if (continueCost > 0) { // they raised on us 
+            if (history.back() == 'C') {
+              
+            }
+          }
+        } 
         if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
           return {Action::Type::CHECK};
         }
