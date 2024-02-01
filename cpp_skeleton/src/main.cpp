@@ -49,6 +49,7 @@ struct Bot {
   vector<vector<int>> computed_features_ip;
   vector<vector<int>> computed_features_op;
   pair<int, vector<int>> flop_bucketing;
+  vector<int> cur_flop;
 
   Bot() {
     cout << "FUCK" << endl;
@@ -358,6 +359,7 @@ struct Bot {
     preflop_chart_pos = hand_to_chart_pos(card_to_num_preflop(myCards[0]), card_to_num_preflop(myCards[1]));
     history = "";
     flop_bucketing = {-2,{}};
+    cur_flop = {};
   }
 
   /*
@@ -552,8 +554,9 @@ struct Bot {
         inpos = false;
       }
       if (flop_bucketing.first == -2) {
-        vector<int> curFlop = {helper_func::card_to_num(board[0]), helper_func::card_to_num(board[1]), helper_func::card_to_num(board[2])};
+        vector<int> curFlop = {helper_func::card_to_num(boardCards[0]), helper_func::card_to_num(boardCards[1]), helper_func::card_to_num(boardCards[2])};
         flop_bucketing = flopbuckets(curFlop, inpos);
+        cur_flop = inpos ? computed_flops_ip[flop_bucketing.first] : computed_flops_op[flop_bucketing.first];
       }
       // MONOTONE
       if (boardCards[0][1] == boardCards[1][1] && boardCards[0][1] == boardCards[2][1]) {
@@ -713,10 +716,7 @@ struct Bot {
             } else if (next_action == "A") {
               return {Action::Type::RAISE, min(myStack, oppStack)};
             }
-          }
-          if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-            return {Action::Type::CHECK};
-          }
+          } else {
           string next_action = get_action(post_flop_data, history, vector<int>{
               helper_func::card_to_num(boardCards[0]) % 13, 
               helper_func::card_to_num(boardCards[1]) % 13, 
@@ -735,29 +735,7 @@ struct Bot {
               return {Action::Type::FOLD}; 
             return {Action::Type::CHECK}; 
           }
-        } else {
-          string next_action = get_action(post_flop_data, history, vector<int>{
-              helper_func::card_to_num(boardCards[0]) % 13, 
-              helper_func::card_to_num(boardCards[1]) % 13, 
-              helper_func::card_to_num(boardCards[2]) % 13
-          }, inpos);
-          if (next_action == ".") {
-            return {Action::Type::FOLD};
-          } else if (next_action == "C") {
-            return {Action::Type::CALL}; 
-          } else if (next_action == "H") {
-            return {Action::Type::RAISE, pot / 2};
-          } else if (next_action == "P") {
-            return {Action::Type::RAISE, pot};
-          }  else if (next_action == "A") {
-            return {Action::Type::RAISE, min(myStack, oppStack)}; 
-          } else {
-            if (legalActions.find(Action::Type::FOLD) != legalActions.end())
-              return {Action::Type::FOLD}; 
-            return {Action::Type::CHECK}; 
-          }
-        } 
-        }
+        } }
         else {
           if (continueCost > 0) {
             if (history.back() == 'C') {
@@ -811,15 +789,10 @@ struct Bot {
               return {Action::Type::CHECK}; 
             }
           }
-        }
+        }}
 
-      if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-        return {Action::Type::CHECK};
-      }
-      return {Action::Type::CALL};
 
       }
-    }
     else if (street == 4) {
       if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
         return {Action::Type::CHECK};
