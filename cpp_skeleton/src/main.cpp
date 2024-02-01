@@ -29,13 +29,30 @@ struct Bot {
   unordered_map<string, string> post_flop_data; 
   string history = "";
   bool inpos = false;
-
+  vector<vector<int>> computed_flops_ip = {
+    {3, 3, 10}, {5, 11, 11},
+    {4, 8, 9}, {1, 6, 8}, {3, 4, 12},
+    {5, 6, 11}, {6, 8, 10}, {3, 5, 10},
+    {8, 9, 12}, {1, 5, 6}, {2, 10, 12},
+    {2, 3, 11}, {0, 2, 9}
+  };
+  vector<vector<int>> computed_flops_op = {
+    {4, 4, 10}, {3, 9, 9},
+    {0, 3, 5}, {2, 5, 7}, {6, 10, 12},
+    {3, 5, 12}, {2, 9, 11}, {3, 4, 11},
+    {5, 7, 12}, {4, 7, 9}, {5, 6, 10},
+    {0, 2, 10}, {2, 3, 8}, {7, 9, 12}
+  };
+  vector<vector<int>> computed_features_ip;
+  vector<vector<int>> computed_features_op;
 
   Bot() {
     import_preflop();
     post_flop_data = data::get_data(); 
     cout << "preflop loaded in" << endl;
     preflop = 0;
+    compute_diffs();
+
   }
   void import_preflop_floats(string filepath, vector<vector<pair<float, float>>>* vec_ptr) {
       ifstream inputFile(filepath);
@@ -81,7 +98,7 @@ struct Bot {
       import_preflop_floats("src/preflop_data/preflop - bb vs. 2bet.txt", &bb_vs_2bet);
       import_preflop_floats("src/preflop_data/preflop - btn vs. 3bet.txt", &sb_vs_3bet);
       import_preflop_floats("src/preflop_data/preflop - bb vs. 4bet.txt", &bb_vs_4bet);
-    
+
       return;
   }
   pair<int,int> hand_to_chart_pos(int x, int y) {
@@ -97,11 +114,12 @@ struct Bot {
         return p;
     }
   }
-  int card_to_num(string card) {
+  // A is 12, etc.
+  int card_to_num_preflop(string card) {
         int num = 0;
         for (int i = 0; i < 13; i++) {
             if (card[0] == cards[i]) {
-                num += 12 - i;
+                num += 12-i;
             }
         }
         for (int i = 0; i < 4; i++) {
@@ -117,6 +135,209 @@ struct Bot {
     uniform_real_distribution<double> dis(0.0, 1.0);
     return dis(gen);
   }
+  void compute_diffs() {
+    for (int i=0; i<computed_flops_ip.size(); i++) {
+        sort(computed_flops_ip[i].begin(), computed_flops_ip[i].end());
+        vector<int> diffs = {
+            computed_flops_ip[i][0]-(-1),
+            computed_flops_ip[i][1]-computed_flops_ip[i][0],
+            computed_flops_ip[i][2]-computed_flops_ip[i][1],
+            computed_flops_ip[i][0]+computed_flops_ip[i][1]+computed_flops_ip[i][2]
+        };
+        computed_features_ip.push_back(diffs);
+    }
+  }
+  pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
+    sort(flop.begin(), flop.end());
+    vector<int> swaps;
+    for (int i=0; i<13; i++) {
+        swaps.push_back(i);
+    }
+    vector<int> flop_features = {
+        flop[0]-(-1),
+        flop[1]-flop[0],
+        flop[2]-flop[1],
+        flop[0]+flop[1]+flop[2]
+    };
+    if (flop_features[1] == 0 && flop_features[2] == 0) {
+        // trips
+        pair<int, vector<int>> p(-1, swaps);
+        return p;
+    }
+    if (flop_features[1] == 0 || flop_features[2] == 0) {
+        int ind = flop_features[1] == 0 ? 0 : 1;
+        int a = isInPosition ? computed_flops_ip[ind][0] : computed_flops_op[ind][0];
+        int b = isInPosition ? computed_flops_ip[ind][2] : computed_flops_op[ind][2];
+        swaps[a] = flop[0];
+        swaps[flop[0]] = a;
+        swaps[b] = flop[2];
+        swaps[flop[2]] = b;
+        pair<int, vector<int>> p(ind, swaps);
+        return p;
+    }
+    if (flop_features[1] == 1) {
+        if (isInPosition) {
+            for (int i=2; i<computed_flops_ip.size(); i++) {
+                if (flop[0] == computed_flops_ip[i][0] && flop[1] == computed_flops_ip[i][1]) {
+                    swaps[flop[2]] = computed_flops_ip[i][2];
+                    swaps[computed_flops_ip[i][2]] = flop[2];
+                    pair<int, vector<int>> p(i, swaps);
+                    return p;
+                }
+                if (flop[0]-1 == computed_flops_ip[i][0] && flop[1] == computed_flops_ip[i][1]) {
+                    swaps[flop[0]] = flop[0]-1;
+                    swaps[flop[0]-1] = flop[0];
+                    swaps[flop[2]] = computed_flops_ip[i][2];
+                    swaps[computed_flops_ip[i][2]] = flop[2];
+                    pair<int, vector<int>> p(i, swaps);
+                    return p;
+                }
+                if (flop[0] == computed_flops_ip[i][0] && flop[1]+1 == computed_flops_ip[i][1]) {
+                    swaps[flop[1]+1] = flop[1];
+                    swaps[flop[1]] = flop[1]+1;
+                    swaps[flop[2]] = computed_flops_ip[i][2];
+                    swaps[computed_flops_ip[i][2]] = flop[2];
+                    pair<int, vector<int>> p(i, swaps);
+                    return p;
+                }
+            }
+        }
+        else {
+            for (int i=2; i<computed_flops_op.size(); i++) {
+                if (flop[0] == computed_flops_op[i][0] && flop[1] == computed_flops_op[i][1]) {
+                    swaps[flop[2]] = computed_flops_op[i][2];
+                    swaps[computed_flops_op[i][2]] = flop[2];
+                    pair<int, vector<int>> p(i, swaps);
+                    return p;
+                }
+                if (flop[0]-1 == computed_flops_op[i][0] && flop[1] == computed_flops_op[i][1]) {
+                    swaps[flop[0]] = flop[0]-1;
+                    swaps[flop[0]-1] = flop[0];
+                    swaps[flop[2]] = computed_flops_op[i][2];
+                    swaps[computed_flops_op[i][2]] = flop[2];
+                    pair<int, vector<int>> p(i, swaps);
+                    return p;
+                }
+                if (flop[0] == computed_flops_op[i][0] && flop[1]+1 == computed_flops_op[i][1]) {
+                    swaps[flop[1]+1] = flop[1];
+                    swaps[flop[1]] = flop[1]+1;
+                    swaps[flop[2]] = computed_flops_op[i][2];
+                    swaps[computed_flops_op[i][2]] = flop[2];
+                    pair<int, vector<int>> p(i, swaps);
+                    return p;
+                }
+            }
+        }
+    }
+    if (flop_features[2] == 1) {
+        if (isInPosition) {
+            for (int i=2; i<computed_flops_ip.size(); i++) {
+                if (flop[1] == computed_flops_ip[i][1] && flop[2] == computed_flops_ip[i][2]) {
+                    swaps[flop[0]] = computed_flops_ip[i][0];
+                    swaps[computed_flops_ip[i][0]] = flop[0];
+                    pair<int, vector<int>> p(i, swaps);
+                    return p;
+                }
+                if (flop[1]-1 == computed_flops_ip[i][1] && flop[2] == computed_flops_ip[i][2]) {
+                    swaps[flop[1]] = flop[1]-1;
+                    swaps[flop[1]-1] = flop[1];
+                    swaps[flop[0]] = computed_flops_ip[i][0];
+                    swaps[computed_flops_ip[i][0]] = flop[0];
+                    pair<int, vector<int>> p(i, swaps);
+                    return p;
+                }
+                if (flop[1] == computed_flops_ip[i][1] && flop[2]+1 == computed_flops_ip[i][2]) {
+                    swaps[flop[2]+1] = flop[2];
+                    swaps[flop[2]] = flop[2]+1;
+                    swaps[flop[0]] = computed_flops_ip[i][0];
+                    swaps[computed_flops_ip[i][0]] = flop[0];
+                    pair<int, vector<int>> p(i, swaps);
+                    return p;
+                }
+            }
+        }
+        else {
+            for (int i=2; i<computed_flops_op.size(); i++) {
+                if (flop[1] == computed_flops_op[i][1] && flop[2] == computed_flops_op[i][2]) {
+                    swaps[flop[0]] = computed_flops_op[i][0];
+                    swaps[computed_flops_op[i][0]] = flop[0];
+                    pair<int, vector<int>> p(i, swaps);
+                    return p;
+                }
+                if (flop[1]-1 == computed_flops_op[i][1] && flop[2] == computed_flops_op[i][2]) {
+                    swaps[flop[1]] = flop[1]-1;
+                    swaps[flop[1]-1] = flop[1];
+                    swaps[flop[0]] = computed_flops_op[i][0];
+                    swaps[computed_flops_op[i][0]] = flop[0];
+                    pair<int, vector<int>> p(i, swaps);
+                    return p;
+                }
+                if (flop[1] == computed_flops_op[i][1] && flop[2]+1 == computed_flops_op[i][2]) {
+                    swaps[flop[2]+1] = flop[2];
+                    swaps[flop[2]] = flop[2]+1;
+                    swaps[flop[0]] = computed_flops_op[i][0];
+                    swaps[computed_flops_op[i][0]] = flop[0];
+                    pair<int, vector<int>> p(i, swaps);
+                    return p;
+                }
+            }
+        }
+    }
+
+    int closest_dist = INT_MAX;
+    int best_flop_index = -1;
+    if (isInPosition) {
+        for (int i=2; i<computed_features_ip.size(); i++) {
+            int dist = (flop_features[0]-computed_features_ip[i][0])*(flop_features[0]-computed_features_ip[i][0]);
+            dist += (flop_features[1]-computed_features_ip[i][1])*(flop_features[1]-computed_features_ip[i][1]);
+            dist += (flop_features[2]-computed_features_ip[i][2])*(flop_features[2]-computed_features_ip[i][2]);
+            dist += 0.5*(flop_features[3]-computed_features_ip[i][3])*(flop_features[3]-computed_features_ip[i][3]);
+            if (dist < closest_dist) {
+                closest_dist = dist;
+                best_flop_index = i;
+            }
+        }
+    }
+    else {
+        for (int i=2; i<computed_features_op.size(); i++) {
+            int dist = (flop_features[0]-computed_features_op[i][0])*(flop_features[0]-computed_features_op[i][0]);
+            dist += (flop_features[1]-computed_features_op[i][1])*(flop_features[1]-computed_features_op[i][1]);
+            dist += (flop_features[2]-computed_features_op[i][2])*(flop_features[2]-computed_features_op[i][2]);
+            dist += 0.5*(flop_features[3]-computed_features_op[i][3])*(flop_features[3]-computed_features_op[i][3]);
+            if (dist < closest_dist) {
+                closest_dist = dist;
+                best_flop_index = i;
+            }
+        }
+    }
+    vector<int> computed;
+    if (isInPosition) {
+        computed = computed_flops_ip[best_flop_index];
+    }
+    else {
+        computed = computed_flops_op[best_flop_index];
+    }
+    vector<int> flop_copy = flop;
+    for (int i=0; i<3; i++) {
+        if (find(computed.begin(), computed.end(), flop[i]) != computed.end()) {
+            for (int j=0; j<computed.size(); j++) {
+                if (computed[j] == flop[i]) {
+                    computed.erase(computed.begin() + j);
+                }
+                if (flop_copy[j] == flop[i]) {
+                    flop_copy.erase(flop_copy.begin() + j);
+                }
+            }
+        }
+    }
+    for (int i=0; i<computed.size(); i++) {
+        swaps[flop_copy[i]] = computed[i];
+        swaps[computed[i]] = flop_copy[i];
+    }
+    pair<int, vector<int>> p(best_flop_index, swaps);
+    return p;
+  }
+
   /*
     Called when a new round starts. Called NUM_ROUNDS times.
 
@@ -135,7 +356,7 @@ struct Bot {
 
     // Own stuff:
     preflop = 0;
-    preflop_chart_pos = hand_to_chart_pos(card_to_num(myCards[0]), card_to_num(myCards[1]));
+    preflop_chart_pos = hand_to_chart_pos(card_to_num_preflop(myCards[0]), card_to_num_preflop(myCards[1]));
     history = "";
   }
 
@@ -388,7 +609,7 @@ struct Bot {
                 maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
                 return {Action::Type::RAISE, min(max(int(minCost), int(pot*4/10)), int(maxCost))};
               } else if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
-                return {Action::Type::CALL}; 
+                return {Action::Type::CALL};
 
               }
             }
@@ -447,7 +668,7 @@ struct Bot {
           else {
             if (continueCost > 0) {
               return {Action::Type::FOLD};
-            } 
+            }
             if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
               auto raiseBounds = roundState->raiseBounds();
               minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
