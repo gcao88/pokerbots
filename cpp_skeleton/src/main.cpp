@@ -149,7 +149,7 @@ struct Bot {
         computed_features_ip.push_back(diffs);
     }
   }
-  pair<int, vector<int>> flopbuckets(vector<int> flop, bool isInPosition) {
+pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
     sort(flop.begin(), flop.end());
     vector<int> swaps;
     for (int i=0; i<13; i++) {
@@ -338,7 +338,7 @@ struct Bot {
     }
     pair<int, vector<int>> p(best_flop_index, swaps);
     return p;
-  }
+}
 
   /*
     Called when a new round starts. Called NUM_ROUNDS times.
@@ -396,7 +396,7 @@ struct Bot {
   Action getAction(GameInfoPtr gameState, RoundStatePtr roundState,
                    int active) {
     // May be useful, but you can choose to not use.
-    auto preAggression = -1; 
+    auto preAggression = -1;
     auto legalActions =
         roundState->legalActions();   // the actions you are allowed to take
     int street = roundState->street;  // 0, 3, 4, or 5 representing pre-flop,
@@ -552,9 +552,9 @@ struct Bot {
         std::uniform_int_distribution<int> bid_distribution(3*pot, 4*pot);
         int bid = min(bid_distribution(gen), myStack);
         return {Action::Type::BID, bid};
-      } 
+      }
       if (preAggression == -1) {
-        preAggression = pot; 
+        preAggression = pot;
       }
       if ((oppBid > myBid && bigBlind) || (myBid > oppBid && !bigBlind)) {
         inpos = true;
