@@ -818,10 +818,15 @@ struct Bot {
       }
     }
     else { // street == 5
-      if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-        return {Action::Type::CHECK};
-      }
-      return {Action::Type::CALL};
+      // RIVER LOGIC HERE
+      // RIVER LOGIC HERE
+      // RIVER LOGIC HERE
+      // RIVER LOGIC HERE
+      // RIVER LOGIC HERE
+      // RIVER LOGIC HERE
+      // RIVER LOGIC HERE
+      // RIVER LOGIC HERE
+      // RIVER LOGIC HERE
     }
   }
 };
