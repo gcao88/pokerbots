@@ -19,7 +19,7 @@ unordered_map<string, string> get_data_69() {
 "src/cfr_data/strategy1_6TJ_IP.txt",
 "src/cfr_data/strategy1_8QA_OP.txt",
 "src/cfr_data/strategy1_9JA_OP.txt",
-"src/cfr_data/strategy1_24J_OOP.txt",
+"src/cfr_data/strategy1_24J_OP.txt",
 "src/cfr_data/strategy1_24Q_OP.txt",
 "src/cfr_data/strategy1_38T_IP.txt",
 "src/cfr_data/strategy1_45K_IP.txt",
@@ -72,6 +72,7 @@ unordered_map<string, string> get_data_69() {
     // fout << "FUCK" << endl;
 
     for (string file : files) {
+        cout << file << "\n";
         ifstream fin("src/cfr_data/" + file); 
         string key1 = file.substr(10, 3) + file.substr(14, 2); 
         string curline = "";

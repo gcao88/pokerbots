@@ -43,7 +43,8 @@ string get_action(unordered_map<string, string> &mp, string history, vector<int>
     // int numcard = 0; 
 
 
-    // cout << filename << "ip" << history << "\n";
+    cout << filename << "ip" << history << "\n";
+    cout << mp[filename + (ip ? "ip" : "op")] << "\n";
     return mp[filename + (ip ? "ip" : "op") + history]; 
     // + string(names[new_flop[1]]) + string(names[new_flop[2]]); 
 

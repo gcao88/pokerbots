@@ -150,11 +150,15 @@ struct Bot {
     }
   }
 pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
+
     sort(flop.begin(), flop.end());
     vector<int> swaps;
     for (int i=0; i<13; i++) {
         swaps.push_back(i);
     }
+    for (auto c : flop) 
+      cout << c << " ";
+    cout << '\n';
     vector<int> flop_features = {
         flop[0]-(-1),
         flop[1]-flop[0],
@@ -322,7 +326,7 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
     vector<int> flop_copy = flop;
     for (int i=0; i<3; i++) {
         if (find(computed.begin(), computed.end(), flop[i]) != computed.end()) {
-            for (int j=0; j<computed.size(); j++) {
+            for (int j=computed.size()-1; j>=0; j--) {
                 if (computed[j] == flop[i]) {
                     computed.erase(computed.begin() + j);
                 }
@@ -562,12 +566,23 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
         inpos = false;
       }
       if (flop_bucketing.first == -2) {
-        vector<int> curFlop = {helper_func::card_to_num(boardCards[0]), helper_func::card_to_num(boardCards[1]), helper_func::card_to_num(boardCards[2])};
+        vector<int> curFlop = {helper_func::card_to_num(boardCards[0])%13, helper_func::card_to_num(boardCards[1])%13, helper_func::card_to_num(boardCards[2])%13};
+        cout << "flop bouta bucket" << endl;
         flop_bucketing = flopbuckets(curFlop, inpos);
+        cout << "flop bucked" << endl;
+        
         if (flop_bucketing.first == -1) {
           mustfold = true;
+          cout << "mustfold";
         }
-        cur_flop = inpos ? computed_flops_ip[flop_bucketing.first] : computed_flops_op[flop_bucketing.first];
+        else {
+          cout << "first" << flop_bucketing.first << endl;
+            cur_flop = inpos ? computed_flops_ip[flop_bucketing.first] : computed_flops_op[flop_bucketing.first];
+        for (int i=0; i<3; i++) {
+          cout << cur_flop[i] << " ";
+        }
+        }
+        
       }
       // MONOTONE
       if (boardCards[0][1] == boardCards[1][1] && boardCards[0][1] == boardCards[2][1]) {
@@ -714,11 +729,7 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
             if (history.back() == 'C') {
               return {Action::Type::CALL};
             }
-            string next_action = get_action(post_flop_data, history, vector<int>{
-                helper_func::card_to_num(boardCards[0]) % 13,
-                helper_func::card_to_num(boardCards[1]) % 13,
-                helper_func::card_to_num(boardCards[2]) % 13
-            }, inpos);
+            string next_action = get_action(post_flop_data, history, cur_flop, inpos);
             if (next_action == ".") {
               return {Action::Type::FOLD};
             } else if (next_action == "C") {
@@ -729,11 +740,7 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
               return {Action::Type::RAISE, min(myStack, oppStack)};
             }
           } else {
-          string next_action = get_action(post_flop_data, history, vector<int>{
-              helper_func::card_to_num(boardCards[0]) % 13,
-              helper_func::card_to_num(boardCards[1]) % 13,
-              helper_func::card_to_num(boardCards[2]) % 13
-          }, inpos);
+          string next_action = get_action(post_flop_data, history, cur_flop, inpos);
           if (next_action == ".") {
             return {Action::Type::FOLD};
           } else if (next_action == "C") {
@@ -760,11 +767,7 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
             if (history.back() == 'C') {
               return {Action::Type::CALL};
             }
-            string next_action = get_action(post_flop_data, history, vector<int>{
-                helper_func::card_to_num(boardCards[0]) % 13,
-                helper_func::card_to_num(boardCards[1]) % 13,
-                helper_func::card_to_num(boardCards[2]) % 13
-            }, inpos);
+            string next_action = get_action(post_flop_data, history, cur_flop, inpos);
             if (next_action == ".") {
               return {Action::Type::FOLD};
             } else if (next_action == "C") {
@@ -779,12 +782,7 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
               return {Action::Type::CHECK};
             }
           } else {
-            string next_action = get_action(post_flop_data, history, vector<int>{
-              helper_func::card_to_num(boardCards[0]) % 13,
-              helper_func::card_to_num(boardCards[1]) % 13,
-              helper_func::card_to_num(boardCards[2]) % 13
-
-            }, inpos);
+            string next_action = get_action(post_flop_data, history, cur_flop, inpos);
             if (next_action == ".") {
               return {Action::Type::FOLD};
             } else if (next_action == "C") {
@@ -828,11 +826,7 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
             if (history.back() == 'C') {
               return {Action::Type::CALL};
             }
-            string next_action = get_action(post_flop_data, history, vector<int>{
-                helper_func::card_to_num(boardCards[0]) % 13,
-                helper_func::card_to_num(boardCards[1]) % 13,
-                helper_func::card_to_num(boardCards[2]) % 13
-            }, inpos);
+            string next_action = get_action(post_flop_data, history, cur_flop, inpos);
             if (next_action == ".") {
               return {Action::Type::FOLD};
             } else if (next_action == "C") {
@@ -843,11 +837,7 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
               return {Action::Type::RAISE, min(myStack, oppStack)};
             }
           } else {
-          string next_action = get_action(post_flop_data, history, vector<int>{
-              helper_func::card_to_num(boardCards[0]) % 13,
-              helper_func::card_to_num(boardCards[1]) % 13,
-              helper_func::card_to_num(boardCards[2]) % 13
-          }, inpos);
+          string next_action = get_action(post_flop_data, history, cur_flop, inpos);
           if (next_action == ".") {
             return {Action::Type::FOLD};
           } else if (next_action == "C") {
@@ -874,11 +864,7 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
             if (history.back() == 'C') {
               return {Action::Type::CALL};
             }
-            string next_action = get_action(post_flop_data, history, vector<int>{
-                helper_func::card_to_num(boardCards[0]) % 13,
-                helper_func::card_to_num(boardCards[1]) % 13,
-                helper_func::card_to_num(boardCards[2]) % 13
-            }, inpos);
+            string next_action = get_action(post_flop_data, history, cur_flop, inpos);
             if (next_action == ".") {
               return {Action::Type::FOLD};
             } else if (next_action == "C") {
@@ -1056,7 +1042,7 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
       return {Action::Type::CHECK};
 
     }
-  }
+    }}
 };
 
 /*
