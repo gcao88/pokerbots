@@ -148,9 +148,19 @@ struct Bot {
         };
         computed_features_ip.push_back(diffs);
     }
+	for (int i=0; i<computed_flops_op.size(); i++) {
+		sort(computed_flops_op[i].begin(), computed_flops_op[i].end());
+        vector<int> diffs = {
+            computed_flops_op[i][0]-(-1),
+            computed_flops_op[i][1]-computed_flops_op[i][0],
+            computed_flops_op[i][2]-computed_flops_op[i][1],
+            computed_flops_op[i][0]+computed_flops_op[i][1]+computed_flops_op[i][2]
+        };
+        computed_features_op.push_back(diffs);
+	}
   }
 pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
-
+    cout << "in flopbuckets" << endl;
     sort(flop.begin(), flop.end());
     vector<int> swaps;
     for (int i=0; i<13; i++) {
@@ -158,7 +168,7 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
     }
     for (auto c : flop) 
       cout << c << " ";
-    cout << '\n';
+    cout << endl;
     vector<int> flop_features = {
         flop[0]-(-1),
         flop[1]-flop[0],
@@ -293,7 +303,7 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
     int closest_dist = INT_MAX;
     int best_flop_index = -1;
     if (isInPosition) {
-        for (int i=2; i<computed_features_ip.size(); i++) {
+        for (int i=2; i<computed_flops_ip.size(); i++) {
             int dist = (flop_features[0]-computed_features_ip[i][0])*(flop_features[0]-computed_features_ip[i][0]);
             dist += (flop_features[1]-computed_features_ip[i][1])*(flop_features[1]-computed_features_ip[i][1]);
             dist += (flop_features[2]-computed_features_ip[i][2])*(flop_features[2]-computed_features_ip[i][2]);
@@ -305,7 +315,7 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
         }
     }
     else {
-        for (int i=2; i<computed_features_op.size(); i++) {
+        for (int i=2; i<computed_flops_op.size(); i++) {
             int dist = (flop_features[0]-computed_features_op[i][0])*(flop_features[0]-computed_features_op[i][0]);
             dist += (flop_features[1]-computed_features_op[i][1])*(flop_features[1]-computed_features_op[i][1]);
             dist += (flop_features[2]-computed_features_op[i][2])*(flop_features[2]-computed_features_op[i][2]);
@@ -457,264 +467,265 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
     }
 
     if (street == 0) {
-      // PREFLOP
-      preflop++;
-      if (bigBlind) { // bigblind
-        if (preflop == 1) {
-          // sb limp/raise
-          if (oppPip == 2) { //limp
-            if (sb_rfi[preflop_chart_pos.first][preflop_chart_pos.second]) {
-              return {Action::Type::RAISE, 3};
-            }
-            else {
-              return {Action::Type::CHECK};
-            }
-          }
-          else {
-            double rand = helper_func::random_real();
-            float prob_3bet = bb_vs_2bet[preflop_chart_pos.first][preflop_chart_pos.second].first;
-            float prob_call = bb_vs_2bet[preflop_chart_pos.first][preflop_chart_pos.second].second + prob_3bet;
-            if (rand <= prob_3bet) {
-              auto raiseBounds = roundState->raiseBounds();
-              minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
-              maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
-              int raise = 4*oppPip;
-              return {Action::Type::RAISE, max(min(maxCost, raise), minCost)};
-            }
-            else if (rand <= prob_call) {
-              return {Action::Type::CALL};
-            }
-            else {
-              return {Action::Type::FOLD};
-            }
-          }
-        }
-        else if (preflop == 2) {
-          // sb 4bets
-          double rand = helper_func::random_real();
-          float prob_5bet = bb_vs_4bet[preflop_chart_pos.first][preflop_chart_pos.second].first;
-          float prob_call = bb_vs_4bet[preflop_chart_pos.first][preflop_chart_pos.second].second + prob_5bet;
-          if (rand <= prob_5bet) {
-            auto raiseBounds = roundState->raiseBounds();
-            minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
-            maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
-            return {Action::Type::RAISE, maxCost};
-          }
-          else if (rand <= prob_call) {
-            return {Action::Type::CALL};
-          }
-          else {
-            return {Action::Type::FOLD};
-          }
-        }
-        // should never get here
-        return {Action::Type::FOLD};
-      }
-      else { // smallblind
-        if (preflop == 1) {
-          if (sb_rfi[preflop_chart_pos.first][preflop_chart_pos.second]) {
-            return {Action::Type::RAISE, 5};
-          }
-          else {
-            return {Action::Type::FOLD};
-          }
-        }
-        else if (preflop == 2) { // bb 3bet
-          double rand = helper_func::random_real();
-          float prob_4bet = sb_vs_3bet[preflop_chart_pos.first][preflop_chart_pos.second].first;
-          float prob_call = sb_vs_3bet[preflop_chart_pos.first][preflop_chart_pos.second].second + prob_4bet;
-          if (rand <= prob_4bet) {
-            auto raiseBounds = roundState->raiseBounds();
-            minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
-            maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
-            int raise = 2.2*oppPip;
-            return {Action::Type::RAISE, max(min(maxCost, raise), minCost)};
-          }
-          else if (rand <= prob_call) {
-            return {Action::Type::CALL};
-          }
-          else {
-            return {Action::Type::FOLD};
-          }
-        }
-        else {
-          // bb 5bet
-          vector<pair<int,int>> call5bet = {{0,0}, {0,1}, {1,0}, {1,1}, {2,2}, {3,3}};
-          if (find(call5bet.begin(), call5bet.end(), preflop_chart_pos) != call5bet.end()) {
-            return {Action::Type::CALL};
-          }
-          else {
-            return {Action::Type::FOLD};
-          }
-        }
-      }
+    	// PREFLOP
+    	preflop++;
+    	if (bigBlind) { // bigblind
+    		if (preflop == 1) {
+          		// sb limp/raise
+          		if (oppPip == 2) { //limp
+            		if (sb_rfi[preflop_chart_pos.first][preflop_chart_pos.second]) {
+              			return {Action::Type::RAISE, 3};
+    		        }
+					else {
+					return {Action::Type::CHECK};
+					}
+          		}
+				else {
+					double rand = helper_func::random_real();
+					float prob_3bet = bb_vs_2bet[preflop_chart_pos.first][preflop_chart_pos.second].first;
+					float prob_call = bb_vs_2bet[preflop_chart_pos.first][preflop_chart_pos.second].second + prob_3bet;
+					if (rand <= prob_3bet) {
+						auto raiseBounds = roundState->raiseBounds();
+						minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+						maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+						int raise = 4*oppPip;
+						return {Action::Type::RAISE, max(min(maxCost, raise), minCost)};
+					}
+					else if (rand <= prob_call) {
+						return {Action::Type::CALL};
+					}
+					else {
+						return {Action::Type::FOLD};
+					}
+          		}
+       		}
+			else if (preflop == 2) {
+				// sb 4bets
+				double rand = helper_func::random_real();
+				float prob_5bet = bb_vs_4bet[preflop_chart_pos.first][preflop_chart_pos.second].first;
+				float prob_call = bb_vs_4bet[preflop_chart_pos.first][preflop_chart_pos.second].second + prob_5bet;
+				if (rand <= prob_5bet) {
+					auto raiseBounds = roundState->raiseBounds();
+					minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+					maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+					return {Action::Type::RAISE, maxCost};
+				}
+				else if (rand <= prob_call) {
+					return {Action::Type::CALL};
+				}
+				else {
+					return {Action::Type::FOLD};
+				}
+			}
+			// should never get here
+			return {Action::Type::FOLD};
+		}
+      	else { // smallblind
+        	if (preflop == 1) {
+          		if (sb_rfi[preflop_chart_pos.first][preflop_chart_pos.second]) {
+            		return {Action::Type::RAISE, 5};
+          		}
+          		else {
+            		return {Action::Type::FOLD};
+          		}
+        	}
+			else if (preflop == 2) { // bb 3bet
+				double rand = helper_func::random_real();
+				float prob_4bet = sb_vs_3bet[preflop_chart_pos.first][preflop_chart_pos.second].first;
+				float prob_call = sb_vs_3bet[preflop_chart_pos.first][preflop_chart_pos.second].second + prob_4bet;
+				if (rand <= prob_4bet) {
+					auto raiseBounds = roundState->raiseBounds();
+					minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+					maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+					int raise = 2.2*oppPip;
+					return {Action::Type::RAISE, max(min(maxCost, raise), minCost)};
+				}
+				else if (rand <= prob_call) {
+					return {Action::Type::CALL};
+				}
+				else {
+					return {Action::Type::FOLD};
+				}
+			}
+			else {
+				// bb 5bet
+				vector<pair<int,int>> call5bet = {{0,0}, {0,1}, {1,0}, {1,1}, {2,2}, {3,3}};
+				if (find(call5bet.begin(), call5bet.end(), preflop_chart_pos) != call5bet.end()) {
+					return {Action::Type::CALL};
+				}
+				else {
+					return {Action::Type::FOLD};
+				}
+			}
+      	}
     }
     else if (street == 3) {
-      if (legalActions.find(Action::Type::BID) != legalActions.end()) {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<int> bid_distribution(3*pot, 4*pot);
-        int bid = min(bid_distribution(gen), myStack);
-        return {Action::Type::BID, bid};
-      }
-      if (preAggression == -1) {
-        preAggression = pot;
-      }
-      if ((oppBid > myBid && bigBlind) || (myBid > oppBid && !bigBlind)) {
-        inpos = true;
-      } else {
-        inpos = false;
-      }
-      if (flop_bucketing.first == -2) {
-        vector<int> curFlop = {helper_func::card_to_num(boardCards[0])%13, helper_func::card_to_num(boardCards[1])%13, helper_func::card_to_num(boardCards[2])%13};
-        cout << "flop bouta bucket" << endl;
-        flop_bucketing = flopbuckets(curFlop, inpos);
-        cout << "flop bucked" << endl;
-        
-        if (flop_bucketing.first == -1) {
-          mustfold = true;
-          cout << "mustfold";
-        }
-        else {
-          cout << "first" << flop_bucketing.first << endl;
-            cur_flop = inpos ? computed_flops_ip[flop_bucketing.first] : computed_flops_op[flop_bucketing.first];
-        for (int i=0; i<3; i++) {
-          cout << cur_flop[i] << " ";
-        }
-        }
-        
-      }
-      // MONOTONE
-      if (boardCards[0][1] == boardCards[1][1] && boardCards[0][1] == boardCards[2][1]) {
-        flop_is_monotone = true;
-        cout << "MONOTONE" << " " << roundNum << endl;
-        char suit = boardCards[0][1];
-        if (oppBid > myBid) {
-          if (myCards[0][1] != suit && myCards[1][1] != suit) {
-            if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-              return {Action::Type::CHECK};
-            }
-            return {Action::Type::FOLD};
-          }
-          if (myCards[0][1] == suit && myCards[1][1] == suit) {
-            // hit flush
-            if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-              if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
-                auto raiseBounds = roundState->raiseBounds();
-                minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
-                maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
-                return {Action::Type::RAISE, min(max(int(minCost), int(pot/2)), int(maxCost))};
-              }
-              return {Action::Type::CHECK};
-            }
-            if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
-              return {Action::Type::CALL};
-            }
-          }
-          else {
-            if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-              return {Action::Type::CHECK};
-            }
-            char num = myCards[0][0];
-            if (myCards[1][1] == suit) {
-              num = myCards[1][0];
-            }
-            else if (myCards[2][1] == suit) {
-              num = myCards[2][0];
-            }
-            if (num == 'A' || num == 'K' || num == 'Q' || num == 'J') {
-              if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
-                return {Action::Type::CALL};
-              }
-            }
-            else {
-              return {Action::Type::FOLD};
-            }
-          }
-        }
-        else {
-          // 3 cards
-          int hits = (suit==myCards[0][1])+(suit==myCards[1][1])+(suit==myCards[2][1]);
-          if (hits >= 2) {
-            if (bigBlind) {
-              if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
-                auto raiseBounds = roundState->raiseBounds();
-                minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
-                maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
-                return {Action::Type::RAISE, min(max(int(minCost), int(pot*4/10)), int(maxCost))};
-              } else if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
-                return {Action::Type::CALL};
+		if (legalActions.find(Action::Type::BID) != legalActions.end()) {
+			std::random_device rd;
+			std::mt19937 gen(rd());
+			std::uniform_int_distribution<int> bid_distribution(3*pot, 4*pot);
+			int bid = min(bid_distribution(gen), myStack);
+			return {Action::Type::BID, bid};
+		}
+      	if (preAggression == -1) {
+        	preAggression = pot;
+      	}
+      	if ((oppBid > myBid && bigBlind) || (myBid > oppBid && !bigBlind)) {
+        	inpos = true;
+      	}
+		else {
+        	inpos = false;
+      	}
+      	if (flop_bucketing.first == -2) {
+			vector<int> curFlop = {helper_func::card_to_num(boardCards[0])%13, helper_func::card_to_num(boardCards[1])%13, helper_func::card_to_num(boardCards[2])%13};
+			cout << "flop bouta bucket" << endl;
+			flop_bucketing = flopbuckets(curFlop, inpos);
+			cout << "flop bucked" << endl;
 
-              }
-            }
-            else {
-              if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
-                return {Action::Type::CALL};
-              }
-              if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
-                auto raiseBounds = roundState->raiseBounds();
-                minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
-                maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
-                return {Action::Type::RAISE, min(max(int(minCost), int(pot*4/10)), int(maxCost))};
-              }
-              if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-                return {Action::Type::CHECK};
-              }
-            }
-          }
-          else if (hits == 1) {
-            char num = myCards[0][0];
-            if (myCards[1][1] == suit) {
-              num = myCards[1][0];
-            }
-            else if (myCards[2][1] == suit) {
-              num = myCards[2][0];
-            }
-            if (num == 'A' || num == 'K' || num == 'Q' || num == 'J') {
-              if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
-                return {Action::Type::CALL};
-              }
-              if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
-                auto raiseBounds = roundState->raiseBounds();
-                minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
-                maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
-                return {Action::Type::RAISE, min(max(int(minCost), int(pot*4/10)), int(maxCost))};
-              }
-              if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-                return {Action::Type::CHECK};
-              }
-            }
-            else {
-              if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
-                return {Action::Type::CALL};
-              }
-              if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
-                auto raiseBounds = roundState->raiseBounds();
-                minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
-                maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
-                return {Action::Type::RAISE, min(max(int(minCost), int(pot*4/10)), int(maxCost))};
-              }
-              if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-                return {Action::Type::CHECK};
-              }
-            }
-          }
-          else {
-            if (continueCost > 0) {
-              return {Action::Type::FOLD};
-            }
-            if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
-              auto raiseBounds = roundState->raiseBounds();
-              minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
-              maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
-              return {Action::Type::RAISE, min(max(int(minCost), int(pot/3)), int(maxCost))};
-            }
-            if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-              return {Action::Type::CHECK};
-            }
-          }
-        }
-      }
+			cout << flop_bucketing.first;
+			if (flop_bucketing.first == -1) {
+				mustfold = true;
+				if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+					return {Action::Type::CHECK};
+				}
+				return {Action::Type::FOLD};
+			}
+			else {
+				cur_flop = inpos ? computed_flops_ip[flop_bucketing.first] : computed_flops_op[flop_bucketing.first];
+			}
+        	cout << "done with all bucketing" << endl;
+      	}
+      	// MONOTONE
+      	if (boardCards[0][1] == boardCards[1][1] && boardCards[0][1] == boardCards[2][1]) {
+        	flop_is_monotone = true;
+        	cout << "MONOTONE" << " " << roundNum << endl;
+        	char suit = boardCards[0][1];
+        	if (oppBid > myBid) {
+          		if (myCards[0][1] != suit && myCards[1][1] != suit) {
+            		if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+              			return {Action::Type::CHECK};
+            		}
+            		return {Action::Type::FOLD};
+          		}
+				if (myCards[0][1] == suit && myCards[1][1] == suit) {
+					// hit flush
+					if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+						if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
+							auto raiseBounds = roundState->raiseBounds();
+							minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+							maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+							return {Action::Type::RAISE, min(max(int(minCost), int(pot/2)), int(maxCost))};
+						}
+						return {Action::Type::CHECK};
+					}
+					if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
+						return {Action::Type::CALL};
+					}
+				}
+				else {
+					if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+						return {Action::Type::CHECK};
+					}
+					char num = myCards[0][0];
+					if (myCards[1][1] == suit) {
+						num = myCards[1][0];
+					}
+					else if (myCards[2][1] == suit) {
+						num = myCards[2][0];
+					}
+					if (num == 'A' || num == 'K' || num == 'Q' || num == 'J') {
+						if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
+							return {Action::Type::CALL};
+						}
+					}
+					else {
+						return {Action::Type::FOLD};
+					}
+				}
+			}
+        	else {
+          		// 3 cards
+          		int hits = (suit==myCards[0][1])+(suit==myCards[1][1])+(suit==myCards[2][1]);
+          		if (hits >= 2) {
+            		if (bigBlind) {
+              			if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
+                			auto raiseBounds = roundState->raiseBounds();
+							minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+							maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+							return {Action::Type::RAISE, min(max(int(minCost), int(pot*4/10)), int(maxCost))};
+              			}
+						else if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
+                			return {Action::Type::CALL};
+						}
+            		}
+					else {
+						if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
+							return {Action::Type::CALL};
+						}
+						if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
+							auto raiseBounds = roundState->raiseBounds();
+							minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+							maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+							return {Action::Type::RAISE, min(max(int(minCost), int(pot*4/10)), int(maxCost))};
+						}
+						if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+							return {Action::Type::CHECK};
+						}
+					}
+				}
+				else if (hits == 1) {
+					char num = myCards[0][0];
+					if (myCards[1][1] == suit) {
+						num = myCards[1][0];
+					}
+					else if (myCards[2][1] == suit) {
+						num = myCards[2][0];
+					}
+					if (num == 'A' || num == 'K' || num == 'Q' || num == 'J') {
+						if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
+							return {Action::Type::CALL};
+						}
+						if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
+							auto raiseBounds = roundState->raiseBounds();
+							minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+							maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+							return {Action::Type::RAISE, min(max(int(minCost), int(pot*4/10)), int(maxCost))};
+						}
+						if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+							return {Action::Type::CHECK};
+						}
+					}
+					else {
+						if (legalActions.find(Action::Type::CALL) != legalActions.end()) {
+							return {Action::Type::CALL};
+						}
+						if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
+							auto raiseBounds = roundState->raiseBounds();
+							minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+							maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+							return {Action::Type::RAISE, min(max(int(minCost), int(pot*4/10)), int(maxCost))};
+						}
+						if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+							return {Action::Type::CHECK};
+						}
+					}
+				}
+				else {
+					if (continueCost > 0) {
+						return {Action::Type::FOLD};
+					}
+					if (legalActions.find(Action::Type::RAISE) != legalActions.end()) {
+						auto raiseBounds = roundState->raiseBounds();
+						minCost = raiseBounds[0] - myPip;  // the cost of a minimum bet/raise
+						maxCost = raiseBounds[1] - myPip;  // the cost of a maximum bet/raise
+						return {Action::Type::RAISE, min(max(int(minCost), int(pot/3)), int(maxCost))};
+					}
+					if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+						return {Action::Type::CHECK};
+					}
+				}
+        	}
+      	}
       else {
         // FLOP
         // RAINBOW
@@ -800,8 +811,6 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
             }
           }
         }}
-
-
       }
     else if (street == 4) {
       if (flop_is_monotone) {
@@ -905,144 +914,146 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
       }
     else { // street == 5
       // facing agression vs agressor
-  //     std::vector<int>* board = new std::vector<int>();
-  //     std::vector<int>* hand = new std::vector<int>();
-  //     std::vector<int>* total = new std::vector<int>();
+      std::vector<int>* board = new std::vector<int>();
+      std::vector<int>* hand = new std::vector<int>();
+      std::vector<int>* total = new std::vector<int>();
 
 
-  //     for(int i = 0; i < 5; i++){
-  //       board->push_back(helper_func::card_to_num(boardCards[i]));
-  //       total->push_back(helper_func::card_to_num(boardCards[i]));
-  //     }
+      for(int i = 0; i < 5; i++){
+        board->push_back(helper_func::card_to_num(boardCards[i]));
+        total->push_back(helper_func::card_to_num(boardCards[i]));
+      }
 
 
-  //     for(int i = 0; i < (oppBid > myBid ? 2 : 3); i++){
-  //       hand->push_back(helper_func::card_to_num(myCards[i]));
-  //       total->push_back(helper_func::card_to_num(myCards[i]));
-  //     }
+      for(int i = 0; i < (oppBid > myBid ? 2 : 3); i++){
+        hand->push_back(helper_func::card_to_num(myCards[i]));
+        total->push_back(helper_func::card_to_num(myCards[i]));
+      }
 
 
-  //     int hand_strength = helper_func::eight_eval_suit(*total);
-  //     int hand_type_num = hand_strength / (13*13*13*13*13);
-  //     float handEquity = helper_func::get_equity(*board, *hand);
-  //     bool canCheck = legalActions.find(Action::Type::CHECK) != legalActions.end();
-  //     int aggressionLevel = -1;
-  //     if(aggressionLevel == -1){
-  //       aggressionLevel = pot / preAggression;
-  //     }
-  //     if(hand_type_num == 8){ //The nuts
-  //       return {Action::Type::RAISE, pot / 2};
-  //     }
+      int hand_strength = helper_func::eight_eval_suit(*total);
+      int hand_type_num = hand_strength / (13*13*13*13*13);
+      float handEquity = helper_func::get_equity(*board, *hand);
+      bool canCheck = legalActions.find(Action::Type::CHECK) != legalActions.end();
+      int aggressionLevel = -1;
+      if(aggressionLevel == -1){
+        aggressionLevel = pot / preAggression;
+      }
+      if(hand_type_num == 8){ //The nuts
+        return {Action::Type::RAISE, pot / 2};
+      }
 
 
-  //     if(hand_type_num == 7){ //Good unless board quad which is unlikely
-  //       if(handEquity >= .65){
-  //         return {Action::Type::RAISE, pot / 2};
-  //       } else{
-  //         if(canCheck){
-  //           return {Action::Type::CHECK};
-  //         }else{
-  //           return {Action::Type::FOLD};
-  //         }
-  //       }
-  //     }
+      if(hand_type_num == 7){ //Good unless board quad which is unlikely
+        if(handEquity >= .65){
+          return {Action::Type::RAISE, pot / 2};
+        } else{
+          if(canCheck){
+            return {Action::Type::CHECK};
+          }else{
+            return {Action::Type::FOLD};
+          }
+        }
+      }
 
 
-  //     if(hand_type_num == 6){ // Bet for equity scared of better full house combos if lower equity
-  //       if(handEquity >= .7){
-  //         return {Action::Type::RAISE, pot / 2};
-  //       }else{
-  //         if(canCheck){
-  //           return {Action::Type::CHECK};
-  //         }else{
-  //           return {Action::Type::FOLD};
-  //         }
-  //       }
-  //     }
+      if(hand_type_num == 6){ // Bet for equity scared of better full house combos if lower equity
+        if(handEquity >= .7){
+          return {Action::Type::RAISE, pot / 2};
+        }else{
+          if(canCheck){
+            return {Action::Type::CHECK};
+          }else{
+            return {Action::Type::FOLD};
+          }
+        }
+      }
 
 
-  //     if(hand_type_num == 5){
-  //       if(handEquity >= .7){
-  //         return {Action::Type::RAISE, pot / 2};
-  //       }else{
-  //         if(canCheck){
-  //           return {Action::Type::CHECK};
-  //         }else{
-  //           if(aggressionLevel >= 5){
-  //             return {Action::Type::FOLD};
-  //           }
-  //         }
-  //       }
-  //     }
+      if(hand_type_num == 5){
+        if(handEquity >= .7){
+          return {Action::Type::RAISE, pot / 2};
+        }else{
+          if(canCheck){
+            return {Action::Type::CHECK};
+          }else{
+            if(aggressionLevel >= 5){
+              return {Action::Type::FOLD};
+            }
+          }
+        }
+      }
 
 
-  //     if(hand_type_num == 4){
-  //       if(handEquity >= .8){
-  //         return {Action::Type::RAISE, pot / 2};
-  //       }else{
-  //         if(canCheck){
-  //           return {Action::Type::CHECK};
-  //         }else{
-  //           if(aggressionLevel >= 5){
-  //             return {Action::Type::FOLD};
-  //           }
-  //         }
-  //       }
-  //     }
+      if(hand_type_num == 4){
+        if(handEquity >= .8){
+          return {Action::Type::RAISE, pot / 2};
+        }else{
+          if(canCheck){
+            return {Action::Type::CHECK};
+          }else{
+            if(aggressionLevel >= 5){
+              return {Action::Type::FOLD};
+            }
+          }
+        }
+      }
 
 
-  //     if(hand_type_num == 3){
-  //       if(handEquity >= .75){
-  //         return {Action::Type::RAISE, pot / 2};
-  //       }else{
-  //         if(canCheck){
-  //           return {Action::Type::CHECK};
-  //         }else{
-  //           return {Action::Type::FOLD};
-  //         }
-  //       }
-  //     }
+      if(hand_type_num == 3){
+        if(handEquity >= .75){
+          return {Action::Type::RAISE, pot / 2};
+        }else{
+          if(canCheck){
+            return {Action::Type::CHECK};
+          }else{
+            return {Action::Type::FOLD};
+          }
+        }
+      }
 
 
-  //     if(hand_type_num == 2){
-  //       if(handEquity >= .7){
-  //         return {Action::Type::RAISE, pot / 2};
-  //       }else{
-  //         if(canCheck){
-  //           return {Action::Type::CHECK};
-  //         }else{
-  //           return {Action::Type::FOLD};
-  //         }
-  //       }
-  //     }
+      if(hand_type_num == 2){
+        if(handEquity >= .7){
+          return {Action::Type::RAISE, pot / 2};
+        }else{
+          if(canCheck){
+            return {Action::Type::CHECK};
+          }else{
+            return {Action::Type::FOLD};
+          }
+        }
+      }
 
 
-  //     if(hand_type_num == 1){
-  //       if(!canCheck){
-  //         if(handEquity >= .75){
-  //           return {Action::Type::CALL};
-  //         }
-  //         return {Action::Type::FOLD};
-  //       }
+      if(hand_type_num == 1){
+        if(!canCheck){
+          if(handEquity >= .75){
+            return {Action::Type::CALL};
+          }
+          return {Action::Type::FOLD};
+        }
 
 
-  //     if(handEquity >= .75){
-  //       return {Action::Type::RAISE, pot / 2};
-  //     }else{
-  //       return {Action::Type::CHECK};
-  //     }
-  //   }
-  //   else{
-  //     return {Action::Type::FOLD};
-  //   }
-  // }
+      if(handEquity >= .75){
+        return {Action::Type::RAISE, pot / 2};
+      }else{
+        return {Action::Type::CHECK};
+      }
+    }
+    else{
+      return {Action::Type::FOLD};
+    }
+  }
     if (legalActions.find(Action::Type::FOLD) != legalActions.end()) {
       return {Action::Type::FOLD};
     } else {
       return {Action::Type::CHECK};
 
     }
-    }}
+    }
+	return {Action::Type::FOLD};
+	}
 };
 
 /*

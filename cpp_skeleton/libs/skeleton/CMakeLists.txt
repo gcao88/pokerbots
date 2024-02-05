@@ -9,7 +9,7 @@ target_include_directories(skeleton PUBLIC ${PROJECT_SOURCE_DIR}/include)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREAD OFF)
 
-find_package(Boost REQUIRED date_time system)
+find_package(Boost REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIR})
 target_link_libraries(skeleton PUBLIC ${Boost_SYSTEM_LIBRARY})
