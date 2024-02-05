@@ -54,13 +54,13 @@ struct Bot {
   bool mustfold;
 
   Bot() {
-    cout << "FUCK" << endl;
     import_preflop();
-    post_flop_data = get_data_69();
     cout << "preflop loaded in" << endl;
     preflop = 0;
     compute_diffs();
-
+	post_flop_data = get_data_69();
+	cout << "postflop loaded in" << endl;
+	cout << "Bot done initializing (once only)" << endl;
   }
   void import_preflop_floats(string filepath, vector<vector<pair<float, float>>>* vec_ptr) {
       ifstream inputFile(filepath);
@@ -160,15 +160,11 @@ struct Bot {
 	}
   }
 pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
-    cout << "in flopbuckets" << endl;
     sort(flop.begin(), flop.end());
     vector<int> swaps;
     for (int i=0; i<13; i++) {
         swaps.push_back(i);
     }
-    for (auto c : flop) 
-      cout << c << " ";
-    cout << endl;
     vector<int> flop_features = {
         flop[0]-(-1),
         flop[1]-flop[0],
@@ -578,11 +574,7 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
       	}
       	if (flop_bucketing.first == -2) {
 			vector<int> curFlop = {helper_func::card_to_num(boardCards[0])%13, helper_func::card_to_num(boardCards[1])%13, helper_func::card_to_num(boardCards[2])%13};
-			cout << "flop bouta bucket" << endl;
 			flop_bucketing = flopbuckets(curFlop, inpos);
-			cout << "flop bucked" << endl;
-
-			cout << flop_bucketing.first;
 			if (flop_bucketing.first == -1) {
 				mustfold = true;
 				if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
@@ -592,8 +584,9 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
 			}
 			else {
 				cur_flop = inpos ? computed_flops_ip[flop_bucketing.first] : computed_flops_op[flop_bucketing.first];
+				cout << "flop bucketed" << endl;
+				cout << curFlop[0] << " " << curFlop[1] << " " << curFlop[2] << " to " << cur_flop[0] << " " << cur_flop[1] << " " << cur_flop[2] << endl;
 			}
-        	cout << "done with all bucketing" << endl;
       	}
       	// MONOTONE
       	if (boardCards[0][1] == boardCards[1][1] && boardCards[0][1] == boardCards[2][1]) {
@@ -726,10 +719,8 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
 				}
         	}
       	}
-      	else {
-			// FLOP
-			// RAINBOW
-			// (OR TWOTONE)
+      	// RAINBOW OR TWO TONE
+		else {
 			if (bigBlind) {
           		if (continueCost > 0) { // they raised on us
 					if (history.back() == 'C') {
@@ -737,18 +728,19 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
 					} else {
 						history += classifyraise();
             		}
+					cout << history.back() << endl;
 					if (history.back() == 'C') {
-					return {Action::Type::CALL};
+						return {Action::Type::CALL};
 					}
 					string next_action = get_action(post_flop_data, history, cur_flop, inpos);
 					if (next_action == ".") {
-					return {Action::Type::FOLD};
+						return {Action::Type::FOLD};
 					} else if (next_action == "C") {
-					return {Action::Type::CALL};
+						return {Action::Type::CALL};
 					} else if (next_action == "^") {
-					return {Action::Type::RAISE, 3 * oppPip};
+						return {Action::Type::RAISE, 3 * oppPip};
 					} else if (next_action == "A") {
-					return {Action::Type::RAISE, min(myStack, oppStack)};
+						return {Action::Type::RAISE, min(myStack, oppStack)};
 					}
           		} else {
 					string next_action = get_action(post_flop_data, history, cur_flop, inpos);

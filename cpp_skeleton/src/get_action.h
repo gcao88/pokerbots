@@ -9,7 +9,6 @@
 using namespace std; 
 
 string get_action(unordered_map<string, string> &mp, string history, vector<int> flop, bool ip) {
-    cout << "HELLO\n";
     auto new_flop = flop; 
     // cout << "HELLO\n";
     string names = "23456789TJQKA"; 

@@ -73,8 +73,8 @@ unordered_map<string, string> get_data_69() {
 
     for (string file : files) {
         cout << file << "\n";
-        ifstream fin("src/cfr_data/" + file); 
-        string key1 = file.substr(10, 3) + file.substr(14, 2); 
+        ifstream fin(file);
+        string key1 = file.substr(23, 3) + file.substr(27, 2); 
         string curline = "";
         while (getline(fin, curline)) {
             // cout << curline << endl;
