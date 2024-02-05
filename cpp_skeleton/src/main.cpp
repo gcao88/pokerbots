@@ -726,334 +726,314 @@ pair<int, vector<int>> flopbuckets(vector<int> flop, int isInPosition) {
 				}
         	}
       	}
-      else {
-        // FLOP
-        // RAINBOW
-        // (OR TWOTONE)
-        if (bigBlind) {
-          if (continueCost > 0) { // they raised on us
-            if (history.back() == 'C') {
-              history += classifybet();
-            } else {
-              history += classifyraise();
-            }
-            if (history.back() == 'C') {
-              return {Action::Type::CALL};
-            }
-            string next_action = get_action(post_flop_data, history, cur_flop, inpos);
-            if (next_action == ".") {
-              return {Action::Type::FOLD};
-            } else if (next_action == "C") {
-              return {Action::Type::CALL};
-            } else if (next_action == "^") {
-              return {Action::Type::RAISE, 3 * oppPip};
-            } else if (next_action == "A") {
-              return {Action::Type::RAISE, min(myStack, oppStack)};
-            }
-          } else {
-          string next_action = get_action(post_flop_data, history, cur_flop, inpos);
-          if (next_action == ".") {
-            return {Action::Type::FOLD};
-          } else if (next_action == "C") {
-            return {Action::Type::CALL};
-          } else if (next_action == "^") {
-            return {Action::Type::RAISE, 3 * oppPip};
-          } else if (next_action == "A") {
-            return {Action::Type::RAISE, min(myStack, oppStack)};
-          } else {
-            if (legalActions.find(Action::Type::FOLD) != legalActions.end())
-              return {Action::Type::FOLD};
-            return {Action::Type::CHECK};
-          }
-        } }
-        else {
-          if (continueCost > 0) {
-            if (history.back() == 'C') {
-              history += classifybet();
-            } else if(history.back() == '^'){
-              history += 'A';
-            } else {
-              history += classifyraise();
-            }
-            if (history.back() == 'C') {
-              return {Action::Type::CALL};
-            }
-            string next_action = get_action(post_flop_data, history, cur_flop, inpos);
-            if (next_action == ".") {
-              return {Action::Type::FOLD};
-            } else if (next_action == "C") {
-              return {Action::Type::CALL};
-            } else if (next_action == "^") {
-              return {Action::Type::RAISE, 3 * oppPip};
-            } else if (next_action == "A") {
-              return {Action::Type::RAISE, min(myStack, oppStack)};
-            } else {
-              if (legalActions.find(Action::Type::FOLD) != legalActions.end())
-                return {Action::Type::FOLD};
-              return {Action::Type::CHECK};
-            }
-          } else {
-            string next_action = get_action(post_flop_data, history, cur_flop, inpos);
-            if (next_action == ".") {
-              return {Action::Type::FOLD};
-            } else if (next_action == "C") {
-              return {Action::Type::CALL};
-            } else if (next_action == "H") {
-              return {Action::Type::RAISE, pot / 2};
-            } else if (next_action == "P") {
-              return {Action::Type::RAISE, pot};
-            }  else if (next_action == "A") {
-              return {Action::Type::RAISE, min(myStack, oppStack)};
-            } else {
-              if (legalActions.find(Action::Type::FOLD) != legalActions.end())
-                return {Action::Type::FOLD};
-              return {Action::Type::CHECK};
-            }
-          }
-        }}
-      }
+      	else {
+			// FLOP
+			// RAINBOW
+			// (OR TWOTONE)
+			if (bigBlind) {
+          		if (continueCost > 0) { // they raised on us
+					if (history.back() == 'C') {
+						history += classifybet();
+					} else {
+						history += classifyraise();
+            		}
+					if (history.back() == 'C') {
+					return {Action::Type::CALL};
+					}
+					string next_action = get_action(post_flop_data, history, cur_flop, inpos);
+					if (next_action == ".") {
+					return {Action::Type::FOLD};
+					} else if (next_action == "C") {
+					return {Action::Type::CALL};
+					} else if (next_action == "^") {
+					return {Action::Type::RAISE, 3 * oppPip};
+					} else if (next_action == "A") {
+					return {Action::Type::RAISE, min(myStack, oppStack)};
+					}
+          		} else {
+					string next_action = get_action(post_flop_data, history, cur_flop, inpos);
+					if (next_action == ".") {
+						return {Action::Type::FOLD};
+					} else if (next_action == "C") {
+						return {Action::Type::CALL};
+					} else if (next_action == "^") {
+						return {Action::Type::RAISE, 3 * oppPip};
+					} else if (next_action == "A") {
+						return {Action::Type::RAISE, min(myStack, oppStack)};
+					} else {
+						if (legalActions.find(Action::Type::FOLD) != legalActions.end())
+						return {Action::Type::FOLD};
+						return {Action::Type::CHECK};
+					}
+        		}
+			}
+        	else {
+          		if (continueCost > 0) {
+					if (history.back() == 'C') {
+						history += classifybet();
+					} else if(history.back() == '^'){
+						history += 'A';
+					} else {
+						history += classifyraise();
+					}
+					if (history.back() == 'C') {
+						return {Action::Type::CALL};
+					}
+					string next_action = get_action(post_flop_data, history, cur_flop, inpos);
+					if (next_action == ".") {
+						return {Action::Type::FOLD};
+					} else if (next_action == "C") {
+						return {Action::Type::CALL};
+					} else if (next_action == "^") {
+						return {Action::Type::RAISE, 3 * oppPip};
+					} else if (next_action == "A") {
+						return {Action::Type::RAISE, min(myStack, oppStack)};
+					} else {
+						if (legalActions.find(Action::Type::FOLD) != legalActions.end())
+							return {Action::Type::FOLD};
+						return {Action::Type::CHECK};
+					}
+          		} else {
+					string next_action = get_action(post_flop_data, history, cur_flop, inpos);
+					if (next_action == ".") {
+						return {Action::Type::FOLD};
+					} else if (next_action == "C") {
+						return {Action::Type::CALL};
+					} else if (next_action == "H") {
+						return {Action::Type::RAISE, pot / 2};
+					} else if (next_action == "P") {
+						return {Action::Type::RAISE, pot};
+					}  else if (next_action == "A") {
+						return {Action::Type::RAISE, min(myStack, oppStack)};
+					} else {
+						if (legalActions.find(Action::Type::FOLD) != legalActions.end())
+							return {Action::Type::FOLD};
+						return {Action::Type::CHECK};
+					}
+          		}
+        	}
+		}
+    }
     else if (street == 4) {
-      if (flop_is_monotone) {
-        if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-          return {Action::Type::CHECK};
-        }
-        else {
-          if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
-            return {Action::Type::CHECK};
-          }
-          return {Action::Type::FOLD};
-        }
-      }
-      else {
-        if (bigBlind) {
-          if (continueCost > 0) { // they raised on us
-            if (history.back() == 'C') {
-              history += classifybet();
-            } else {
-              history += classifyraise();
-            }
-            if (history.back() == 'C') {
-              return {Action::Type::CALL};
-            }
-            string next_action = get_action(post_flop_data, history, cur_flop, inpos);
-            if (next_action == ".") {
-              return {Action::Type::FOLD};
-            } else if (next_action == "C") {
-              return {Action::Type::CALL};
-            } else if (next_action == "^") {
-              return {Action::Type::RAISE, 3 * oppPip};
-            } else if (next_action == "A") {
-              return {Action::Type::RAISE, min(myStack, oppStack)};
-            }
-          } else {
-          string next_action = get_action(post_flop_data, history, cur_flop, inpos);
-          if (next_action == ".") {
-            return {Action::Type::FOLD};
-          } else if (next_action == "C") {
-            return {Action::Type::CALL};
-          } else if (next_action == "^") {
-            return {Action::Type::RAISE, 3 * oppPip};
-          } else if (next_action == "A") {
-            return {Action::Type::RAISE, min(myStack, oppStack)};
-          } else {
-            if (legalActions.find(Action::Type::FOLD) != legalActions.end())
-              return {Action::Type::FOLD};
-            return {Action::Type::CHECK};
-          }
-        } }
-        else {
-          if (continueCost > 0) {
-            if (history.back() == 'C') {
-              history += classifybet();
-            } else if(history.back() == '^'){
-              history += 'A';
-            } else {
-              history += classifyraise();
-            }
-            if (history.back() == 'C') {
-              return {Action::Type::CALL};
-            }
-            string next_action = get_action(post_flop_data, history, cur_flop, inpos);
-            if (next_action == ".") {
-              return {Action::Type::FOLD};
-            } else if (next_action == "C") {
-              return {Action::Type::CALL};
-            } else if (next_action == "^") {
-              return {Action::Type::RAISE, 3 * oppPip};
-            } else if (next_action == "A") {
-              return {Action::Type::RAISE, min(myStack, oppStack)};
-            } else {
-              if (legalActions.find(Action::Type::FOLD) != legalActions.end())
-                return {Action::Type::FOLD};
-              return {Action::Type::CHECK};
-            }
-          } else {
-            string next_action = get_action(post_flop_data, history, vector<int>{
-              helper_func::card_to_num(boardCards[0]) % 13,
-              helper_func::card_to_num(boardCards[1]) % 13,
-              helper_func::card_to_num(boardCards[2]) % 13
-
-            }, inpos);
-            if (next_action == ".") {
-              return {Action::Type::FOLD};
-            } else if (next_action == "C") {
-              return {Action::Type::CALL};
-            } else if (next_action == "H") {
-              return {Action::Type::RAISE, pot / 2};
-            } else if (next_action == "P") {
-              return {Action::Type::RAISE, pot};
-            }  else if (next_action == "A") {
-              return {Action::Type::RAISE, min(myStack, oppStack)};
-            } else {
-              if (legalActions.find(Action::Type::FOLD) != legalActions.end())
-                return {Action::Type::FOLD};
-              return {Action::Type::CHECK};
-            }
-          }
-        }}
-      }
+      	if (flop_is_monotone) {
+			if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+				return {Action::Type::CHECK};
+			}
+        	else {
+				if (legalActions.find(Action::Type::CHECK) != legalActions.end()) {
+					return {Action::Type::CHECK};
+				}
+          		return {Action::Type::FOLD};
+        	}
+      	}
+      	else {
+        	if (bigBlind) {
+          		if (continueCost > 0) { // they raised on us
+					if (history.back() == 'C') {
+						history += classifybet();
+					} else {
+						history += classifyraise();
+					}
+					if (history.back() == 'C') {
+						return {Action::Type::CALL};
+					}
+					string next_action = get_action(post_flop_data, history, cur_flop, inpos);
+					if (next_action == ".") {
+						return {Action::Type::FOLD};
+					} else if (next_action == "C") {
+						return {Action::Type::CALL};
+					} else if (next_action == "^") {
+						return {Action::Type::RAISE, 3 * oppPip};
+					} else if (next_action == "A") {
+						return {Action::Type::RAISE, min(myStack, oppStack)};
+					}
+          		} else {
+					string next_action = get_action(post_flop_data, history, cur_flop, inpos);
+					if (next_action == ".") {
+						return {Action::Type::FOLD};
+					} else if (next_action == "C") {
+						return {Action::Type::CALL};
+					} else if (next_action == "^") {
+						return {Action::Type::RAISE, 3 * oppPip};
+					} else if (next_action == "A") {
+						return {Action::Type::RAISE, min(myStack, oppStack)};
+					} else {
+						if (legalActions.find(Action::Type::FOLD) != legalActions.end())
+							return {Action::Type::FOLD};
+						return {Action::Type::CHECK};
+					}
+        		}
+			}
+        	else {
+          		if (continueCost > 0) {
+					if (history.back() == 'C') {
+						history += classifybet();
+					} else if(history.back() == '^'){
+						history += 'A';
+					} else {
+						history += classifyraise();
+					}
+					if (history.back() == 'C') {
+						return {Action::Type::CALL};
+					}
+					string next_action = get_action(post_flop_data, history, cur_flop, inpos);
+					if (next_action == ".") {
+						return {Action::Type::FOLD};
+					} else if (next_action == "C") {
+						return {Action::Type::CALL};
+					} else if (next_action == "^") {
+						return {Action::Type::RAISE, 3 * oppPip};
+					} else if (next_action == "A") {
+						return {Action::Type::RAISE, min(myStack, oppStack)};
+					} else {
+						if (legalActions.find(Action::Type::FOLD) != legalActions.end())
+							return {Action::Type::FOLD};
+						return {Action::Type::CHECK};
+					}
+          		} else {
+            		string next_action = get_action(post_flop_data, history, cur_flop, inpos);
+					if (next_action == ".") {
+						return {Action::Type::FOLD};
+					} else if (next_action == "C") {
+						return {Action::Type::CALL};
+					} else if (next_action == "H") {
+						return {Action::Type::RAISE, pot / 2};
+					} else if (next_action == "P") {
+						return {Action::Type::RAISE, pot};
+					}  else if (next_action == "A") {
+						return {Action::Type::RAISE, min(myStack, oppStack)};
+					} else {
+              			if (legalActions.find(Action::Type::FOLD) != legalActions.end())
+							return {Action::Type::FOLD};
+						return {Action::Type::CHECK};
+            		}
+          		}
+        	}
+		}
+    }
     else { // street == 5
-      // facing agression vs agressor
-      std::vector<int>* board = new std::vector<int>();
-      std::vector<int>* hand = new std::vector<int>();
-      std::vector<int>* total = new std::vector<int>();
+		// facing agression vs agressor
+		std::vector<int>* board = new std::vector<int>();
+		std::vector<int>* hand = new std::vector<int>();
+		std::vector<int>* total = new std::vector<int>();
 
+		for(int i = 0; i < 5; i++){
+			board->push_back(helper_func::card_to_num(boardCards[i]));
+			total->push_back(helper_func::card_to_num(boardCards[i]));
+		}
 
-      for(int i = 0; i < 5; i++){
-        board->push_back(helper_func::card_to_num(boardCards[i]));
-        total->push_back(helper_func::card_to_num(boardCards[i]));
-      }
+		for(int i = 0; i < (oppBid > myBid ? 2 : 3); i++){
+			hand->push_back(helper_func::card_to_num(myCards[i]));
+			total->push_back(helper_func::card_to_num(myCards[i]));
+		}
 
+		int hand_strength = helper_func::eight_eval_suit(*total);
+		int hand_type_num = hand_strength / (13*13*13*13*13);
+		float handEquity = helper_func::get_equity(*board, *hand);
+		bool canCheck = legalActions.find(Action::Type::CHECK) != legalActions.end();
+		int aggressionLevel = -1;
+		if(aggressionLevel == -1){
+			aggressionLevel = pot / preAggression;
+		}
+		if(hand_type_num == 8){ //The nuts
+			return {Action::Type::RAISE, pot / 2};
+		}
 
-      for(int i = 0; i < (oppBid > myBid ? 2 : 3); i++){
-        hand->push_back(helper_func::card_to_num(myCards[i]));
-        total->push_back(helper_func::card_to_num(myCards[i]));
-      }
+		if(hand_type_num == 7){ //Good unless board quad which is unlikely
+			if(handEquity >= .65){
+				return {Action::Type::RAISE, pot / 2};
+			} else{
+				if(canCheck){
+					return {Action::Type::CHECK};
+				}else{
+					return {Action::Type::FOLD};
+				}
+			}
+      	}
 
+		if(hand_type_num == 6){ // Bet for equity scared of better full house combos if lower equity
+			if(handEquity >= .7){
+				return {Action::Type::RAISE, pot / 2};
+			}else{
+				if(canCheck){
+					return {Action::Type::CHECK};
+				}else{
+					return {Action::Type::FOLD};
+				}
+			}
+		}
 
-      int hand_strength = helper_func::eight_eval_suit(*total);
-      int hand_type_num = hand_strength / (13*13*13*13*13);
-      float handEquity = helper_func::get_equity(*board, *hand);
-      bool canCheck = legalActions.find(Action::Type::CHECK) != legalActions.end();
-      int aggressionLevel = -1;
-      if(aggressionLevel == -1){
-        aggressionLevel = pot / preAggression;
-      }
-      if(hand_type_num == 8){ //The nuts
-        return {Action::Type::RAISE, pot / 2};
-      }
+		if(hand_type_num == 5){
+			if(handEquity >= .7){
+				return {Action::Type::RAISE, pot / 2};
+			}else{
+				if(canCheck){
+					return {Action::Type::CHECK};
+				}else{
+					if(aggressionLevel >= 5){
+						return {Action::Type::FOLD};
+					}
+				}
+			}
+		}
 
+		if(hand_type_num == 4){
+			if(handEquity >= .8){
+				return {Action::Type::RAISE, pot / 2};
+			}else{
+				if(canCheck){
+					return {Action::Type::CHECK};
+				}else{
+					if(aggressionLevel >= 5){
+						return {Action::Type::FOLD};
+					}
+				}
+			}
+		}
 
-      if(hand_type_num == 7){ //Good unless board quad which is unlikely
-        if(handEquity >= .65){
-          return {Action::Type::RAISE, pot / 2};
-        } else{
-          if(canCheck){
-            return {Action::Type::CHECK};
-          }else{
-            return {Action::Type::FOLD};
-          }
-        }
-      }
+		if(hand_type_num == 3){
+			if(handEquity >= .75){
+				return {Action::Type::RAISE, pot / 2};
+			}else{
+				if(canCheck){
+					return {Action::Type::CHECK};
+				}else{
+					return {Action::Type::FOLD};
+				}
+			}
+		}
 
+		if(hand_type_num == 2){
+			if(handEquity >= .7){
+				return {Action::Type::RAISE, pot / 2};
+			}else{
+				if(canCheck){
+					return {Action::Type::CHECK};
+				}else{
+					return {Action::Type::FOLD};
+				}
+			}
+		}
 
-      if(hand_type_num == 6){ // Bet for equity scared of better full house combos if lower equity
-        if(handEquity >= .7){
-          return {Action::Type::RAISE, pot / 2};
-        }else{
-          if(canCheck){
-            return {Action::Type::CHECK};
-          }else{
-            return {Action::Type::FOLD};
-          }
-        }
-      }
+		if(hand_type_num == 1){
+			if(!canCheck){
+				if(handEquity >= .75){
+					return {Action::Type::CALL};
+				}
+				return {Action::Type::FOLD};
+			}
 
-
-      if(hand_type_num == 5){
-        if(handEquity >= .7){
-          return {Action::Type::RAISE, pot / 2};
-        }else{
-          if(canCheck){
-            return {Action::Type::CHECK};
-          }else{
-            if(aggressionLevel >= 5){
-              return {Action::Type::FOLD};
-            }
-          }
-        }
-      }
-
-
-      if(hand_type_num == 4){
-        if(handEquity >= .8){
-          return {Action::Type::RAISE, pot / 2};
-        }else{
-          if(canCheck){
-            return {Action::Type::CHECK};
-          }else{
-            if(aggressionLevel >= 5){
-              return {Action::Type::FOLD};
-            }
-          }
-        }
-      }
-
-
-      if(hand_type_num == 3){
-        if(handEquity >= .75){
-          return {Action::Type::RAISE, pot / 2};
-        }else{
-          if(canCheck){
-            return {Action::Type::CHECK};
-          }else{
-            return {Action::Type::FOLD};
-          }
-        }
-      }
-
-
-      if(hand_type_num == 2){
-        if(handEquity >= .7){
-          return {Action::Type::RAISE, pot / 2};
-        }else{
-          if(canCheck){
-            return {Action::Type::CHECK};
-          }else{
-            return {Action::Type::FOLD};
-          }
-        }
-      }
-
-
-      if(hand_type_num == 1){
-        if(!canCheck){
-          if(handEquity >= .75){
-            return {Action::Type::CALL};
-          }
-          return {Action::Type::FOLD};
-        }
-
-
-      if(handEquity >= .75){
-        return {Action::Type::RAISE, pot / 2};
-      }else{
-        return {Action::Type::CHECK};
-      }
-    }
-    else{
-      return {Action::Type::FOLD};
-    }
+			if(handEquity >= .75){
+				return {Action::Type::RAISE, pot / 2};
+			}else{
+				return {Action::Type::CHECK};
+			}
+		}
+		else{
+			return {Action::Type::FOLD};
+		}
+  	}
   }
-    if (legalActions.find(Action::Type::FOLD) != legalActions.end()) {
-      return {Action::Type::FOLD};
-    } else {
-      return {Action::Type::CHECK};
-
-    }
-    }
-	return {Action::Type::FOLD};
-	}
 };
 
 /*
