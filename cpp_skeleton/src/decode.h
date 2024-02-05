@@ -46,7 +46,7 @@ unordered_map<string, string> get_data_69() {
 "src/cfr_data/strategy2_6TJ_IP.txt",
 "src/cfr_data/strategy2_8QA_OP.txt",
 "src/cfr_data/strategy2_9JA_OP.txt",
-"src/cfr_data/strategy2_24J_OOP.txt",
+"src/cfr_data/strategy2_24J_OP.txt",
 "src/cfr_data/strategy2_24Q_OP.txt",
 "src/cfr_data/strategy2_38T_IP.txt",
 "src/cfr_data/strategy2_45K_IP.txt",
